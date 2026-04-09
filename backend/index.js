@@ -43,11 +43,11 @@ app.use(express.json());
 // CONEXIÓN MYSQL
 // ==========================================
 const sql = mysql.createConnection({
-    host:     process.env.SQL_HOST     || 'localhost',
-    port:     process.env.SQL_PORT     || 3306,
-    user:     process.env.SQL_USER     || 'root',
-    password: process.env.SQL_PASSWORD || '',
-    database: process.env.SQL_NAME     || 'tareas_db',
+    host:     process.env.MYSQLHOST     || process.env.SQL_HOST     || 'localhost',
+    port:     process.env.MYSQLPORT     || process.env.SQL_PORT     || 3306,
+    user:     process.env.MYSQLUSER     || process.env.SQL_USER     || 'root',
+    password: process.env.MYSQLPASSWORD || process.env.SQL_PASSWORD || '',
+    database: process.env.MYSQLDATABASE || process.env.SQL_NAME     || 'tareas_db',
 });
 
 sql.connect((err) => {

@@ -1,0 +1,44 @@
+<!-- MODAL DE EDICIÓN -->
+@if (editando) {
+<div class="overlay" (click)="alCancelarEdicion()"></div>
+<dialog open class="modal-editar">
+    <h2>Editar Tarea</h2>
+    <form (ngSubmit)="alGuardarEdicion()">
+        <p>
+            <label for="editTitulo">Título</label>
+            <input type="text" id="editTitulo" [(ngModel)]="tituloEditado" name="titulo" />
+        </p>
+        <p>
+            <label for="editResumen">Resumen</label>
+            <textarea id="editResumen" rows="4" [(ngModel)]="resumenEditado" name="resumen"></textarea>
+        </p>
+        <p>
+            <label for="editExpira">Fecha Límite</label>
+            <input type="date" id="editExpira" [(ngModel)]="expiraEditado" name="expira" />
+        </p>
+        <p class="modal-acciones">
+            <button type="button" (click)="alCancelarEdicion()">Cancelar</button>
+            <button type="submit">Guardar</button>
+        </p>
+    </form>
+</dialog>
+}
+
+<!-- TARJETA NORMAL -->
+<app-tarjeta>
+    <article [ngClass]="{ 'completada': tarea.completada === 1 }">
+        <h2>{{ tarea.titulo }}</h2>
+        <time>{{ tarea.expira | date: 'fullDate' }}</time>
+        <p>{{ tarea.resumen }}</p>
+        
+        @if (auth.estaAutenticado()) {
+          <div class="acciones">
+              @if (tarea.completada !== 1) {
+                <button class="btn-terminar" (click)="alCompletarTarea()">Terminar</button>
+                <button class="btn-editar" (click)="alEditarTarea()">Editar</button>
+              }
+              <button class="btn-borrar" (click)="alBorrarTarea()">Borrar</button>
+          </div>
+        }
+    </article>
+</app-tarjeta>

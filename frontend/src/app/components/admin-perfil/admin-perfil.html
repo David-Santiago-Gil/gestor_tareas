@@ -1,0 +1,129 @@
+<div class="perfil-overlay" (click)="alCancelar()">
+  <div class="perfil-card" (click)="$event.stopPropagation()">
+    <div class="perfil-header">
+      <div class="perfil-icon">👤</div>
+      <h2>Panel Administrativo</h2>
+      <p>Modifica tu perfil o registra administradores</p>
+    </div>
+
+    <!-- Pestañas -->
+    <div class="perfil-tabs">
+      <button 
+        [class.active]="vistaActual === 'editar'" 
+        (click)="cambiarVista('editar')"
+        type="button">Editar Mi Perfil</button>
+      @if (auth.adminActual()?.id === 1) {
+        <button 
+          [class.active]="vistaActual === 'crear'" 
+          (click)="cambiarVista('crear')"
+          type="button">Crear Adicional</button>
+        <button 
+          [class.active]="vistaActual === 'gestionar'" 
+          (click)="cambiarVista('gestionar')"
+          type="button">Gestionar</button>
+      }
+    </div>
+
+    @if (vistaActual === 'editar') {
+      <form class="perfil-form" (ngSubmit)="actualizarPerfil()">
+        <p class="form-info">Deja en blanco lo que NO desees cambiar.</p>
+        <div class="campo">
+          <label for="nuevo-usuario">Nuevo Username</label>
+          <input
+            id="nuevo-usuario"
+            type="text"
+            [(ngModel)]="perfilNuevoUsername"
+            name="perfilNuevoUsername"
+            placeholder="Opcional"
+            [disabled]="cargando()"
+          />
+        </div>
+        <div class="campo">
+          <label for="nueva-clave">Nueva Contraseña</label>
+          <input
+            id="nueva-clave"
+            type="password"
+            [(ngModel)]="perfilNuevaPassword"
+            name="perfilNuevaPassword"
+            placeholder="Opcional"
+            [disabled]="cargando()"
+          />
+        </div>
+        <button type="submit" class="btn-primary" [disabled]="cargando()">
+          @if (cargando()) {
+            <span class="spinner"></span> Guardando...
+          } @else {
+            Actualizar Perfil
+          }
+        </button>
+      </form>
+    } @else if (vistaActual === 'gestionar' && auth.adminActual()?.id === 1) {
+      <div class="gestion-container">
+        <div class="lista-admins">
+          @for (a of listaAdmins(); track a.id) {
+            <div class="admin-item">
+              <span>
+                {{ a.username }}
+                @if (a.id === 1) { <small style="color: #ba5cff; margin-left: 5px;">(Principal)</small> }
+              </span>
+              
+              <div class="admin-acciones">
+                @if (a.id !== 1) {
+                  <button type="button" class="btn-del" (click)="eliminarAdmin(a.id)" title="Borrar Admin">🗑️</button>
+                }
+              </div>
+            </div>
+          } @empty {
+            <p>No hay administradores cargados.</p>
+          }
+        </div>
+      </div>
+    } @else if (vistaActual === 'crear' && auth.adminActual()?.id === 1) {
+      <form class="perfil-form" (ngSubmit)="crearAdmin()">
+        <p class="form-info">Crea credenciales para otro administrador.</p>
+        <div class="campo">
+          <label for="crear-usuario">Username</label>
+          <input
+            id="crear-usuario"
+            type="text"
+            [(ngModel)]="crearUsername"
+            name="crearUsername"
+            required
+            [disabled]="cargando()"
+          />
+        </div>
+        <div class="campo">
+          <label for="crear-clave">Contraseña</label>
+          <input
+            id="crear-clave"
+            type="password"
+            [(ngModel)]="crearPassword"
+            name="crearPassword"
+            required
+            [disabled]="cargando()"
+          />
+        </div>
+        <button type="submit" class="btn-primary" [disabled]="cargando()">
+          @if (cargando()) {
+            <span class="spinner"></span> Guardando...
+          } @else {
+            Registrar Administrador
+          }
+        </button>
+      </form>
+    }
+
+    <!-- Mensajes -->
+    @if (mensajeError()) {
+      <div class="error-msg">⚠️ {{ mensajeError() }}</div>
+    }
+    @if (mensajeExito()) {
+      <div class="success-msg">✅ {{ mensajeExito() }}</div>
+    }
+
+    <!-- Footer -->
+    <button type="button" class="btn-cancelar" (click)="alCancelar()" [disabled]="cargando()">
+      Cerrar
+    </button>
+  </div>
+</div>

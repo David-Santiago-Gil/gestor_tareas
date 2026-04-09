@@ -1,0 +1,219 @@
+:host { display: block; }
+
+article {
+    background: linear-gradient(145deg, #c5a0ec 0%, #bc95e7 100%);
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #2d1b4e;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    transition: opacity 0.4s ease;
+    position: relative;
+}
+
+/* COMPLETADA */
+article.completada {
+    opacity: 0.45;
+}
+
+article.completada .btn-terminar,
+article.completada .btn-editar,
+article.completada .btn-borrar {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0;
+    color: #2d1b4e;
+}
+
+time {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #6a4f91;
+}
+
+p {
+    font-size: 1.05rem;
+    color: #2d1b4e;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* BOTONES */
+.acciones {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.acciones button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.btn-terminar {
+    background: #2b114d;
+    color: white;
+    box-shadow: 0 4px 12px rgba(43, 17, 77, 0.3);
+}
+
+.btn-terminar:hover:not(:disabled) {
+    background: #1c0a34;
+    transform: translateY(-2px);
+}
+
+.btn-editar {
+    background: #3b3082;
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 48, 130, 0.3);
+}
+
+.btn-editar:hover:not(:disabled) {
+    background: #2a2266;
+    transform: translateY(-2px);
+}
+
+.btn-borrar {
+    background: #7a1c3a;
+    color: white;
+    box-shadow: 0 4px 12px rgba(122, 28, 58, 0.3);
+}
+
+.btn-borrar:hover:not(:disabled) {
+    background: #5e1230;
+    transform: translateY(-2px);
+}
+
+/* OVERLAY */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+}
+
+/* MODAL DE EDICIÓN */
+.modal-editar {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    background: #1e1e2d;
+    border-radius: 16px;
+    padding: 30px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+    color: white;
+    animation: modalIn 0.3s ease-out;
+}
+
+.modal-editar h2 {
+    color: white;
+    margin-bottom: 16px;
+}
+
+.modal-editar label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #c0b3d9;
+    font-size: 0.9rem;
+}
+
+.modal-editar input,
+.modal-editar textarea {
+    width: 100%;
+    background: #2a2040;
+    color: #e0d0f5;
+    border: 1px solid rgba(186, 92, 255, 0.4);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.modal-editar input:focus,
+.modal-editar textarea:focus {
+    border-color: #ba5cff;
+    box-shadow: 0 0 10px rgba(186, 92, 255, 0.2);
+}
+
+.modal-editar p {
+    color: white;
+    margin: 0 0 14px 0;
+}
+
+.modal-acciones {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.modal-acciones button {
+    padding: 10px 22px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.modal-acciones button[type="button"] {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.modal-acciones button[type="button"]:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-acciones button[type="submit"] {
+    background: #2b8a3e;
+    color: white;
+    box-shadow: 0 4px 12px rgba(43, 138, 62, 0.3);
+}
+
+.modal-acciones button[type="submit"]:hover {
+    background: #237032;
+    transform: translateY(-2px);
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}

@@ -1,0 +1,53 @@
+<div class="login-overlay" (click)="alCancelar()">
+  <div class="login-card" (click)="$event.stopPropagation()">
+    <div class="login-header">
+      <div class="login-icon">🔐</div>
+      <h2>Acceso Administrador</h2>
+      <p>Ingresa tus credenciales para gestionar tareas</p>
+    </div>
+
+    <form class="login-form" (ngSubmit)="alEnviar()">
+      <div class="campo">
+        <label for="login-username">Usuario</label>
+        <input
+          id="login-username"
+          type="text"
+          [(ngModel)]="username"
+          name="username"
+          placeholder="Nombre de usuario"
+          autocomplete="username"
+          [disabled]="cargando()"
+        />
+      </div>
+
+      <div class="campo">
+        <label for="login-password">Contraseña</label>
+        <input
+          id="login-password"
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Contraseña"
+          autocomplete="current-password"
+          [disabled]="cargando()"
+        />
+      </div>
+
+      @if (error()) {
+        <div class="error-msg">⚠️ {{ error() }}</div>
+      }
+
+      <button type="submit" class="btn-login" [disabled]="cargando()">
+        @if (cargando()) {
+          <span class="spinner"></span> Verificando...
+        } @else {
+          Iniciar Sesión
+        }
+      </button>
+
+      <button type="button" class="btn-cancelar" (click)="alCancelar()" [disabled]="cargando()">
+        Cancelar
+      </button>
+    </form>
+  </div>
+</div>

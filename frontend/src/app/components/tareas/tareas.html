@@ -1,0 +1,41 @@
+@if (estaAgregandoTareaNueva) {
+<app-nueva-tarea [idUsuario]="idUsuario" (cerrar)="alCerrarTareaNueva()" />
+}
+
+<section id="tareas">
+    <header>
+        <h2>Tareas de {{ nombre }}</h2>
+        <menu>
+            @if (auth.estaAutenticado()) {
+              <button (click)="alIniciarNuevaTarea()">Agregar Tarea Nueva</button>
+            }
+        </menu>
+    </header>
+
+    <ul>
+        @if (cargando()) {
+            <li>
+                <div class="skeleton-card">
+                  <div class="skeleton-title"></div>
+                  <div class="skeleton-date"></div>
+                  <div class="skeleton-body"></div>
+                  <div class="skeleton-body short"></div>
+                </div>
+            </li>
+            <li>
+                <div class="skeleton-card">
+                  <div class="skeleton-title"></div>
+                  <div class="skeleton-date"></div>
+                  <div class="skeleton-body"></div>
+                  <div class="skeleton-body shorter"></div>
+                </div>
+            </li>
+        } @else {
+            @for (tarea of tareasUsuarioSeleccionado; track tarea.id) {
+            <li>
+                <app-tarea [tarea]="tarea" />
+            </li>
+            }
+        }
+    </ul>
+</section>

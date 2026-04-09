@@ -1,0 +1,28 @@
+<!-- Login modal: solo se muestra cuando el usuario lo solicita explícitamente -->
+@if (mostrarLogin()) {
+  <app-login (cerrar)="ocultarLogin()" />
+}
+
+<!-- Modal del perfil administrativo -->
+@if (mostrarPerfil() && auth.estaAutenticado()) {
+  <app-admin-perfil (cerrar)="ocultarPerfil()" />
+}
+
+<app-encabezado (abrirLogin)="mostrarLogin.set(true)" (abrirPerfil)="mostrarPerfil.set(true)" (irAInicio)="idUsuarioSeleccionado = undefined" />
+
+<main>
+  <ul id="usuarios">
+    @for (usuario of usuarios; track usuario.id) {
+    <li>
+      <app-usuario [seleccionado]="usuario.id === idUsuarioSeleccionado" [usuario]="usuario"
+        (seleccion)="alSeleccionarUsuario($event)" />
+    </li>
+    }
+  </ul>
+
+  @if (usuarioSeleccionado) {
+  <app-tareas [idUsuario]="usuarioSeleccionado.id" [nombre]="usuarioSeleccionado.nombre" />
+  } @else {
+  <p id="textoCondicional">Selecciona un usuario de la lista</p>
+  }
+</main>

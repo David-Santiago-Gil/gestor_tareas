@@ -1,0 +1,18 @@
+<header>
+    <img class="logo-click" (click)="irAInicio.emit()" src="img/listado-tareas-logo.png" alt="Lista de Tareas">
+    <div class="logo-click" (click)="irAInicio.emit()">
+        <h1>TAREA FACIL</h1>
+        <p>Administrador de Tareas ADSO</p>
+    </div>
+
+    <div class="sesion-info">
+      @if (auth.estaAutenticado()) {
+        <button class="usuario-badge" (click)="abrirPerfil.emit()" title="Administrar Perfil">
+          👤 {{ auth.adminActual()?.username }}
+        </button>
+        <button class="btn-logout" (click)="auth.logout()">Cerrar Sesión</button>
+      } @else {
+        <button class="btn-login-header" (click)="abrirLogin.emit()">🔐 Iniciar Sesión</button>
+      }
+    </div>
+</header>

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/styles.css"],
+  "sourcesContent": ["* {\r\n    box-sizing: border-box;\r\n}\r\n\r\nhtml {\r\n    height: 100%;\r\n}\r\n\r\nbody {\r\n    font-family: \"Poppins\", sans-serif;\r\n    background: radial-gradient(circle at top left, #181023, #0b0519);\r\n    color: #c3b3d8;\r\n    margin: 0;\r\n    padding: 0;\r\n    height: 100%;\r\n}"],
+  "mappings": ";AAAA;AACI,cAAY;AAChB;AAEA;AACI,UAAQ;AACZ;AAEA;AACI,eAAa,SAAS,EAAE;AACxB;AAAA,IAAY;AAAA,MAAgB,OAAO,GAAG,IAAI,IAA9B;AAAA,MAAoC,OAApC;AAAA,MAA6C;AACzD,SAAO;AACP,UAAQ;AACR,WAAS;AACT,UAAQ;AACZ;",
+  "names": []
+}

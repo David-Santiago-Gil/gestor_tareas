@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NuevaTareaInfo, tarea } from '../components/tarea/tarea.model';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TareaService {
@@ -15,7 +16,7 @@ export class TareaService {
   private async cargarTareasDesdeBackend() {
     try {
       const response = await firstValueFrom(
-        this.http.get<tarea[]>('http://localhost:3000/tareas')
+        this.http.get<tarea[]>(`${environment.apiUrl}/tareas`)
       );
       this.tareas = response;
     } catch (e) {
@@ -38,7 +39,7 @@ export class TareaService {
     };
     try {
       await firstValueFrom(
-        this.http.post('http://localhost:3000/tareas', nueva)
+        this.http.post(`${environment.apiUrl}/tareas`, nueva)
       );
       await this.cargarTareasDesdeBackend();
     } catch (e) {
@@ -49,7 +50,7 @@ export class TareaService {
   async completarTarea(id: string) {
     try {
       await firstValueFrom(
-        this.http.put(`http://localhost:3000/tareas/${id}`, {})
+        this.http.put(`${environment.apiUrl}/tareas/${id}`, {})
       );
       await this.cargarTareasDesdeBackend();
     } catch (e) {
@@ -60,7 +61,7 @@ export class TareaService {
   async borrarTarea(id: string) {
     try {
       await firstValueFrom(
-        this.http.delete(`http://localhost:3000/tareas/${id}`)
+        this.http.delete(`${environment.apiUrl}/tareas/${id}`)
       );
       await this.cargarTareasDesdeBackend();
     } catch (e) {
@@ -71,7 +72,7 @@ export class TareaService {
   async editarTarea(id: string, titulo: string, resumen: string, expira: string) {
     try {
       await firstValueFrom(
-        this.http.put(`http://localhost:3000/tareas/${id}/editar`, { titulo, resumen, expira })
+        this.http.put(`${environment.apiUrl}/tareas/${id}/editar`, { titulo, resumen, expira })
       );
       await this.cargarTareasDesdeBackend();
     } catch (e) {

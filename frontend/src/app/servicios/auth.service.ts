@@ -2,6 +2,7 @@ import { Injectable, signal, computed, PLATFORM_ID, inject } from '@angular/core
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface AdminPayload {
   id: number;
@@ -47,7 +48,7 @@ export class AuthService {
   async login(username: string, password: string): Promise<void> {
     try {
       const resp = await firstValueFrom(
-        this.http.post<{ token: string }>('http://localhost:3000/api/auth/login', { username, password })
+        this.http.post<{ token: string }>(`${environment.apiUrl}/api/auth/login`, { username, password })
       );
       
       const token = resp.token;
@@ -71,7 +72,7 @@ export class AuthService {
   async actualizarPerfil(datos: { username?: string; password?: string }): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.put('http://localhost:3000/api/auth/admins/perfil', datos)
+        this.http.put(`${environment.apiUrl}/api/auth/admins/perfil`, datos)
       );
     } catch (e: any) {
       if (e instanceof HttpErrorResponse) {
@@ -85,7 +86,7 @@ export class AuthService {
   async crearAdmin(username: string, password: string): Promise<{ id: number; username: string }> {
     try {
       const resp = await firstValueFrom(
-        this.http.post<{ id: number; username: string }>('http://localhost:3000/api/auth/admins', { username, password })
+        this.http.post<{ id: number; username: string }>(`${environment.apiUrl}/api/auth/admins`, { username, password })
       );
       return resp;
     } catch (e: any) {
@@ -100,7 +101,7 @@ export class AuthService {
   async obtenerAdmins(): Promise<AdminPayload[]> {
     try {
       return await firstValueFrom(
-        this.http.get<AdminPayload[]>('http://localhost:3000/api/auth/admins')
+        this.http.get<AdminPayload[]>(`${environment.apiUrl}/api/auth/admins`)
       );
     } catch (e: any) {
       if (e instanceof HttpErrorResponse) {
@@ -114,7 +115,7 @@ export class AuthService {
   async borrarAdmin(id: number): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.delete(`http://localhost:3000/api/auth/admins/${id}`)
+        this.http.delete(`${environment.apiUrl}/api/auth/admins/${id}`)
       );
     } catch (e: any) {
       if (e instanceof HttpErrorResponse) {
@@ -128,7 +129,7 @@ export class AuthService {
   async editarAdmin(id: number, datos: { username?: string; password?: string }): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.put(`http://localhost:3000/api/auth/admins/${id}`, datos)
+        this.http.put(`${environment.apiUrl}/api/auth/admins/${id}`, datos)
       );
     } catch (e: any) {
       if (e instanceof HttpErrorResponse) {

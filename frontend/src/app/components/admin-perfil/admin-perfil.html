@@ -69,9 +69,30 @@
               
               <div class="admin-acciones">
                 @if (a.id !== 1) {
+                  <button type="button" class="btn-edit" (click)="iniciarEdicion(a)" title="Editar Admin">✏️</button>
                   <button type="button" class="btn-del" (click)="eliminarAdmin(a.id)" title="Borrar Admin">🗑️</button>
                 }
               </div>
+
+              <!-- Formulario inline de edición -->
+              @if (adminEditando?.id === a.id) {
+                <div class="editar-inline">
+                  <div class="campo">
+                    <label>Nuevo Username</label>
+                    <input type="text" [(ngModel)]="gestionarUsername" name="gestionarUsername" placeholder="Opcional" [disabled]="cargando()" />
+                  </div>
+                  <div class="campo">
+                    <label>Nueva Contraseña</label>
+                    <input type="password" [(ngModel)]="gestionarPassword" name="gestionarPassword" placeholder="Opcional" [disabled]="cargando()" />
+                  </div>
+                  <div class="editar-inline-acciones">
+                    <button type="button" class="btn-primary btn-sm" (click)="guardarEdicionAdmin()" [disabled]="cargando()">
+                      @if (cargando()) { <span class="spinner"></span> } @else { Guardar }
+                    </button>
+                    <button type="button" class="btn-cancelar btn-sm" (click)="cancelarEdicion()" [disabled]="cargando()">Cancelar</button>
+                  </div>
+                </div>
+              }
             </div>
           } @empty {
             <p>No hay administradores cargados.</p>

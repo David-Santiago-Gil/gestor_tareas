@@ -296,3 +296,34 @@
 .btn-del:hover {
   background: rgba(239, 68, 68, 0.2);
 }
+
+/* ============================================
+   EDITAR INLINE
+   ============================================ */
+.admin-item {
+  flex-wrap: wrap;
+}
+
+.editar-inline {
+  width: 100%;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 180, 216, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.editar-inline-acciones {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-sm {
+  padding: 0.45rem 1rem !important;
+  font-size: 0.85rem !important;
+  width: auto !important;
+  margin-top: 0 !important;
+  border-radius: 8px !important;
+}

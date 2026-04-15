@@ -57,17 +57,18 @@ sql.connect((err) => {
     }
     console.log('✅ Conectado a MySQL');
 
-    // Una vez conectados, garantizamos la tabla y corremos el seed
-    inicializarAdministradores();
+    // Una vez conectados, garantizamos las tablas y corremos el seed
+    inicializarBaseDeDatos();
 });
 
 // ==========================================
-// AUTO-SEEDING
-// Crea la tabla si no existe, luego verifica
-// si está vacía e inserta el admin por defecto.
+// AUTO-CREACIÓN DE TABLAS + SEEDING
+// Crea las tablas si no existen, luego verifica
+// si administradores está vacía e inserta el admin por defecto.
+// Funciona tanto en local (MySQL Workbench) como en Railway.
 // ==========================================
-function inicializarAdministradores() {
-    const crearTabla = `
+function inicializarBaseDeDatos() {
+    const crearTablaAdmins = `
         CREATE TABLE IF NOT EXISTS administradores (
             id       INT          AUTO_INCREMENT PRIMARY KEY,
             username VARCHAR(100) NOT NULL UNIQUE,
@@ -75,35 +76,56 @@ function inicializarAdministradores() {
         )
     `;
 
-    sql.query(crearTabla, (err) => {
+    const crearTablaTareas = `
+        CREATE TABLE IF NOT EXISTS tareas (
+            id         VARCHAR(50)  PRIMARY KEY,
+            titulo     VARCHAR(255) NOT NULL,
+            resumen    TEXT,
+            expira     DATE,
+            idUsuario  VARCHAR(50)  NOT NULL,
+            completada TINYINT      DEFAULT 0
+        )
+    `;
+
+    // Paso 1: Crear tabla administradores
+    sql.query(crearTablaAdmins, (err) => {
         if (err) {
             console.error('❌ Error creando tabla administradores:', err);
             return;
         }
         console.log('✅ Tabla administradores lista');
 
-        // El conteo SOLO ocurre DESPUÉS de asegurar que la tabla existe
-        sql.query('SELECT COUNT(*) AS total FROM administradores', (err2, rows) => {
+        // Paso 2: Crear tabla tareas
+        sql.query(crearTablaTareas, (err2) => {
             if (err2) {
-                console.error('❌ Error contando administradores:', err2);
+                console.error('❌ Error creando tabla tareas:', err2);
                 return;
             }
-            if (rows[0].total === 0) {
-                const hash = bcrypt.hashSync('admin123', 10);
-                sql.query(
-                    'INSERT INTO administradores (username, password) VALUES (?, ?)',
-                    ['admin', hash],
-                    (err3) => {
-                        if (err3) {
-                            console.error('❌ Error insertando admin por defecto:', err3);
-                        } else {
-                            console.log('🌱 Seed: admin creado con contraseña "admin123"');
+            console.log('✅ Tabla tareas lista');
+
+            // Paso 3: Seed del admin por defecto
+            sql.query('SELECT COUNT(*) AS total FROM administradores', (err3, rows) => {
+                if (err3) {
+                    console.error('❌ Error contando administradores:', err3);
+                    return;
+                }
+                if (rows[0].total === 0) {
+                    const hash = bcrypt.hashSync('admin123', 10);
+                    sql.query(
+                        'INSERT INTO administradores (username, password) VALUES (?, ?)',
+                        ['admin', hash],
+                        (err4) => {
+                            if (err4) {
+                                console.error('❌ Error insertando admin por defecto:', err4);
+                            } else {
+                                console.log('🌱 Seed: admin creado con contraseña "admin123"');
+                            }
                         }
-                    }
-                );
-            } else {
-                console.log(`ℹ️  Seed omitido: ya existen ${rows[0].total} administrador(es)`);
-            }
+                    );
+                } else {
+                    console.log(`ℹ️  Seed omitido: ya existen ${rows[0].total} administrador(es)`);
+                }
+            });
         });
     });
 }

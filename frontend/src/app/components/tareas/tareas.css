@@ -3,7 +3,8 @@
     border-radius: 8px;
     max-height: 60vh;
     overflow: auto;
-    background-color: #3a2c54;
+    background-color: rgba(5, 20, 50, 0.6);
+    border: 1px solid rgba(0, 180, 216, 0.1);
 }
 
 header {
@@ -19,6 +20,7 @@ h2 {
     font-size: 0.9rem;
     width: 60%;
     text-wrap: balance;
+    color: #b8e6f0;
 }
 
 menu {
@@ -29,16 +31,17 @@ menu {
 menu button {
     font: inherit;
     cursor: pointer;
-    background-color: #9965dd;
+    background-color: rgba(0, 150, 200, 0.3);
     border-radius: 4px;
     border: none;
     padding: 0.35rem 0.8rem;
     font-size: 0.9rem;
+    color: #b8e6f0;
 }
 
 menu button:hover,
 menu button:active {
-    background-color: #a565dd;
+    background-color: rgba(0, 180, 216, 0.4);
 }
 
 ul {
@@ -56,7 +59,7 @@ ul {
    SKELETON LOADER
    ============================================ */
 .skeleton-card {
-  background: #f1f5f9;
+  background: rgba(10, 25, 60, 0.5);
   border-radius: 12px;
   padding: 1.5rem;
   width: 100%;
@@ -65,11 +68,11 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
 }
 
 .skeleton-title, .skeleton-date, .skeleton-body {
-  background: linear-gradient(90deg, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%);
+  background: linear-gradient(90deg, rgba(0, 80, 130, 0.3) 25%, rgba(0, 150, 200, 0.2) 50%, rgba(0, 80, 130, 0.3) 75%);
   background-size: 200% 100%;
   animation: skeleton-loading 1.5s infinite;
   border-radius: 4px;

@@ -17,10 +17,13 @@ main {
 }
 
 #textoCondicional {
+    font-family: "Orbitron", sans-serif;
     font-weight: bold;
     font-size: 1.15rem;
     margin: 0;
     text-align: center;
+    color: #7ec8e3;
+    text-shadow: 0 0 20px rgba(0, 180, 216, 0.4);
 }
 
 @media (min-width: 768px) {

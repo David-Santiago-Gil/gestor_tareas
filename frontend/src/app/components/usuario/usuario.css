@@ -3,8 +3,8 @@ button {
     align-items: center;
     gap: 0.5rem;
     padding: 0.35rem 0.5rem;
-    background-color: #433352;
-    color: #c3b3d1;
+    background-color: rgba(5, 20, 50, 0.7);
+    color: #8ab4d0;
     border: none;
     font: inherit;
     cursor: pointer;
@@ -16,15 +16,15 @@ button {
 button:hover,
 button:active,
 .active {
-    background-color: #9965dd;
-    color: #150722;
+    background-color: rgba(0, 150, 200, 0.25);
+    color: #e0f2ff;
 }
 
 img {
     width: 2rem;
     object-fit: contain;
     border-radius: 50%;
-    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 8px rgba(0, 150, 200, 0.3);
 }
 
 span {

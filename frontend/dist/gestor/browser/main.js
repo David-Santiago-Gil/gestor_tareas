@@ -44191,7 +44191,10 @@ var ReactiveFormsModule = class _ReactiveFormsModule {
 
 // src/app/servicios/tarea.service.ts
 var TareaService = class _TareaService {
-  tareas = [];
+  tareasSignal = signal([], ...ngDevMode ? [{ debugName: "tareasSignal" }] : (
+    /* istanbul ignore next */
+    []
+  ));
   http = inject2(HttpClient);
   constructor() {
     this.cargarTareasDesdeBackend();
@@ -44199,13 +44202,13 @@ var TareaService = class _TareaService {
   async cargarTareasDesdeBackend() {
     try {
       const response = await firstValueFrom(this.http.get(`${environment.apiUrl}/tareas?_t=${(/* @__PURE__ */ new Date()).getTime()}`));
-      this.tareas = response;
+      this.tareasSignal.set(response);
     } catch (e) {
       console.error("Error al conectar con el backend.", e);
     }
   }
   obtenerTareasDeUsuario(idUsuario) {
-    return this.tareas.filter((t) => t.idUsuario === idUsuario);
+    return this.tareasSignal().filter((t) => Number(t.idUsuario) === Number(idUsuario));
   }
   async agregarTarea(info, idUsuario) {
     const nueva = {

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NuevaTareaInfo, tarea } from '../components/tarea/tarea.model';
 import { firstValueFrom } from 'rxjs';
@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TareaService {
-  private tareas: tarea[] = [];
+  private tareasSignal = signal<tarea[]>([]);
   private http = inject(HttpClient);
 
   constructor() {
@@ -18,14 +18,15 @@ export class TareaService {
       const response = await firstValueFrom(
         this.http.get<tarea[]>(`${environment.apiUrl}/tareas?_t=${new Date().getTime()}`)
       );
-      this.tareas = response;
+      this.tareasSignal.set(response);
     } catch (e) {
       console.error('Error al conectar con el backend.', e);
     }
   }
 
   obtenerTareasDeUsuario(idUsuario: number) {
-    return this.tareas.filter((t) => t.idUsuario === idUsuario);
+    // Convierte a Number ambos por si desde el backend llega como string
+    return this.tareasSignal().filter((t) => Number(t.idUsuario) === Number(idUsuario));
   }
 
   async agregarTarea(info: NuevaTareaInfo, idUsuario: number) {

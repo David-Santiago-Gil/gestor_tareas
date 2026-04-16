@@ -8,11 +8,20 @@
   <app-admin-perfil (cerrar)="ocultarPerfil()" />
 }
 
-<app-encabezado (abrirLogin)="mostrarLogin.set(true)" (abrirPerfil)="mostrarPerfil.set(true)" (irAInicio)="idUsuarioSeleccionado = undefined" />
+<!-- RF-02: Modal de gestión de usuarios -->
+@if (mostrarGestionUsuarios() && auth.estaAutenticado()) {
+  <app-gestion-usuarios (cerrar)="ocultarGestionUsuarios()" />
+}
+
+<app-encabezado
+  (abrirLogin)="mostrarLogin.set(true)"
+  (abrirPerfil)="mostrarPerfil.set(true)"
+  (abrirGestionUsuarios)="mostrarGestionUsuarios.set(true)"
+  (irAInicio)="idUsuarioSeleccionado = undefined" />
 
 <main>
   <ul id="usuarios">
-    @for (usuario of usuarios; track usuario.id) {
+    @for (usuario of usuarioService.usuarios(); track usuario.id) {
     <li>
       <app-usuario [seleccionado]="usuario.id === idUsuarioSeleccionado" [usuario]="usuario"
         (seleccion)="alSeleccionarUsuario($event)" />

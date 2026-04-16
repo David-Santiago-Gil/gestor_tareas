@@ -1,0 +1,588 @@
+/* ============================================
+   OVERLAY PRINCIPAL — Gestión de Usuarios
+   RNF-02: backdrop-filter + animación suave
+   ============================================ */
+.gestion-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3, 7, 20, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ============================================
+   CARD PRINCIPAL
+   ============================================ */
+.gestion-card {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  margin: 1rem;
+  background: linear-gradient(145deg, #0a1628 0%, #081230 60%, #0d1a3d 100%);
+  border: 1px solid rgba(0, 180, 216, 0.2);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(0, 180, 216, 0.1),
+    inset 0 1px 0 rgba(0, 200, 255, 0.06);
+  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.gestion-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.gestion-icon {
+  font-size: 2.8rem;
+  margin-bottom: 0.75rem;
+  filter: drop-shadow(0 0 16px rgba(0, 180, 216, 0.5));
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.08); }
+}
+
+.gestion-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #e0f2ff;
+  margin: 0 0 0.4rem;
+  font-family: "Orbitron", sans-serif;
+  text-shadow: 0 0 15px rgba(0, 180, 216, 0.3);
+}
+
+.gestion-header p {
+  font-size: 0.875rem;
+  color: #7ea8c0;
+  margin: 0;
+}
+
+/* ============================================
+   BOTÓN AGREGAR USUARIO (AZUL)
+   ============================================ */
+.btn-agregar {
+  width: 100%;
+  padding: 0.85rem;
+  background: linear-gradient(135deg, #006d8e, #0096c7);
+  border: 1px solid rgba(0, 180, 216, 0.4);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 150, 200, 0.3);
+  letter-spacing: 0.02em;
+}
+
+.btn-agregar:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0096c7, #00b4d8);
+  box-shadow: 0 8px 30px rgba(0, 180, 216, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-agregar:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-agregar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   LISTA DE USUARIOS
+   ============================================ */
+.lista-usuarios {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 5px;
+  margin-bottom: 1rem;
+}
+
+.usuario-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 30, 60, 0.4);
+  border: 1px solid rgba(0, 180, 216, 0.12);
+  padding: 10px 15px;
+  border-radius: 10px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.usuario-item:hover {
+  border-color: rgba(0, 180, 216, 0.3);
+  background: rgba(0, 40, 80, 0.4);
+}
+
+.usuario-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-mini {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(0, 180, 216, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 150, 200, 0.2);
+}
+
+.usuario-nombre {
+  color: #b8e6f0;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.usuario-acciones {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-accion {
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 1.15rem;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.btn-editar:hover {
+  background: rgba(0, 150, 200, 0.2);
+  border-color: rgba(0, 180, 216, 0.3);
+}
+
+.btn-eliminar:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.sin-usuarios {
+  text-align: center;
+  color: #5a8a9a;
+  font-size: 0.9rem;
+  padding: 1.5rem;
+  font-style: italic;
+}
+
+/* ============================================
+   MENSAJES
+   ============================================ */
+.error-msg {
+  padding: 0.65rem 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #ff8a8a;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  animation: shake 0.35s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-6px); }
+  75%       { transform: translateX(6px); }
+}
+
+.success-msg {
+  padding: 0.65rem 1rem;
+  background: rgba(0, 180, 216, 0.1);
+  border: 1px solid rgba(0, 180, 216, 0.3);
+  border-radius: 8px;
+  color: #7ec8e3;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ============================================
+   BOTÓN CERRAR
+   ============================================ */
+.btn-cerrar {
+  width: 100%;
+  padding: 0.85rem;
+  background: transparent;
+  border: 1px solid rgba(0, 180, 216, 0.15);
+  border-radius: 10px;
+  color: #7ea8c0;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cerrar:hover:not(:disabled) {
+  background: rgba(0, 180, 216, 0.08);
+  color: #b8e6f0;
+}
+
+/* ============================================
+   SUB-MODAL: Formulario Crear / Editar
+   ============================================ */
+.formulario-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3, 7, 20, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: fadeIn 0.25s ease;
+}
+
+.formulario-card {
+  width: 100%;
+  max-width: 460px;
+  max-height: 85vh;
+  overflow-y: auto;
+  margin: 1rem;
+  background: linear-gradient(145deg, #0c1a30 0%, #0a1535 60%, #0f1e45 100%);
+  border: 1px solid rgba(0, 180, 216, 0.25);
+  border-radius: 20px;
+  padding: 2rem 1.75rem;
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 180, 216, 0.12);
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.formulario-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.formulario-header h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #e0f2ff;
+  margin: 0 0 0.3rem;
+  font-family: "Orbitron", sans-serif;
+  text-shadow: 0 0 12px rgba(0, 180, 216, 0.25);
+}
+
+.formulario-header p {
+  font-size: 0.85rem;
+  color: #7ea8c0;
+  margin: 0;
+}
+
+/* ============================================
+   CAMPOS DEL FORMULARIO
+   ============================================ */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.2rem;
+}
+
+.campo label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #7ec8e3;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.campo input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 30, 60, 0.5);
+  border: 1px solid rgba(0, 180, 216, 0.2);
+  border-radius: 10px;
+  color: #c8e6f0;
+  font-size: 0.95rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.campo input::placeholder {
+  color: #3a5a70;
+}
+
+.campo input:focus {
+  border-color: #00b4d8;
+  background: rgba(0, 50, 90, 0.4);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);
+}
+
+.campo input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   RF-05: GRID DE AVATARES
+   ============================================ */
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 0.5rem;
+}
+
+.avatar-opcion {
+  background: rgba(0, 30, 60, 0.4);
+  border: 2px solid rgba(0, 180, 216, 0.12);
+  border-radius: 12px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-opcion img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+
+.avatar-opcion:hover {
+  border-color: rgba(0, 180, 216, 0.4);
+  background: rgba(0, 50, 90, 0.3);
+}
+
+.avatar-opcion:hover img {
+  transform: scale(1.08);
+}
+
+.avatar-opcion.seleccionado {
+  border-color: #00b4d8;
+  background: rgba(0, 150, 200, 0.2);
+  box-shadow: 0 0 18px rgba(0, 180, 216, 0.3), inset 0 0 12px rgba(0, 180, 216, 0.08);
+}
+
+.avatar-opcion.seleccionado img {
+  box-shadow: 0 0 12px rgba(0, 180, 216, 0.5);
+}
+
+.avatar-opcion:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   ACCIONES DEL FORMULARIO
+   ============================================ */
+.formulario-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.btn-guardar {
+  padding: 0.85rem;
+  background: linear-gradient(135deg, #006d8e, #0096c7);
+  border: 1px solid rgba(0, 180, 216, 0.4);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 20px rgba(0, 150, 200, 0.25);
+}
+
+.btn-guardar:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0096c7, #00b4d8);
+  box-shadow: 0 8px 30px rgba(0, 180, 216, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-guardar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-cancelar-form {
+  padding: 0.85rem;
+  background: transparent;
+  border: 1px solid rgba(0, 180, 216, 0.15);
+  border-radius: 10px;
+  color: #7ea8c0;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancelar-form:hover:not(:disabled) {
+  background: rgba(0, 180, 216, 0.08);
+  color: #b8e6f0;
+}
+
+/* ============================================
+   DIÁLOGO DE CONFIRMACIÓN
+   ============================================ */
+.confirmacion-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3, 7, 20, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: fadeIn 0.2s ease;
+}
+
+.confirmacion-card {
+  width: 100%;
+  max-width: 380px;
+  margin: 1rem;
+  background: linear-gradient(145deg, #0a1628, #10203e);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.confirmacion-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.confirmacion-card h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ff8a8a;
+  margin: 0 0 0.5rem;
+  font-family: "Orbitron", sans-serif;
+}
+
+.confirmacion-card p {
+  font-size: 0.9rem;
+  color: #a0b8c8;
+  margin: 0 0 1.5rem;
+  line-height: 1.5;
+}
+
+.confirmacion-card strong {
+  color: #e0f2ff;
+}
+
+.confirmacion-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.btn-confirmar-eliminar {
+  padding: 0.8rem;
+  background: linear-gradient(135deg, #8b2020, #c53030);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
+}
+
+.btn-confirmar-eliminar:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c53030, #ef4444);
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-confirmar-eliminar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   SPINNER
+   ============================================ */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   SCROLLBAR PERSONALIZADO
+   ============================================ */
+.lista-usuarios::-webkit-scrollbar,
+.gestion-card::-webkit-scrollbar,
+.formulario-card::-webkit-scrollbar {
+  width: 5px;
+}
+
+.lista-usuarios::-webkit-scrollbar-track,
+.gestion-card::-webkit-scrollbar-track,
+.formulario-card::-webkit-scrollbar-track {
+  background: rgba(0, 20, 50, 0.3);
+}
+
+.lista-usuarios::-webkit-scrollbar-thumb,
+.gestion-card::-webkit-scrollbar-thumb,
+.formulario-card::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00b4d8, #0077b6);
+  border-radius: 10px;
+}

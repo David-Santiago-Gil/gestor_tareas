@@ -1,6 +1,6 @@
 export interface tarea {
     id: string,
-    idUsuario: string,
+    idUsuario: number,
     titulo: string,
     resumen: string,
     expira: string,

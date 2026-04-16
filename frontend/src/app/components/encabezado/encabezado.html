@@ -7,6 +7,9 @@
 
     <div class="sesion-info">
       @if (auth.estaAutenticado()) {
+        <button class="btn-gestion-usuarios" (click)="abrirGestionUsuarios.emit()" title="Gestión de Usuarios">
+          👥 Usuarios
+        </button>
         <button class="usuario-badge" (click)="abrirPerfil.emit()" title="Administrar Perfil">
           <img src="img/icono-admin.png" alt="" class="icono-mini"> {{ auth.adminActual()?.username }}
         </button>

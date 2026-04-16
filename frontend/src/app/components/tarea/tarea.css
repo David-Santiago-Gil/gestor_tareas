@@ -20,8 +20,7 @@ article.completada {
 }
 
 article.completada .btn-terminar,
-article.completada .btn-editar,
-article.completada .btn-borrar {
+article.completada .btn-editar {
     pointer-events: none;
     cursor: not-allowed;
     opacity: 0.5;
@@ -86,6 +85,17 @@ p {
 
 .btn-editar:hover:not(:disabled) {
     background: rgba(80, 100, 180, 0.5);
+    transform: translateY(-2px);
+}
+
+.btn-reabrir {
+    background: rgba(230, 150, 0, 0.35);
+    color: #ffd18a;
+    box-shadow: 0 4px 12px rgba(230, 150, 0, 0.2);
+}
+
+.btn-reabrir:hover:not(:disabled) {
+    background: rgba(230, 150, 0, 0.5);
     transform: translateY(-2px);
 }
 

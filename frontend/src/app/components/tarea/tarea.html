@@ -36,8 +36,11 @@
               @if (tarea.completada !== 1) {
                 <button class="btn-terminar" (click)="alCompletarTarea()">Terminar</button>
                 <button class="btn-editar" (click)="alEditarTarea()">Editar</button>
+                <button class="btn-borrar" (click)="alBorrarTarea()">Borrar</button>
+              } @else {
+                  <button class="btn-reabrir" (click)="alReabrirTarea()">Reabrir</button>
+                  <button class="btn-borrar" (click)="alBorrarTarea()">Borrar</button>
               }
-              <button class="btn-borrar" (click)="alBorrarTarea()">Borrar</button>
           </div>
         }
     </article>

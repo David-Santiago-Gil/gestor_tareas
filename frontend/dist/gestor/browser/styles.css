@@ -1,4 +1,12 @@
+@import "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap";
+
 /* src/styles.css */
+@font-face {
+  font-family: "OrbitronFallback";
+  src: local("Segoe UI"), local("Arial");
+  font-weight: 400 900;
+  font-display: swap;
+}
 * {
   box-sizing: border-box;
 }
@@ -6,16 +14,39 @@ html {
   height: 100%;
 }
 body {
-  font-family: "Poppins", sans-serif;
+  font-family:
+    "Inter",
+    "Segoe UI",
+    "Arial",
+    sans-serif;
   background:
-    radial-gradient(
-      circle at top left,
-      #181023,
-      #0b0519);
-  color: #c3b3d8;
+    linear-gradient(
+      135deg,
+      rgba(3, 7, 20, 0.6) 0%,
+      rgba(3, 7, 20, 0.45) 100%),
+    url(/img/fondo.png) center / cover no-repeat fixed;
+  color: #c8d6e5;
   margin: 0;
   padding: 0;
   height: 100%;
+}
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 20, 50, 0.3);
+}
+::-webkit-scrollbar-thumb {
+  background:
+    linear-gradient(
+      180deg,
+      #00b4d8,
+      #0077b6);
+  border-radius: 10px;
+}
+::selection {
+  background: rgba(0, 180, 216, 0.3);
+  color: #ffffff;
 }
 
 /* angular:styles/global:styles */

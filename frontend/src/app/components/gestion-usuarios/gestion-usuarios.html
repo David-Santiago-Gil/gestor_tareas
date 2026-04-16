@@ -1,0 +1,158 @@
+<!-- ==========================================
+     OVERLAY PRINCIPAL — Gestión de Usuarios
+     RNF-02: backdrop-filter + animación
+     ========================================== -->
+<div class="gestion-overlay" (click)="alCerrar()">
+  <div class="gestion-card" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="gestion-header">
+      <div class="gestion-icon">👥</div>
+      <h2>Gestión de Usuarios</h2>
+      <p>Administra los usuarios del sistema</p>
+    </div>
+
+    <!-- Botón Agregar Usuario (azul) -->
+    <button class="btn-agregar" (click)="abrirCrear()" [disabled]="cargando()">
+      ➕ Agregar Usuario Nuevo
+    </button>
+
+    <!-- Lista de Usuarios -->
+    <div class="lista-usuarios">
+      @for (usuario of usuarioService.usuarios(); track usuario.id) {
+        <div class="usuario-item">
+          <div class="usuario-info">
+            <img [src]="'img/' + usuario.avatar" [alt]="usuario.nombre" class="avatar-mini" />
+            <span class="usuario-nombre">{{ usuario.nombre }}</span>
+          </div>
+          <div class="usuario-acciones">
+            <button
+              type="button"
+              class="btn-accion btn-editar"
+              (click)="abrirEditar(usuario)"
+              title="Editar usuario"
+              [disabled]="cargando()">
+              ✏️
+            </button>
+            <button
+              type="button"
+              class="btn-accion btn-eliminar"
+              (click)="pedirConfirmacion(usuario)"
+              title="Eliminar usuario"
+              [disabled]="cargando()">
+              🗑️
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <p class="sin-usuarios">No hay usuarios registrados.</p>
+      }
+    </div>
+
+    <!-- Mensajes -->
+    @if (mensajeError()) {
+      <div class="error-msg">⚠️ {{ mensajeError() }}</div>
+    }
+    @if (mensajeExito()) {
+      <div class="success-msg">✅ {{ mensajeExito() }}</div>
+    }
+
+    <!-- Botón Cerrar -->
+    <button type="button" class="btn-cerrar" (click)="alCerrar()" [disabled]="cargando()">
+      Cerrar
+    </button>
+  </div>
+</div>
+
+<!-- ==========================================
+     SUB-MODAL: Crear / Editar Usuario
+     RF-05: Selector de avatares dinámicos
+     ========================================== -->
+@if (mostrarFormulario()) {
+  <div class="formulario-overlay" (click)="cerrarFormulario()">
+    <div class="formulario-card" (click)="$event.stopPropagation()">
+
+      <div class="formulario-header">
+        <h3>{{ modoEdicion() ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
+        <p>{{ modoEdicion() ? 'Modifica el nombre y avatar del usuario' : 'Completa los datos del nuevo usuario' }}</p>
+      </div>
+
+      <!-- Campo Nombre -->
+      <div class="campo">
+        <label for="nombre-usuario">Nombre del Usuario</label>
+        <input
+          id="nombre-usuario"
+          type="text"
+          [(ngModel)]="nombreIngresado"
+          name="nombreIngresado"
+          placeholder="Escribe el nombre completo"
+          [disabled]="cargando()"
+        />
+      </div>
+
+      <!-- RF-05: Catálogo de Avatares -->
+      <div class="campo">
+        <label>Selecciona un Avatar</label>
+        <div class="avatar-grid">
+          @for (avatar of usuarioService.avatares(); track avatar) {
+            <button
+              type="button"
+              class="avatar-opcion"
+              [class.seleccionado]="avatarSeleccionado === avatar"
+              (click)="seleccionarAvatar(avatar)"
+              [disabled]="cargando()">
+              <img [src]="'img/' + avatar" [alt]="avatar" />
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Botones del formulario -->
+      <div class="formulario-acciones">
+        <button
+          type="button"
+          class="btn-guardar"
+          (click)="guardarUsuario()"
+          [disabled]="cargando()">
+          @if (cargando()) {
+            <span class="spinner"></span> Guardando...
+          } @else {
+            {{ modoEdicion() ? 'Actualizar Usuario' : 'Crear Usuario' }}
+          }
+        </button>
+        <button
+          type="button"
+          class="btn-cancelar-form"
+          (click)="cerrarFormulario()"
+          [disabled]="cargando()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ==========================================
+     DIÁLOGO DE CONFIRMACIÓN DE ELIMINACIÓN
+     ========================================== -->
+@if (mostrarConfirmacion()) {
+  <div class="confirmacion-overlay" (click)="cancelarEliminacion()">
+    <div class="confirmacion-card" (click)="$event.stopPropagation()">
+      <div class="confirmacion-icon">⚠️</div>
+      <h3>¿Eliminar usuario?</h3>
+      <p>Se eliminará a <strong>{{ usuarioAEliminar?.nombre }}</strong> y <strong>todas sus tareas</strong> de forma permanente.</p>
+      <div class="confirmacion-acciones">
+        <button class="btn-confirmar-eliminar" (click)="confirmarEliminacion()" [disabled]="cargando()">
+          @if (cargando()) {
+            <span class="spinner"></span> Eliminando...
+          } @else {
+            Sí, eliminar
+          }
+        </button>
+        <button class="btn-cancelar-form" (click)="cancelarEliminacion()" [disabled]="cargando()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+}

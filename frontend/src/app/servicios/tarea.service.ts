@@ -24,11 +24,11 @@ export class TareaService {
     }
   }
 
-  obtenerTareasDeUsuario(idUsuario: string) {
+  obtenerTareasDeUsuario(idUsuario: number) {
     return this.tareas.filter((t) => t.idUsuario === idUsuario);
   }
 
-  async agregarTarea(info: NuevaTareaInfo, idUsuario: string) {
+  async agregarTarea(info: NuevaTareaInfo, idUsuario: number) {
     const nueva: tarea = {
       id: new Date().getTime().toString(),
       titulo: info.titulo,
@@ -58,6 +58,17 @@ export class TareaService {
     }
   }
 
+  async reabrirTarea(id: string) {
+    try {
+      await firstValueFrom(
+        this.http.put(`${environment.apiUrl}/tareas/${id}/reabrir`, {})
+      );
+      await this.cargarTareasDesdeBackend();
+    } catch (e) {
+      console.error('Error reabriendo', e);
+    }
+  }
+
   async borrarTarea(id: string) {
     try {
       await firstValueFrom(
@@ -80,7 +91,7 @@ export class TareaService {
     }
   }
 
-  /** Recarga las tareas desde el servidor (útil post-login) */
+  /** Recarga las tareas desde el servidor (útil post-login o post-eliminación de usuario) */
   async recargar() {
     await this.cargarTareasDesdeBackend();
   }

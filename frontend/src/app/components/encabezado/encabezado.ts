@@ -10,6 +10,7 @@ import { AuthService } from '../../servicios/auth.service';
 export class Encabezado {
   @Output() abrirLogin = new EventEmitter<void>();
   @Output() abrirPerfil = new EventEmitter<void>();
+  @Output() abrirGestionUsuarios = new EventEmitter<void>();
   @Output() irAInicio = new EventEmitter<void>();
   auth = inject(AuthService);
 }

@@ -8603,7 +8603,7 @@ function getOrCreateComponentTView(def) {
   }
   return tView;
 }
-function createLView(parentLView, tView, context2, flags, host, tHostNode, environment, renderer, injector, embeddedViewInjector, hydrationInfo) {
+function createLView(parentLView, tView, context2, flags, host, tHostNode, environment2, renderer, injector, embeddedViewInjector, hydrationInfo) {
   const lView = tView.blueprint.slice();
   lView[HOST] = host;
   lView[FLAGS] = flags | 4 | 128 | 8 | 64 | 1024;
@@ -8614,7 +8614,7 @@ function createLView(parentLView, tView, context2, flags, host, tHostNode, envir
   ngDevMode && tView.declTNode && parentLView && assertTNodeForLView(tView.declTNode, parentLView);
   lView[PARENT] = lView[DECLARATION_VIEW] = parentLView;
   lView[CONTEXT] = context2;
-  lView[ENVIRONMENT] = environment || parentLView && parentLView[ENVIRONMENT];
+  lView[ENVIRONMENT] = environment2 || parentLView && parentLView[ENVIRONMENT];
   ngDevMode && assertDefined(lView[ENVIRONMENT], "LViewEnvironment is required");
   lView[RENDERER] = renderer || parentLView && parentLView[RENDERER];
   ngDevMode && assertDefined(lView[RENDERER], "Renderer is required");
@@ -9933,8 +9933,8 @@ function markDirtyIfOnPush(lView, viewIndex) {
   }
 }
 function setNgReflectProperty(lView, tNode, attrName, value) {
-  const environment = lView[ENVIRONMENT];
-  if (!environment.ngReflect) {
+  const environment2 = lView[ENVIRONMENT];
+  if (!environment2.ngReflect) {
     return;
   }
   const element = getNativeByTNode(tNode, lView);
@@ -9955,8 +9955,8 @@ function setNgReflectProperty(lView, tNode, attrName, value) {
   }
 }
 function setNgReflectProperties(lView, tView, tNode, publicName, value) {
-  const environment = lView[ENVIRONMENT];
-  if (!environment.ngReflect || !(tNode.type & (3 | 4))) {
+  const environment2 = lView[ENVIRONMENT];
+  if (!environment2.ngReflect || !(tNode.type & (3 | 4))) {
     return;
   }
   const inputConfig = tNode.inputs?.[publicName];
@@ -10395,8 +10395,8 @@ function runEffectsInView(view) {
 }
 var MAXIMUM_REFRESH_RERUNS$1 = 100;
 function detectChangesInternal(lView, mode = 0) {
-  const environment = lView[ENVIRONMENT];
-  const rendererFactory = environment.rendererFactory;
+  const environment2 = lView[ENVIRONMENT];
+  const rendererFactory = environment2.rendererFactory;
   const checkNoChangesMode = !!ngDevMode && isInCheckNoChangesMode();
   if (!checkNoChangesMode) {
     rendererFactory.begin?.();
@@ -12825,24 +12825,24 @@ var ComponentFactory2 = class extends ComponentFactory$1 {
       const cmpDef = this.componentDef;
       ngDevMode && verifyNotAnOrphanComponent(cmpDef);
       const rootViewInjector = createRootViewInjector(cmpDef, environmentInjector || this.ngModule, injector);
-      const environment = createRootLViewEnvironment(rootViewInjector);
-      const tracingService = environment.tracingService;
+      const environment2 = createRootLViewEnvironment(rootViewInjector);
+      const tracingService = environment2.tracingService;
       if (tracingService && tracingService.componentCreate) {
-        return tracingService.componentCreate(getComponentName(cmpDef), () => this.createComponentRef(environment, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings));
+        return tracingService.componentCreate(getComponentName(cmpDef), () => this.createComponentRef(environment2, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings));
       } else {
-        return this.createComponentRef(environment, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings);
+        return this.createComponentRef(environment2, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings);
       }
     } finally {
       setActiveConsumer(prevConsumer);
     }
   }
-  createComponentRef(environment, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings) {
+  createComponentRef(environment2, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings) {
     const cmpDef = this.componentDef;
     const rootTView = createRootTView(rootSelectorOrNode, cmpDef, componentBindings, directives);
-    const hostRenderer = environment.rendererFactory.createRenderer(null, cmpDef);
+    const hostRenderer = environment2.rendererFactory.createRenderer(null, cmpDef);
     const hostElement = rootSelectorOrNode ? locateHostElement(hostRenderer, rootSelectorOrNode, cmpDef.encapsulation, rootViewInjector) : createHostElement(cmpDef, hostRenderer);
     const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d) => typeof d !== "function" && d.bindings.some(isInputBinding));
-    const rootLView = createLView(null, rootTView, null, 512 | getInitialLViewFlagsFromDef(cmpDef), null, null, environment, hostRenderer, rootViewInjector, null, retrieveHydrationInfo(hostElement, rootViewInjector, true));
+    const rootLView = createLView(null, rootTView, null, 512 | getInitialLViewFlagsFromDef(cmpDef), null, null, environment2, hostRenderer, rootViewInjector, null, retrieveHydrationInfo(hostElement, rootViewInjector, true));
     rootLView[HEADER_OFFSET] = hostElement;
     enterView(rootLView);
     let componentView = null;
@@ -39248,6 +39248,13 @@ var appConfig = {
   ]
 };
 
+// src/environments/environment.ts
+var environment = {
+  production: false,
+  // URL local de tu servidor backend Node.js
+  apiUrl: "http://localhost:3000"
+};
+
 // src/app/servicios/auth.service.ts
 var TOKEN_KEY2 = "gestor_jwt";
 var AuthService = class _AuthService {
@@ -39289,7 +39296,7 @@ var AuthService = class _AuthService {
    */
   async login(username, password) {
     try {
-      const resp = await firstValueFrom(this.http.post("http://localhost:3000/api/auth/login", { username, password }));
+      const resp = await firstValueFrom(this.http.post(`${environment.apiUrl}/api/auth/login`, { username, password }));
       const token = resp.token;
       if (this.isBrowser)
         localStorage.setItem(TOKEN_KEY2, token);
@@ -39310,7 +39317,7 @@ var AuthService = class _AuthService {
   /** Actualiza el perfil del admin autenticado */
   async actualizarPerfil(datos) {
     try {
-      await firstValueFrom(this.http.put("http://localhost:3000/api/auth/admins/perfil", datos));
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/api/auth/admins/perfil`, datos));
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
         throw new Error(e.error?.error ?? "Error al actualizar perfil");
@@ -39321,7 +39328,7 @@ var AuthService = class _AuthService {
   /** Crea un nuevo administrador (requiere sesión activa) */
   async crearAdmin(username, password) {
     try {
-      const resp = await firstValueFrom(this.http.post("http://localhost:3000/api/auth/admins", { username, password }));
+      const resp = await firstValueFrom(this.http.post(`${environment.apiUrl}/api/auth/admins`, { username, password }));
       return resp;
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
@@ -39333,7 +39340,7 @@ var AuthService = class _AuthService {
   /** Obtiene la lista de administradores */
   async obtenerAdmins() {
     try {
-      return await firstValueFrom(this.http.get("http://localhost:3000/api/auth/admins"));
+      return await firstValueFrom(this.http.get(`${environment.apiUrl}/api/auth/admins`));
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
         throw new Error(e.error?.error ?? "Error al listar administradores");
@@ -39344,7 +39351,7 @@ var AuthService = class _AuthService {
   /** Elimina un administrador por ID */
   async borrarAdmin(id) {
     try {
-      await firstValueFrom(this.http.delete(`http://localhost:3000/api/auth/admins/${id}`));
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/api/auth/admins/${id}`));
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
         throw new Error(e.error?.error ?? "Error al borrar admin");
@@ -39355,7 +39362,7 @@ var AuthService = class _AuthService {
   /** Edita los credenciales de otro administrador */
   async editarAdmin(id, datos) {
     try {
-      await firstValueFrom(this.http.put(`http://localhost:3000/api/auth/admins/${id}`, datos));
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/api/auth/admins/${id}`, datos));
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
         throw new Error(e.error?.error ?? "Error al editar admin");
@@ -39383,48 +39390,59 @@ function Encabezado_Conditional_8_Template(rf, ctx) {
     \u0275\u0275domListener("click", function Encabezado_Conditional_8_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.abrirPerfil.emit());
+      return \u0275\u0275resetView(ctx_r1.abrirGestionUsuarios.emit());
     });
-    \u0275\u0275text(1);
+    \u0275\u0275text(1, " \u{1F465} Usuarios ");
     \u0275\u0275domElementEnd();
     \u0275\u0275domElementStart(2, "button", 5);
     \u0275\u0275domListener("click", function Encabezado_Conditional_8_Template_button_click_2_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.abrirPerfil.emit());
+    });
+    \u0275\u0275domElement(3, "img", 6);
+    \u0275\u0275text(4);
+    \u0275\u0275domElementEnd();
+    \u0275\u0275domElementStart(5, "button", 7);
+    \u0275\u0275domListener("click", function Encabezado_Conditional_8_Template_button_click_5_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.auth.logout());
     });
-    \u0275\u0275text(3, "Cerrar Sesi\xF3n");
+    \u0275\u0275text(6, "Cerrar Sesi\xF3n");
     \u0275\u0275domElementEnd();
   }
   if (rf & 2) {
     let tmp_1_0;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" \u{1F464} ", (tmp_1_0 = ctx_r1.auth.adminActual()) == null ? null : tmp_1_0.username, " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", (tmp_1_0 = ctx_r1.auth.adminActual()) == null ? null : tmp_1_0.username, " ");
   }
 }
 function Encabezado_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275domElementStart(0, "button", 6);
+    \u0275\u0275domElementStart(0, "button", 8);
     \u0275\u0275domListener("click", function Encabezado_Conditional_9_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.abrirLogin.emit());
     });
-    \u0275\u0275text(1, "\u{1F510} Iniciar Sesi\xF3n");
+    \u0275\u0275domElement(1, "img", 9);
+    \u0275\u0275text(2, " Iniciar Sesi\xF3n");
     \u0275\u0275domElementEnd();
   }
 }
 var Encabezado = class _Encabezado {
   abrirLogin = new EventEmitter();
   abrirPerfil = new EventEmitter();
+  abrirGestionUsuarios = new EventEmitter();
   irAInicio = new EventEmitter();
   auth = inject2(AuthService);
   static \u0275fac = function Encabezado_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _Encabezado)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _Encabezado, selectors: [["app-encabezado"]], outputs: { abrirLogin: "abrirLogin", abrirPerfil: "abrirPerfil", irAInicio: "irAInicio" }, decls: 10, vars: 1, consts: [["src", "img/listado-tareas-logo.png", "alt", "Lista de Tareas", 1, "logo-click", 3, "click"], [1, "logo-click", 3, "click"], [1, "sesion-info"], [1, "btn-login-header"], ["title", "Administrar Perfil", 1, "usuario-badge", 3, "click"], [1, "btn-logout", 3, "click"], [1, "btn-login-header", 3, "click"]], template: function Encabezado_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _Encabezado, selectors: [["app-encabezado"]], outputs: { abrirLogin: "abrirLogin", abrirPerfil: "abrirPerfil", abrirGestionUsuarios: "abrirGestionUsuarios", irAInicio: "irAInicio" }, decls: 10, vars: 1, consts: [["src", "img/logo-futurista.png", "alt", "Gestor de Tareas", 1, "logo-click", 3, "click"], [1, "logo-click", 3, "click"], [1, "sesion-info"], [1, "btn-login-header"], ["title", "Gesti\xF3n de Usuarios", 1, "btn-gestion-usuarios", 3, "click"], ["title", "Administrar Perfil", 1, "usuario-badge", 3, "click"], ["src", "img/icono-admin.png", "alt", "", 1, "icono-mini"], [1, "btn-logout", 3, "click"], [1, "btn-login-header", 3, "click"], ["src", "img/icono-login.png", "alt", "", 1, "icono-mini"]], template: function Encabezado_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275domElementStart(0, "header")(1, "img", 0);
       \u0275\u0275domListener("click", function Encabezado_Template_img_click_1_listener() {
@@ -39442,22 +39460,24 @@ var Encabezado = class _Encabezado {
       \u0275\u0275text(6, "Administrador de Tareas ADSO");
       \u0275\u0275domElementEnd()();
       \u0275\u0275domElementStart(7, "div", 2);
-      \u0275\u0275conditionalCreate(8, Encabezado_Conditional_8_Template, 4, 1)(9, Encabezado_Conditional_9_Template, 2, 0, "button", 3);
+      \u0275\u0275conditionalCreate(8, Encabezado_Conditional_8_Template, 7, 1)(9, Encabezado_Conditional_9_Template, 3, 0, "button", 3);
       \u0275\u0275domElementEnd()();
     }
     if (rf & 2) {
       \u0275\u0275advance(8);
       \u0275\u0275conditional(ctx.auth.estaAutenticado() ? 8 : 9);
     }
-  }, styles: ["\n\nheader[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 1rem;\n  width: 90%;\n  max-width: 50rem;\n  margin: 0 auto 2rem auto;\n  text-align: center;\n  background:\n    linear-gradient(\n      to bottom,\n      #2c0a4c,\n      #450d80);\n  padding: 1rem;\n  border-bottom-right-radius: 12px;\n  border-bottom-left-radius: 12px;\n  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);\n  position: relative;\n}\nimg[_ngcontent-%COMP%] {\n  width: 3.5rem;\n  object-fit: contain;\n}\nh1[_ngcontent-%COMP%] {\n  font-size: 1.25rem;\n  margin: 0;\n  padding: 0;\n}\np[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: 0.8rem;\n  text-wrap: balance;\n}\n.sesion-info[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.75rem;\n  flex-wrap: wrap;\n  justify-content: center;\n}\n.usuario-badge[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  background: rgba(255, 255, 255, 0.12);\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #e2e8f0;\n  font-weight: 500;\n  cursor: pointer;\n  transition: background 0.2s, transform 0.15s;\n}\n.usuario-badge[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 255, 255, 0.22);\n  transform: scale(1.04);\n}\n.btn-logout[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  background: rgba(239, 68, 68, 0.18);\n  border: 1px solid rgba(239, 68, 68, 0.4);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #fca5a5;\n  cursor: pointer;\n  font-weight: 600;\n  transition: background 0.2s, transform 0.15s;\n}\n.btn-logout[_ngcontent-%COMP%]:hover {\n  background: rgba(239, 68, 68, 0.32);\n  transform: scale(1.04);\n}\n.btn-login-header[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  background: rgba(99, 102, 241, 0.2);\n  border: 1px solid rgba(99, 102, 241, 0.5);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #a5b4fc;\n  cursor: pointer;\n  font-weight: 600;\n  transition: background 0.2s, transform 0.15s;\n}\n.btn-login-header[_ngcontent-%COMP%]:hover {\n  background: rgba(99, 102, 241, 0.38);\n  transform: scale(1.04);\n}\n.logo-click[_ngcontent-%COMP%] {\n  cursor: pointer;\n  transition: transform 0.2s ease, filter 0.2s;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.logo-click[_ngcontent-%COMP%]:hover {\n  transform: scale(1.03);\n  filter: brightness(1.1);\n}\n@media (min-width: 768px) {\n  header[_ngcontent-%COMP%] {\n    padding: 2rem;\n  }\n  img[_ngcontent-%COMP%] {\n    width: 4.5rem;\n  }\n  h1[_ngcontent-%COMP%] {\n    font-size: 1.5rem;\n    margin: 0;\n    padding: 0;\n  }\n}\n/*# sourceMappingURL=encabezado.css.map */"] });
+  }, styles: ['\n\nheader[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 1rem;\n  width: 90%;\n  max-width: 50rem;\n  margin: 0 auto 2rem auto;\n  text-align: center;\n  background:\n    linear-gradient(\n      to bottom,\n      rgba(5, 15, 40, 0.9),\n      rgba(0, 40, 80, 0.8));\n  padding: 1rem;\n  border-bottom-right-radius: 12px;\n  border-bottom-left-radius: 12px;\n  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.6), 0 4px 20px rgba(0, 150, 200, 0.1);\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  border-top: none;\n  position: relative;\n}\nimg[_ngcontent-%COMP%] {\n  width: 3.5rem;\n  object-fit: contain;\n  filter: drop-shadow(0 0 10px rgba(0, 180, 216, 0.4));\n}\n.icono-mini[_ngcontent-%COMP%] {\n  width: 18px;\n  height: 18px;\n  object-fit: contain;\n  vertical-align: middle;\n  filter: none;\n}\nh1[_ngcontent-%COMP%] {\n  font-family: "Orbitron", sans-serif;\n  font-size: 1.25rem;\n  font-weight: 700;\n  margin: 0;\n  padding: 0;\n  color: #e8f4f8;\n  letter-spacing: 0.12em;\n  text-shadow: 0 0 18px rgba(0, 180, 216, 0.5);\n}\np[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: 0.8rem;\n  text-wrap: balance;\n  color: #7ec8e3;\n}\n.sesion-info[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.75rem;\n  flex-wrap: wrap;\n  justify-content: center;\n}\n.usuario-badge[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  background: rgba(0, 180, 216, 0.1);\n  border: 1px solid rgba(0, 180, 216, 0.25);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #7ec8e3;\n  font-weight: 500;\n  cursor: pointer;\n  transition: background 0.2s, transform 0.15s;\n}\n.usuario-badge[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 180, 216, 0.2);\n  transform: scale(1.04);\n}\n.btn-logout[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  background: rgba(239, 68, 68, 0.18);\n  border: 1px solid rgba(239, 68, 68, 0.4);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #ff8a8a;\n  cursor: pointer;\n  font-weight: 600;\n  transition: background 0.2s, transform 0.15s;\n}\n.btn-logout[_ngcontent-%COMP%]:hover {\n  background: rgba(239, 68, 68, 0.32);\n  transform: scale(1.04);\n}\n.btn-login-header[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  background: rgba(0, 180, 216, 0.15);\n  border: 1px solid rgba(0, 180, 216, 0.4);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #7ec8e3;\n  cursor: pointer;\n  font-weight: 600;\n  transition: background 0.2s, transform 0.15s;\n}\n.btn-login-header[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 180, 216, 0.3);\n  transform: scale(1.04);\n}\n.btn-gestion-usuarios[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  background: rgba(0, 150, 200, 0.18);\n  border: 1px solid rgba(0, 180, 216, 0.35);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #7ec8e3;\n  cursor: pointer;\n  font-weight: 600;\n  transition:\n    background 0.2s,\n    transform 0.15s,\n    box-shadow 0.2s;\n}\n.btn-gestion-usuarios[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 180, 216, 0.3);\n  transform: scale(1.04);\n  box-shadow: 0 2px 12px rgba(0, 180, 216, 0.2);\n}\n.logo-click[_ngcontent-%COMP%] {\n  cursor: pointer;\n  transition: transform 0.2s ease, filter 0.2s;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.logo-click[_ngcontent-%COMP%]:hover {\n  transform: scale(1.03);\n  filter: brightness(1.1);\n}\n@media (min-width: 768px) {\n  header[_ngcontent-%COMP%] {\n    padding: 2rem;\n  }\n  img[_ngcontent-%COMP%] {\n    width: 4.5rem;\n  }\n  h1[_ngcontent-%COMP%] {\n    font-size: 1.5rem;\n    margin: 0;\n    padding: 0;\n  }\n}\n/*# sourceMappingURL=encabezado.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Encabezado, [{
     type: Component,
-    args: [{ selector: "app-encabezado", imports: [], template: '<header>\n    <img class="logo-click" (click)="irAInicio.emit()" src="img/listado-tareas-logo.png" alt="Lista de Tareas">\n    <div class="logo-click" (click)="irAInicio.emit()">\n        <h1>TAREA FACIL</h1>\n        <p>Administrador de Tareas ADSO</p>\n    </div>\n\n    <div class="sesion-info">\n      @if (auth.estaAutenticado()) {\n        <button class="usuario-badge" (click)="abrirPerfil.emit()" title="Administrar Perfil">\n          \u{1F464} {{ auth.adminActual()?.username }}\n        </button>\n        <button class="btn-logout" (click)="auth.logout()">Cerrar Sesi\xF3n</button>\n      } @else {\n        <button class="btn-login-header" (click)="abrirLogin.emit()">\u{1F510} Iniciar Sesi\xF3n</button>\n      }\n    </div>\n</header>', styles: ["/* src/app/components/encabezado/encabezado.css */\nheader {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 1rem;\n  width: 90%;\n  max-width: 50rem;\n  margin: 0 auto 2rem auto;\n  text-align: center;\n  background:\n    linear-gradient(\n      to bottom,\n      #2c0a4c,\n      #450d80);\n  padding: 1rem;\n  border-bottom-right-radius: 12px;\n  border-bottom-left-radius: 12px;\n  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);\n  position: relative;\n}\nimg {\n  width: 3.5rem;\n  object-fit: contain;\n}\nh1 {\n  font-size: 1.25rem;\n  margin: 0;\n  padding: 0;\n}\np {\n  margin: 0;\n  font-size: 0.8rem;\n  text-wrap: balance;\n}\n.sesion-info {\n  display: flex;\n  align-items: center;\n  gap: 0.75rem;\n  flex-wrap: wrap;\n  justify-content: center;\n}\n.usuario-badge {\n  font-size: 0.8rem;\n  background: rgba(255, 255, 255, 0.12);\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #e2e8f0;\n  font-weight: 500;\n  cursor: pointer;\n  transition: background 0.2s, transform 0.15s;\n}\n.usuario-badge:hover {\n  background: rgba(255, 255, 255, 0.22);\n  transform: scale(1.04);\n}\n.btn-logout {\n  font-size: 0.8rem;\n  background: rgba(239, 68, 68, 0.18);\n  border: 1px solid rgba(239, 68, 68, 0.4);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #fca5a5;\n  cursor: pointer;\n  font-weight: 600;\n  transition: background 0.2s, transform 0.15s;\n}\n.btn-logout:hover {\n  background: rgba(239, 68, 68, 0.32);\n  transform: scale(1.04);\n}\n.btn-login-header {\n  font-size: 0.8rem;\n  background: rgba(99, 102, 241, 0.2);\n  border: 1px solid rgba(99, 102, 241, 0.5);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #a5b4fc;\n  cursor: pointer;\n  font-weight: 600;\n  transition: background 0.2s, transform 0.15s;\n}\n.btn-login-header:hover {\n  background: rgba(99, 102, 241, 0.38);\n  transform: scale(1.04);\n}\n.logo-click {\n  cursor: pointer;\n  transition: transform 0.2s ease, filter 0.2s;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.logo-click:hover {\n  transform: scale(1.03);\n  filter: brightness(1.1);\n}\n@media (min-width: 768px) {\n  header {\n    padding: 2rem;\n  }\n  img {\n    width: 4.5rem;\n  }\n  h1 {\n    font-size: 1.5rem;\n    margin: 0;\n    padding: 0;\n  }\n}\n/*# sourceMappingURL=encabezado.css.map */\n"] }]
+    args: [{ selector: "app-encabezado", imports: [], template: '<header>\n    <img class="logo-click" (click)="irAInicio.emit()" src="img/logo-futurista.png" alt="Gestor de Tareas">\n    <div class="logo-click" (click)="irAInicio.emit()">\n        <h1>TAREA FACIL</h1>\n        <p>Administrador de Tareas ADSO</p>\n    </div>\n\n    <div class="sesion-info">\n      @if (auth.estaAutenticado()) {\n        <button class="btn-gestion-usuarios" (click)="abrirGestionUsuarios.emit()" title="Gesti\xF3n de Usuarios">\n          \u{1F465} Usuarios\n        </button>\n        <button class="usuario-badge" (click)="abrirPerfil.emit()" title="Administrar Perfil">\n          <img src="img/icono-admin.png" alt="" class="icono-mini"> {{ auth.adminActual()?.username }}\n        </button>\n        <button class="btn-logout" (click)="auth.logout()">Cerrar Sesi\xF3n</button>\n      } @else {\n        <button class="btn-login-header" (click)="abrirLogin.emit()"><img src="img/icono-login.png" alt="" class="icono-mini"> Iniciar Sesi\xF3n</button>\n      }\n    </div>\n</header>', styles: ['/* src/app/components/encabezado/encabezado.css */\nheader {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 1rem;\n  width: 90%;\n  max-width: 50rem;\n  margin: 0 auto 2rem auto;\n  text-align: center;\n  background:\n    linear-gradient(\n      to bottom,\n      rgba(5, 15, 40, 0.9),\n      rgba(0, 40, 80, 0.8));\n  padding: 1rem;\n  border-bottom-right-radius: 12px;\n  border-bottom-left-radius: 12px;\n  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.6), 0 4px 20px rgba(0, 150, 200, 0.1);\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  border-top: none;\n  position: relative;\n}\nimg {\n  width: 3.5rem;\n  object-fit: contain;\n  filter: drop-shadow(0 0 10px rgba(0, 180, 216, 0.4));\n}\n.icono-mini {\n  width: 18px;\n  height: 18px;\n  object-fit: contain;\n  vertical-align: middle;\n  filter: none;\n}\nh1 {\n  font-family: "Orbitron", sans-serif;\n  font-size: 1.25rem;\n  font-weight: 700;\n  margin: 0;\n  padding: 0;\n  color: #e8f4f8;\n  letter-spacing: 0.12em;\n  text-shadow: 0 0 18px rgba(0, 180, 216, 0.5);\n}\np {\n  margin: 0;\n  font-size: 0.8rem;\n  text-wrap: balance;\n  color: #7ec8e3;\n}\n.sesion-info {\n  display: flex;\n  align-items: center;\n  gap: 0.75rem;\n  flex-wrap: wrap;\n  justify-content: center;\n}\n.usuario-badge {\n  font-size: 0.8rem;\n  background: rgba(0, 180, 216, 0.1);\n  border: 1px solid rgba(0, 180, 216, 0.25);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #7ec8e3;\n  font-weight: 500;\n  cursor: pointer;\n  transition: background 0.2s, transform 0.15s;\n}\n.usuario-badge:hover {\n  background: rgba(0, 180, 216, 0.2);\n  transform: scale(1.04);\n}\n.btn-logout {\n  font-size: 0.8rem;\n  background: rgba(239, 68, 68, 0.18);\n  border: 1px solid rgba(239, 68, 68, 0.4);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #ff8a8a;\n  cursor: pointer;\n  font-weight: 600;\n  transition: background 0.2s, transform 0.15s;\n}\n.btn-logout:hover {\n  background: rgba(239, 68, 68, 0.32);\n  transform: scale(1.04);\n}\n.btn-login-header {\n  font-size: 0.8rem;\n  background: rgba(0, 180, 216, 0.15);\n  border: 1px solid rgba(0, 180, 216, 0.4);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #7ec8e3;\n  cursor: pointer;\n  font-weight: 600;\n  transition: background 0.2s, transform 0.15s;\n}\n.btn-login-header:hover {\n  background: rgba(0, 180, 216, 0.3);\n  transform: scale(1.04);\n}\n.btn-gestion-usuarios {\n  font-size: 0.8rem;\n  background: rgba(0, 150, 200, 0.18);\n  border: 1px solid rgba(0, 180, 216, 0.35);\n  border-radius: 999px;\n  padding: 0.3rem 0.9rem;\n  color: #7ec8e3;\n  cursor: pointer;\n  font-weight: 600;\n  transition:\n    background 0.2s,\n    transform 0.15s,\n    box-shadow 0.2s;\n}\n.btn-gestion-usuarios:hover {\n  background: rgba(0, 180, 216, 0.3);\n  transform: scale(1.04);\n  box-shadow: 0 2px 12px rgba(0, 180, 216, 0.2);\n}\n.logo-click {\n  cursor: pointer;\n  transition: transform 0.2s ease, filter 0.2s;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.logo-click:hover {\n  transform: scale(1.03);\n  filter: brightness(1.1);\n}\n@media (min-width: 768px) {\n  header {\n    padding: 2rem;\n  }\n  img {\n    width: 4.5rem;\n  }\n  h1 {\n    font-size: 1.5rem;\n    margin: 0;\n    padding: 0;\n  }\n}\n/*# sourceMappingURL=encabezado.css.map */\n'] }]
   }], null, { abrirLogin: [{
     type: Output
   }], abrirPerfil: [{
+    type: Output
+  }], abrirGestionUsuarios: [{
     type: Output
   }], irAInicio: [{
     type: Output
@@ -39480,12 +39500,12 @@ var Tarjeta = class _Tarjeta {
       \u0275\u0275projection(1);
       \u0275\u0275domElementEnd();
     }
-  }, styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  border-radius: 6px;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);\n  overflow: hidden;\n}\n/*# sourceMappingURL=tarjeta.css.map */"] });
+  }, styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  border-radius: 6px;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);\n  overflow: hidden;\n}\n/*# sourceMappingURL=tarjeta.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Tarjeta, [{
     type: Component,
-    args: [{ selector: "app-tarjeta", imports: [], template: "<div>\r\n    <ng-content></ng-content>\r\n</div>", styles: ["/* src/app/components/tarjeta/tarjeta.css */\ndiv {\n  border-radius: 6px;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);\n  overflow: hidden;\n}\n/*# sourceMappingURL=tarjeta.css.map */\n"] }]
+    args: [{ selector: "app-tarjeta", imports: [], template: "<div>\r\n    <ng-content></ng-content>\r\n</div>", styles: ["/* src/app/components/tarjeta/tarjeta.css */\ndiv {\n  border-radius: 6px;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);\n  overflow: hidden;\n}\n/*# sourceMappingURL=tarjeta.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
@@ -39525,12 +39545,12 @@ var Usuario = class _Usuario {
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.usuario.nombre);
     }
-  }, dependencies: [Tarjeta], styles: ["\n\nbutton[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.5rem;\n  padding: 0.35rem 0.5rem;\n  background-color: #433352;\n  color: #c3b3d1;\n  border: none;\n  font: inherit;\n  cursor: pointer;\n  width: 100%;\n  min-width: 10rem;\n  text-align: left;\n}\nbutton[_ngcontent-%COMP%]:hover, \nbutton[_ngcontent-%COMP%]:active, \n.active[_ngcontent-%COMP%] {\n  background-color: #9965dd;\n  color: #150722;\n}\nimg[_ngcontent-%COMP%] {\n  width: 2rem;\n  object-fit: contain;\n  border-radius: 50%;\n  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);\n}\nspan[_ngcontent-%COMP%] {\n  margin: 0;\n  padding: 0;\n  font-size: 0.8rem;\n  font-weight: normal;\n}\n/*# sourceMappingURL=usuario.css.map */"] });
+  }, dependencies: [Tarjeta], styles: ["\n\nbutton[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.5rem;\n  padding: 0.35rem 0.5rem;\n  background-color: rgba(5, 20, 50, 0.7);\n  color: #8ab4d0;\n  border: none;\n  font: inherit;\n  cursor: pointer;\n  width: 100%;\n  min-width: 10rem;\n  text-align: left;\n}\nbutton[_ngcontent-%COMP%]:hover, \nbutton[_ngcontent-%COMP%]:active, \n.active[_ngcontent-%COMP%] {\n  background-color: rgba(0, 150, 200, 0.25);\n  color: #e0f2ff;\n}\nimg[_ngcontent-%COMP%] {\n  width: 2rem;\n  object-fit: contain;\n  border-radius: 50%;\n  box-shadow: 0 1px 8px rgba(0, 150, 200, 0.3);\n}\nspan[_ngcontent-%COMP%] {\n  margin: 0;\n  padding: 0;\n  font-size: 0.8rem;\n  font-weight: normal;\n}\n/*# sourceMappingURL=usuario.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Usuario, [{
     type: Component,
-    args: [{ selector: "app-usuario", imports: [Tarjeta], template: '<app-tarjeta>\n    <button [class.active]="seleccionado" (click)="alSeleccionarUsuario()">\n        <img [src]="rutaImagen" [alt]="usuario.nombre" />\n        <span>{{ usuario.nombre }}</span>\n    </button>\n</app-tarjeta>', styles: ["/* src/app/components/usuario/usuario.css */\nbutton {\n  display: flex;\n  align-items: center;\n  gap: 0.5rem;\n  padding: 0.35rem 0.5rem;\n  background-color: #433352;\n  color: #c3b3d1;\n  border: none;\n  font: inherit;\n  cursor: pointer;\n  width: 100%;\n  min-width: 10rem;\n  text-align: left;\n}\nbutton:hover,\nbutton:active,\n.active {\n  background-color: #9965dd;\n  color: #150722;\n}\nimg {\n  width: 2rem;\n  object-fit: contain;\n  border-radius: 50%;\n  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);\n}\nspan {\n  margin: 0;\n  padding: 0;\n  font-size: 0.8rem;\n  font-weight: normal;\n}\n/*# sourceMappingURL=usuario.css.map */\n"] }]
+    args: [{ selector: "app-usuario", imports: [Tarjeta], template: '<app-tarjeta>\n    <button [class.active]="seleccionado" (click)="alSeleccionarUsuario()">\n        <img [src]="rutaImagen" [alt]="usuario.nombre" />\n        <span>{{ usuario.nombre }}</span>\n    </button>\n</app-tarjeta>', styles: ["/* src/app/components/usuario/usuario.css */\nbutton {\n  display: flex;\n  align-items: center;\n  gap: 0.5rem;\n  padding: 0.35rem 0.5rem;\n  background-color: rgba(5, 20, 50, 0.7);\n  color: #8ab4d0;\n  border: none;\n  font: inherit;\n  cursor: pointer;\n  width: 100%;\n  min-width: 10rem;\n  text-align: left;\n}\nbutton:hover,\nbutton:active,\n.active {\n  background-color: rgba(0, 150, 200, 0.25);\n  color: #e0f2ff;\n}\nimg {\n  width: 2rem;\n  object-fit: contain;\n  border-radius: 50%;\n  box-shadow: 0 1px 8px rgba(0, 150, 200, 0.3);\n}\nspan {\n  margin: 0;\n  padding: 0;\n  font-size: 0.8rem;\n  font-weight: normal;\n}\n/*# sourceMappingURL=usuario.css.map */\n"] }]
   }], null, { usuario: [{
     type: Input,
     args: [{ required: true }]
@@ -39544,40 +39564,6 @@ var Usuario = class _Usuario {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(Usuario, { className: "Usuario", filePath: "src/app/components/usuario/usuario.ts", lineNumber: 11 });
 })();
-
-// src/app/usuarios-falsos.ts
-var USUARIOS_FALSOS = [
-  {
-    id: "u1",
-    nombre: "Antonia C\xE9spedes",
-    avatar: "usuario-1.png"
-  },
-  {
-    id: "u2",
-    nombre: "Emilia Torres",
-    avatar: "usuario-2.png"
-  },
-  {
-    id: "u3",
-    nombre: "Marcos Jerem\xEDas",
-    avatar: "usuario-3.png"
-  },
-  {
-    id: "u4",
-    nombre: "David Mercado",
-    avatar: "usuario-4.png"
-  },
-  {
-    id: "u5",
-    nombre: "Pamela Chan",
-    avatar: "usuario-5.png"
-  },
-  {
-    id: "u6",
-    nombre: "Adri\xE1n Serbio",
-    avatar: "usuario-6.png"
-  }
-];
 
 // node_modules/@angular/forms/fesm2022/forms.mjs
 var BaseControlValueAccessor = class _BaseControlValueAccessor {
@@ -44212,7 +44198,7 @@ var TareaService = class _TareaService {
   }
   async cargarTareasDesdeBackend() {
     try {
-      const response = await firstValueFrom(this.http.get("http://localhost:3000/tareas"));
+      const response = await firstValueFrom(this.http.get(`${environment.apiUrl}/tareas`));
       this.tareas = response;
     } catch (e) {
       console.error("Error al conectar con el backend.", e);
@@ -44231,7 +44217,7 @@ var TareaService = class _TareaService {
       completada: 0
     };
     try {
-      await firstValueFrom(this.http.post("http://localhost:3000/tareas", nueva));
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/tareas`, nueva));
       await this.cargarTareasDesdeBackend();
     } catch (e) {
       console.error("Error guardando", e);
@@ -44239,15 +44225,23 @@ var TareaService = class _TareaService {
   }
   async completarTarea(id) {
     try {
-      await firstValueFrom(this.http.put(`http://localhost:3000/tareas/${id}`, {}));
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/tareas/${id}`, {}));
       await this.cargarTareasDesdeBackend();
     } catch (e) {
       console.error("Error completando", e);
     }
   }
+  async reabrirTarea(id) {
+    try {
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/tareas/${id}/reabrir`, {}));
+      await this.cargarTareasDesdeBackend();
+    } catch (e) {
+      console.error("Error reabriendo", e);
+    }
+  }
   async borrarTarea(id) {
     try {
-      await firstValueFrom(this.http.delete(`http://localhost:3000/tareas/${id}`));
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/tareas/${id}`));
       await this.cargarTareasDesdeBackend();
     } catch (e) {
       console.error("Error borrando", e);
@@ -44255,13 +44249,13 @@ var TareaService = class _TareaService {
   }
   async editarTarea(id, titulo, resumen, expira) {
     try {
-      await firstValueFrom(this.http.put(`http://localhost:3000/tareas/${id}/editar`, { titulo, resumen, expira }));
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/tareas/${id}/editar`, { titulo, resumen, expira }));
       await this.cargarTareasDesdeBackend();
     } catch (e) {
       console.error("Error editando", e);
     }
   }
-  /** Recarga las tareas desde el servidor (útil post-login) */
+  /** Recarga las tareas desde el servidor (útil post-login o post-eliminación de usuario) */
   async recargar() {
     await this.cargarTareasDesdeBackend();
   }
@@ -44355,43 +44349,64 @@ function Tarea_Conditional_0_Template(rf, ctx) {
 }
 function Tarea_Conditional_10_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 15);
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 14);
     \u0275\u0275listener("click", function Tarea_Conditional_10_Conditional_1_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r4);
+      \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.alCompletarTarea());
     });
     \u0275\u0275text(1, "Terminar");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(2, "button", 16);
+    \u0275\u0275elementStart(2, "button", 15);
     \u0275\u0275listener("click", function Tarea_Conditional_10_Conditional_1_Template_button_click_2_listener() {
-      \u0275\u0275restoreView(_r4);
+      \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.alEditarTarea());
     });
     \u0275\u0275text(3, "Editar");
     \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "button", 16);
+    \u0275\u0275listener("click", function Tarea_Conditional_10_Conditional_1_Template_button_click_4_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.alBorrarTarea());
+    });
+    \u0275\u0275text(5, "Borrar");
+    \u0275\u0275elementEnd();
+  }
+}
+function Tarea_Conditional_10_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 17);
+    \u0275\u0275listener("click", function Tarea_Conditional_10_Conditional_2_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.alReabrirTarea());
+    });
+    \u0275\u0275text(1, "Reabrir");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(2, "button", 16);
+    \u0275\u0275listener("click", function Tarea_Conditional_10_Conditional_2_Template_button_click_2_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.alBorrarTarea());
+    });
+    \u0275\u0275text(3, "Borrar");
+    \u0275\u0275elementEnd();
   }
 }
 function Tarea_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275conditionalCreate(1, Tarea_Conditional_10_Conditional_1_Template, 4, 0);
-    \u0275\u0275elementStart(2, "button", 14);
-    \u0275\u0275listener("click", function Tarea_Conditional_10_Template_button_click_2_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.alBorrarTarea());
-    });
-    \u0275\u0275text(3, "Borrar");
-    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(1, Tarea_Conditional_10_Conditional_1_Template, 6, 0)(2, Tarea_Conditional_10_Conditional_2_Template, 4, 0);
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.tarea.completada !== 1 ? 1 : -1);
+    \u0275\u0275conditional(ctx_r1.tarea.completada !== 1 ? 1 : 2);
   }
 }
 var Tarea = class _Tarea {
@@ -44407,6 +44422,9 @@ var Tarea = class _Tarea {
     if (this.auth.estaAutenticado()) {
       this.tareasService.completarTarea(this.tarea.id);
     }
+  }
+  async alReabrirTarea() {
+    await this.tareasService.reabrirTarea(this.tarea.id);
   }
   alBorrarTarea() {
     if (this.auth.estaAutenticado()) {
@@ -44442,7 +44460,7 @@ var Tarea = class _Tarea {
   static \u0275fac = function Tarea_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _Tarea)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _Tarea, selectors: [["app-tarea"]], inputs: { tarea: "tarea" }, decls: 11, vars: 11, consts: [[3, "ngClass"], [1, "acciones"], [1, "overlay", 3, "click"], ["open", "", 1, "modal-editar"], [3, "ngSubmit"], ["for", "editTitulo"], ["type", "text", "id", "editTitulo", "name", "titulo", 3, "ngModelChange", "ngModel"], ["for", "editResumen"], ["id", "editResumen", "rows", "4", "name", "resumen", 3, "ngModelChange", "ngModel"], ["for", "editExpira"], ["type", "date", "id", "editExpira", "name", "expira", 3, "ngModelChange", "ngModel"], [1, "modal-acciones"], ["type", "button", 3, "click"], ["type", "submit"], [1, "btn-borrar", 3, "click"], [1, "btn-terminar", 3, "click"], [1, "btn-editar", 3, "click"]], template: function Tarea_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _Tarea, selectors: [["app-tarea"]], inputs: { tarea: "tarea" }, decls: 11, vars: 11, consts: [[3, "ngClass"], [1, "acciones"], [1, "overlay", 3, "click"], ["open", "", 1, "modal-editar"], [3, "ngSubmit"], ["for", "editTitulo"], ["type", "text", "id", "editTitulo", "name", "titulo", 3, "ngModelChange", "ngModel"], ["for", "editResumen"], ["id", "editResumen", "rows", "4", "name", "resumen", 3, "ngModelChange", "ngModel"], ["for", "editExpira"], ["type", "date", "id", "editExpira", "name", "expira", 3, "ngModelChange", "ngModel"], [1, "modal-acciones"], ["type", "button", 3, "click"], ["type", "submit"], [1, "btn-terminar", 3, "click"], [1, "btn-editar", 3, "click"], [1, "btn-borrar", 3, "click"], [1, "btn-reabrir", 3, "click"]], template: function Tarea_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275conditionalCreate(0, Tarea_Conditional_0_Template, 22, 3);
       \u0275\u0275elementStart(1, "app-tarjeta")(2, "article", 0)(3, "h2");
@@ -44455,7 +44473,7 @@ var Tarea = class _Tarea {
       \u0275\u0275elementStart(8, "p");
       \u0275\u0275text(9);
       \u0275\u0275elementEnd();
-      \u0275\u0275conditionalCreate(10, Tarea_Conditional_10_Template, 4, 1, "div", 1);
+      \u0275\u0275conditionalCreate(10, Tarea_Conditional_10_Template, 3, 1, "div", 1);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -44471,7 +44489,7 @@ var Tarea = class _Tarea {
       \u0275\u0275advance();
       \u0275\u0275conditional(ctx.auth.estaAutenticado() ? 10 : -1);
     }
-  }, dependencies: [Tarjeta, FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, NgModel, NgForm, NgClass, DatePipe], styles: ["\n\n[_nghost-%COMP%] {\n  display: block;\n}\narticle[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      #c5a0ec 0%,\n      #bc95e7 100%);\n  padding: 24px 28px;\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n  color: #2d1b4e;\n  border-radius: 12px;\n  border: 1px solid rgba(255, 255, 255, 0.3);\n  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.4);\n  transition: opacity 0.4s ease;\n  position: relative;\n}\narticle.completada[_ngcontent-%COMP%] {\n  opacity: 0.45;\n}\narticle.completada[_ngcontent-%COMP%]   .btn-terminar[_ngcontent-%COMP%], \narticle.completada[_ngcontent-%COMP%]   .btn-editar[_ngcontent-%COMP%], \narticle.completada[_ngcontent-%COMP%]   .btn-borrar[_ngcontent-%COMP%] {\n  pointer-events: none;\n  cursor: not-allowed;\n  opacity: 0.5;\n}\nh2[_ngcontent-%COMP%] {\n  font-size: 1.5rem;\n  font-weight: 800;\n  margin: 0;\n  color: #2d1b4e;\n}\ntime[_ngcontent-%COMP%] {\n  font-size: 0.9rem;\n  font-weight: 600;\n  color: #6a4f91;\n}\np[_ngcontent-%COMP%] {\n  font-size: 1.05rem;\n  color: #2d1b4e;\n  margin: 0;\n  line-height: 1.5;\n}\n.acciones[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 10px;\n  margin-top: 8px;\n  justify-content: flex-end;\n  flex-wrap: wrap;\n}\n.acciones[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  padding: 10px 20px;\n  border-radius: 8px;\n  border: none;\n  font-size: 0.85rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  font-family: inherit;\n}\n.btn-terminar[_ngcontent-%COMP%] {\n  background: #2b114d;\n  color: white;\n  box-shadow: 0 4px 12px rgba(43, 17, 77, 0.3);\n}\n.btn-terminar[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: #1c0a34;\n  transform: translateY(-2px);\n}\n.btn-editar[_ngcontent-%COMP%] {\n  background: #3b3082;\n  color: white;\n  box-shadow: 0 4px 12px rgba(59, 48, 130, 0.3);\n}\n.btn-editar[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: #2a2266;\n  transform: translateY(-2px);\n}\n.btn-borrar[_ngcontent-%COMP%] {\n  background: #7a1c3a;\n  color: white;\n  box-shadow: 0 4px 12px rgba(122, 28, 58, 0.3);\n}\n.btn-borrar[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: #5e1230;\n  transform: translateY(-2px);\n}\n.overlay[_ngcontent-%COMP%] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.6);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 999;\n}\n.modal-editar[_ngcontent-%COMP%] {\n  position: fixed;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  margin: 0;\n  background: #1e1e2d;\n  border-radius: 16px;\n  padding: 30px;\n  width: 90%;\n  max-width: 500px;\n  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  z-index: 1000;\n  color: white;\n  animation: _ngcontent-%COMP%_modalIn 0.3s ease-out;\n}\n.modal-editar[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: white;\n  margin-bottom: 16px;\n}\n.modal-editar[_ngcontent-%COMP%]   label[_ngcontent-%COMP%] {\n  display: block;\n  margin-bottom: 6px;\n  font-weight: 600;\n  color: #c0b3d9;\n  font-size: 0.9rem;\n}\n.modal-editar[_ngcontent-%COMP%]   input[_ngcontent-%COMP%], \n.modal-editar[_ngcontent-%COMP%]   textarea[_ngcontent-%COMP%] {\n  width: 100%;\n  background: #2a2040;\n  color: #e0d0f5;\n  border: 1px solid rgba(186, 92, 255, 0.4);\n  border-radius: 8px;\n  padding: 10px 14px;\n  font-size: 0.95rem;\n  font-family: inherit;\n  outline: none;\n  box-sizing: border-box;\n  resize: vertical;\n}\n.modal-editar[_ngcontent-%COMP%]   input[_ngcontent-%COMP%]:focus, \n.modal-editar[_ngcontent-%COMP%]   textarea[_ngcontent-%COMP%]:focus {\n  border-color: #ba5cff;\n  box-shadow: 0 0 10px rgba(186, 92, 255, 0.2);\n}\n.modal-editar[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  color: white;\n  margin: 0 0 14px 0;\n}\n.modal-acciones[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 12px;\n  justify-content: flex-end;\n  margin-top: 10px;\n}\n.modal-acciones[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  padding: 10px 22px;\n  border-radius: 8px;\n  border: none;\n  font-weight: 600;\n  cursor: pointer;\n  font-family: inherit;\n  transition: all 0.3s ease;\n}\n.modal-acciones[_ngcontent-%COMP%]   button[type=button][_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.1);\n  color: white;\n}\n.modal-acciones[_ngcontent-%COMP%]   button[type=button][_ngcontent-%COMP%]:hover {\n  background: rgba(255, 255, 255, 0.2);\n}\n.modal-acciones[_ngcontent-%COMP%]   button[type=submit][_ngcontent-%COMP%] {\n  background: #2b8a3e;\n  color: white;\n  box-shadow: 0 4px 12px rgba(43, 138, 62, 0.3);\n}\n.modal-acciones[_ngcontent-%COMP%]   button[type=submit][_ngcontent-%COMP%]:hover {\n  background: #237032;\n  transform: translateY(-2px);\n}\n@keyframes _ngcontent-%COMP%_modalIn {\n  from {\n    opacity: 0;\n    transform: translate(-50%, -60%) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translate(-50%, -50%) scale(1);\n  }\n}\n/*# sourceMappingURL=tarea.css.map */"] });
+  }, dependencies: [Tarjeta, FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, NgModel, NgForm, NgClass, DatePipe], styles: ["\n\n[_nghost-%COMP%] {\n  display: block;\n}\narticle[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(10, 30, 70, 0.9) 0%,\n      rgba(5, 20, 55, 0.95) 100%);\n  padding: 24px 28px;\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n  color: #c8d6e5;\n  border-radius: 12px;\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  box-shadow: inset 0 2px 4px rgba(0, 100, 180, 0.15);\n  transition: opacity 0.4s ease;\n  position: relative;\n}\narticle.completada[_ngcontent-%COMP%] {\n  opacity: 0.45;\n}\narticle.completada[_ngcontent-%COMP%]   .btn-terminar[_ngcontent-%COMP%], \narticle.completada[_ngcontent-%COMP%]   .btn-editar[_ngcontent-%COMP%] {\n  pointer-events: none;\n  cursor: not-allowed;\n  opacity: 0.5;\n}\nh2[_ngcontent-%COMP%] {\n  font-size: 1.5rem;\n  font-weight: 800;\n  margin: 0;\n  color: #e0f2ff;\n}\ntime[_ngcontent-%COMP%] {\n  font-size: 0.9rem;\n  font-weight: 600;\n  color: #5ba8c8;\n}\np[_ngcontent-%COMP%] {\n  font-size: 1.05rem;\n  color: #a0b8cc;\n  margin: 0;\n  line-height: 1.5;\n}\n.acciones[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 10px;\n  margin-top: 8px;\n  justify-content: flex-end;\n  flex-wrap: wrap;\n}\n.acciones[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  padding: 10px 20px;\n  border-radius: 8px;\n  border: none;\n  font-size: 0.85rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  font-family: inherit;\n}\n.btn-terminar[_ngcontent-%COMP%] {\n  background: rgba(0, 150, 200, 0.35);\n  color: #b8e6f0;\n  box-shadow: 0 4px 12px rgba(0, 150, 200, 0.2);\n}\n.btn-terminar[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: rgba(0, 180, 216, 0.5);\n  transform: translateY(-2px);\n}\n.btn-editar[_ngcontent-%COMP%] {\n  background: rgba(80, 100, 180, 0.35);\n  color: #a8b8e8;\n  box-shadow: 0 4px 12px rgba(80, 100, 180, 0.2);\n}\n.btn-editar[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: rgba(80, 100, 180, 0.5);\n  transform: translateY(-2px);\n}\n.btn-reabrir[_ngcontent-%COMP%] {\n  background: rgba(230, 150, 0, 0.35);\n  color: #ffd18a;\n  box-shadow: 0 4px 12px rgba(230, 150, 0, 0.2);\n}\n.btn-reabrir[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: rgba(230, 150, 0, 0.5);\n  transform: translateY(-2px);\n}\n.btn-borrar[_ngcontent-%COMP%] {\n  background: rgba(200, 50, 80, 0.35);\n  color: #ff8a8a;\n  box-shadow: 0 4px 12px rgba(200, 50, 80, 0.2);\n}\n.btn-borrar[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: rgba(200, 50, 80, 0.5);\n  transform: translateY(-2px);\n}\n.overlay[_ngcontent-%COMP%] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.6);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 999;\n}\n.modal-editar[_ngcontent-%COMP%] {\n  position: fixed;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  margin: 0;\n  background: #0a1628;\n  border-radius: 16px;\n  padding: 30px;\n  width: 90%;\n  max-width: 500px;\n  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  z-index: 1000;\n  color: #e0f2ff;\n  animation: _ngcontent-%COMP%_modalIn 0.3s ease-out;\n}\n.modal-editar[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #e0f2ff;\n  margin-bottom: 16px;\n}\n.modal-editar[_ngcontent-%COMP%]   label[_ngcontent-%COMP%] {\n  display: block;\n  margin-bottom: 6px;\n  font-weight: 600;\n  color: #7ec8e3;\n  font-size: 0.9rem;\n}\n.modal-editar[_ngcontent-%COMP%]   input[_ngcontent-%COMP%], \n.modal-editar[_ngcontent-%COMP%]   textarea[_ngcontent-%COMP%] {\n  width: 100%;\n  background: rgba(0, 30, 60, 0.6);\n  color: #c8e6f0;\n  border: 1px solid rgba(0, 180, 216, 0.3);\n  border-radius: 8px;\n  padding: 10px 14px;\n  font-size: 0.95rem;\n  font-family: inherit;\n  outline: none;\n  box-sizing: border-box;\n  resize: vertical;\n}\n.modal-editar[_ngcontent-%COMP%]   input[_ngcontent-%COMP%]:focus, \n.modal-editar[_ngcontent-%COMP%]   textarea[_ngcontent-%COMP%]:focus {\n  border-color: #00b4d8;\n  box-shadow: 0 0 10px rgba(0, 180, 216, 0.2);\n}\n.modal-editar[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  color: #c8d6e5;\n  margin: 0 0 14px 0;\n}\n.modal-acciones[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 12px;\n  justify-content: flex-end;\n  margin-top: 10px;\n}\n.modal-acciones[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  padding: 10px 22px;\n  border-radius: 8px;\n  border: none;\n  font-weight: 600;\n  cursor: pointer;\n  font-family: inherit;\n  transition: all 0.3s ease;\n}\n.modal-acciones[_ngcontent-%COMP%]   button[type=button][_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.08);\n  color: #8ab4d0;\n}\n.modal-acciones[_ngcontent-%COMP%]   button[type=button][_ngcontent-%COMP%]:hover {\n  background: rgba(255, 255, 255, 0.15);\n}\n.modal-acciones[_ngcontent-%COMP%]   button[type=submit][_ngcontent-%COMP%] {\n  background: rgba(0, 150, 200, 0.4);\n  color: #e0f7ff;\n  box-shadow: 0 4px 12px rgba(0, 150, 200, 0.25);\n}\n.modal-acciones[_ngcontent-%COMP%]   button[type=submit][_ngcontent-%COMP%]:hover {\n  background: rgba(0, 180, 216, 0.55);\n  transform: translateY(-2px);\n}\n@keyframes _ngcontent-%COMP%_modalIn {\n  from {\n    opacity: 0;\n    transform: translate(-50%, -60%) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translate(-50%, -50%) scale(1);\n  }\n}\n/*# sourceMappingURL=tarea.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Tarea, [{
@@ -44514,12 +44532,15 @@ var Tarea = class _Tarea {
               @if (tarea.completada !== 1) {
                 <button class="btn-terminar" (click)="alCompletarTarea()">Terminar</button>
                 <button class="btn-editar" (click)="alEditarTarea()">Editar</button>
+                <button class="btn-borrar" (click)="alBorrarTarea()">Borrar</button>
+              } @else {
+                  <button class="btn-reabrir" (click)="alReabrirTarea()">Reabrir</button>
+                  <button class="btn-borrar" (click)="alBorrarTarea()">Borrar</button>
               }
-              <button class="btn-borrar" (click)="alBorrarTarea()">Borrar</button>
           </div>
         }
     </article>
-</app-tarjeta>`, styles: ["/* src/app/components/tarea/tarea.css */\n:host {\n  display: block;\n}\narticle {\n  background:\n    linear-gradient(\n      145deg,\n      #c5a0ec 0%,\n      #bc95e7 100%);\n  padding: 24px 28px;\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n  color: #2d1b4e;\n  border-radius: 12px;\n  border: 1px solid rgba(255, 255, 255, 0.3);\n  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.4);\n  transition: opacity 0.4s ease;\n  position: relative;\n}\narticle.completada {\n  opacity: 0.45;\n}\narticle.completada .btn-terminar,\narticle.completada .btn-editar,\narticle.completada .btn-borrar {\n  pointer-events: none;\n  cursor: not-allowed;\n  opacity: 0.5;\n}\nh2 {\n  font-size: 1.5rem;\n  font-weight: 800;\n  margin: 0;\n  color: #2d1b4e;\n}\ntime {\n  font-size: 0.9rem;\n  font-weight: 600;\n  color: #6a4f91;\n}\np {\n  font-size: 1.05rem;\n  color: #2d1b4e;\n  margin: 0;\n  line-height: 1.5;\n}\n.acciones {\n  display: flex;\n  gap: 10px;\n  margin-top: 8px;\n  justify-content: flex-end;\n  flex-wrap: wrap;\n}\n.acciones button {\n  padding: 10px 20px;\n  border-radius: 8px;\n  border: none;\n  font-size: 0.85rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  font-family: inherit;\n}\n.btn-terminar {\n  background: #2b114d;\n  color: white;\n  box-shadow: 0 4px 12px rgba(43, 17, 77, 0.3);\n}\n.btn-terminar:hover:not(:disabled) {\n  background: #1c0a34;\n  transform: translateY(-2px);\n}\n.btn-editar {\n  background: #3b3082;\n  color: white;\n  box-shadow: 0 4px 12px rgba(59, 48, 130, 0.3);\n}\n.btn-editar:hover:not(:disabled) {\n  background: #2a2266;\n  transform: translateY(-2px);\n}\n.btn-borrar {\n  background: #7a1c3a;\n  color: white;\n  box-shadow: 0 4px 12px rgba(122, 28, 58, 0.3);\n}\n.btn-borrar:hover:not(:disabled) {\n  background: #5e1230;\n  transform: translateY(-2px);\n}\n.overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.6);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 999;\n}\n.modal-editar {\n  position: fixed;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  margin: 0;\n  background: #1e1e2d;\n  border-radius: 16px;\n  padding: 30px;\n  width: 90%;\n  max-width: 500px;\n  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  z-index: 1000;\n  color: white;\n  animation: modalIn 0.3s ease-out;\n}\n.modal-editar h2 {\n  color: white;\n  margin-bottom: 16px;\n}\n.modal-editar label {\n  display: block;\n  margin-bottom: 6px;\n  font-weight: 600;\n  color: #c0b3d9;\n  font-size: 0.9rem;\n}\n.modal-editar input,\n.modal-editar textarea {\n  width: 100%;\n  background: #2a2040;\n  color: #e0d0f5;\n  border: 1px solid rgba(186, 92, 255, 0.4);\n  border-radius: 8px;\n  padding: 10px 14px;\n  font-size: 0.95rem;\n  font-family: inherit;\n  outline: none;\n  box-sizing: border-box;\n  resize: vertical;\n}\n.modal-editar input:focus,\n.modal-editar textarea:focus {\n  border-color: #ba5cff;\n  box-shadow: 0 0 10px rgba(186, 92, 255, 0.2);\n}\n.modal-editar p {\n  color: white;\n  margin: 0 0 14px 0;\n}\n.modal-acciones {\n  display: flex;\n  gap: 12px;\n  justify-content: flex-end;\n  margin-top: 10px;\n}\n.modal-acciones button {\n  padding: 10px 22px;\n  border-radius: 8px;\n  border: none;\n  font-weight: 600;\n  cursor: pointer;\n  font-family: inherit;\n  transition: all 0.3s ease;\n}\n.modal-acciones button[type=button] {\n  background: rgba(255, 255, 255, 0.1);\n  color: white;\n}\n.modal-acciones button[type=button]:hover {\n  background: rgba(255, 255, 255, 0.2);\n}\n.modal-acciones button[type=submit] {\n  background: #2b8a3e;\n  color: white;\n  box-shadow: 0 4px 12px rgba(43, 138, 62, 0.3);\n}\n.modal-acciones button[type=submit]:hover {\n  background: #237032;\n  transform: translateY(-2px);\n}\n@keyframes modalIn {\n  from {\n    opacity: 0;\n    transform: translate(-50%, -60%) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translate(-50%, -50%) scale(1);\n  }\n}\n/*# sourceMappingURL=tarea.css.map */\n"] }]
+</app-tarjeta>`, styles: ["/* src/app/components/tarea/tarea.css */\n:host {\n  display: block;\n}\narticle {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(10, 30, 70, 0.9) 0%,\n      rgba(5, 20, 55, 0.95) 100%);\n  padding: 24px 28px;\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n  color: #c8d6e5;\n  border-radius: 12px;\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  box-shadow: inset 0 2px 4px rgba(0, 100, 180, 0.15);\n  transition: opacity 0.4s ease;\n  position: relative;\n}\narticle.completada {\n  opacity: 0.45;\n}\narticle.completada .btn-terminar,\narticle.completada .btn-editar {\n  pointer-events: none;\n  cursor: not-allowed;\n  opacity: 0.5;\n}\nh2 {\n  font-size: 1.5rem;\n  font-weight: 800;\n  margin: 0;\n  color: #e0f2ff;\n}\ntime {\n  font-size: 0.9rem;\n  font-weight: 600;\n  color: #5ba8c8;\n}\np {\n  font-size: 1.05rem;\n  color: #a0b8cc;\n  margin: 0;\n  line-height: 1.5;\n}\n.acciones {\n  display: flex;\n  gap: 10px;\n  margin-top: 8px;\n  justify-content: flex-end;\n  flex-wrap: wrap;\n}\n.acciones button {\n  padding: 10px 20px;\n  border-radius: 8px;\n  border: none;\n  font-size: 0.85rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  font-family: inherit;\n}\n.btn-terminar {\n  background: rgba(0, 150, 200, 0.35);\n  color: #b8e6f0;\n  box-shadow: 0 4px 12px rgba(0, 150, 200, 0.2);\n}\n.btn-terminar:hover:not(:disabled) {\n  background: rgba(0, 180, 216, 0.5);\n  transform: translateY(-2px);\n}\n.btn-editar {\n  background: rgba(80, 100, 180, 0.35);\n  color: #a8b8e8;\n  box-shadow: 0 4px 12px rgba(80, 100, 180, 0.2);\n}\n.btn-editar:hover:not(:disabled) {\n  background: rgba(80, 100, 180, 0.5);\n  transform: translateY(-2px);\n}\n.btn-reabrir {\n  background: rgba(230, 150, 0, 0.35);\n  color: #ffd18a;\n  box-shadow: 0 4px 12px rgba(230, 150, 0, 0.2);\n}\n.btn-reabrir:hover:not(:disabled) {\n  background: rgba(230, 150, 0, 0.5);\n  transform: translateY(-2px);\n}\n.btn-borrar {\n  background: rgba(200, 50, 80, 0.35);\n  color: #ff8a8a;\n  box-shadow: 0 4px 12px rgba(200, 50, 80, 0.2);\n}\n.btn-borrar:hover:not(:disabled) {\n  background: rgba(200, 50, 80, 0.5);\n  transform: translateY(-2px);\n}\n.overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.6);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 999;\n}\n.modal-editar {\n  position: fixed;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  margin: 0;\n  background: #0a1628;\n  border-radius: 16px;\n  padding: 30px;\n  width: 90%;\n  max-width: 500px;\n  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  z-index: 1000;\n  color: #e0f2ff;\n  animation: modalIn 0.3s ease-out;\n}\n.modal-editar h2 {\n  color: #e0f2ff;\n  margin-bottom: 16px;\n}\n.modal-editar label {\n  display: block;\n  margin-bottom: 6px;\n  font-weight: 600;\n  color: #7ec8e3;\n  font-size: 0.9rem;\n}\n.modal-editar input,\n.modal-editar textarea {\n  width: 100%;\n  background: rgba(0, 30, 60, 0.6);\n  color: #c8e6f0;\n  border: 1px solid rgba(0, 180, 216, 0.3);\n  border-radius: 8px;\n  padding: 10px 14px;\n  font-size: 0.95rem;\n  font-family: inherit;\n  outline: none;\n  box-sizing: border-box;\n  resize: vertical;\n}\n.modal-editar input:focus,\n.modal-editar textarea:focus {\n  border-color: #00b4d8;\n  box-shadow: 0 0 10px rgba(0, 180, 216, 0.2);\n}\n.modal-editar p {\n  color: #c8d6e5;\n  margin: 0 0 14px 0;\n}\n.modal-acciones {\n  display: flex;\n  gap: 12px;\n  justify-content: flex-end;\n  margin-top: 10px;\n}\n.modal-acciones button {\n  padding: 10px 22px;\n  border-radius: 8px;\n  border: none;\n  font-weight: 600;\n  cursor: pointer;\n  font-family: inherit;\n  transition: all 0.3s ease;\n}\n.modal-acciones button[type=button] {\n  background: rgba(255, 255, 255, 0.08);\n  color: #8ab4d0;\n}\n.modal-acciones button[type=button]:hover {\n  background: rgba(255, 255, 255, 0.15);\n}\n.modal-acciones button[type=submit] {\n  background: rgba(0, 150, 200, 0.4);\n  color: #e0f7ff;\n  box-shadow: 0 4px 12px rgba(0, 150, 200, 0.25);\n}\n.modal-acciones button[type=submit]:hover {\n  background: rgba(0, 180, 216, 0.55);\n  transform: translateY(-2px);\n}\n@keyframes modalIn {\n  from {\n    opacity: 0;\n    transform: translate(-50%, -60%) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translate(-50%, -50%) scale(1);\n  }\n}\n/*# sourceMappingURL=tarea.css.map */\n"] }]
   }], null, { tarea: [{
     type: Input,
     args: [{ required: true }]
@@ -44610,12 +44631,12 @@ var NuevaTarea = class _NuevaTarea {
       \u0275\u0275advance(4);
       \u0275\u0275twoWayProperty("ngModel", ctx.fechaIngresado);
     }
-  }, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, NgModel, NgForm], styles: ["\n\n.fondo[_ngcontent-%COMP%] {\n  background-color: rgba(0, 0, 0, 0.9);\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100vh;\n}\ndialog[_ngcontent-%COMP%] {\n  width: 90%;\n  max-width: 30rem;\n  background-color: #433352;\n  border-radius: 6px;\n  border: none;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);\n  overflow: hidden;\n  padding: 1rem;\n  top: 5rem;\n}\nh2[_ngcontent-%COMP%] {\n  margin: 0;\n  color: #d0c2e1;\n}\nlabel[_ngcontent-%COMP%] {\n  display: block;\n  font-weight: bold;\n  font-size: 0.85rem;\n  color: #ab9ac0;\n}\ninput[_ngcontent-%COMP%], \ntextarea[_ngcontent-%COMP%] {\n  width: 100%;\n  font: inherit;\n  padding: 0.15rem 0.25rem;\n  border-radius: 4px;\n  border: 1px solid #ab9ac0;\n  background-color: #d0c2e1;\n}\n.acciones[_ngcontent-%COMP%] {\n  margin: 1rem 0 0;\n  display: flex;\n  justify-content: flex-end;\n  gap: 0.25rem;\n}\nbutton[_ngcontent-%COMP%] {\n  font: inherit;\n  cursor: pointer;\n  border: none;\n  padding: 0.35rem 1.25rem;\n  border-radius: 4px;\n  background-color: transparent;\n}\nbutton[type=button][_ngcontent-%COMP%] {\n  color: #bdadcf;\n}\nbutton[type=button][_ngcontent-%COMP%]:hover, \nbutton[type=button][_ngcontent-%COMP%]:active {\n  color: #d0c2e1;\n}\nbutton[type=submit][_ngcontent-%COMP%] {\n  background-color: #9c73ca;\n  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);\n  transition: all 0.3s ease;\n}\nbutton[type=submit][_ngcontent-%COMP%]:hover, \nbutton[type=submit][_ngcontent-%COMP%]:active {\n  background-color: #895cce;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);\n}\n@media (min-width: 768px) {\n  dialog[_ngcontent-%COMP%] {\n    padding: 2rem;\n  }\n}\n/*# sourceMappingURL=nueva-tarea.css.map */"] });
+  }, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, NgModel, NgForm], styles: ["\n\n.fondo[_ngcontent-%COMP%] {\n  background-color: rgba(0, 0, 0, 0.9);\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100vh;\n}\ndialog[_ngcontent-%COMP%] {\n  width: 90%;\n  max-width: 30rem;\n  background-color: rgba(8, 20, 50, 0.95);\n  border-radius: 6px;\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);\n  overflow: hidden;\n  padding: 1rem;\n  top: 5rem;\n  color: #c8d6e5;\n}\nh2[_ngcontent-%COMP%] {\n  margin: 0;\n  color: #e0f2ff;\n}\nlabel[_ngcontent-%COMP%] {\n  display: block;\n  font-weight: bold;\n  font-size: 0.85rem;\n  color: #7ec8e3;\n}\ninput[_ngcontent-%COMP%], \ntextarea[_ngcontent-%COMP%] {\n  width: 100%;\n  font: inherit;\n  padding: 0.15rem 0.25rem;\n  border-radius: 4px;\n  border: 1px solid rgba(0, 180, 216, 0.3);\n  background-color: rgba(0, 30, 60, 0.5);\n  color: #c8e6f0;\n}\n.acciones[_ngcontent-%COMP%] {\n  margin: 1rem 0 0;\n  display: flex;\n  justify-content: flex-end;\n  gap: 0.25rem;\n}\nbutton[_ngcontent-%COMP%] {\n  font: inherit;\n  cursor: pointer;\n  border: none;\n  padding: 0.35rem 1.25rem;\n  border-radius: 4px;\n  background-color: transparent;\n}\nbutton[type=button][_ngcontent-%COMP%] {\n  color: #7ea8c0;\n}\nbutton[type=button][_ngcontent-%COMP%]:hover, \nbutton[type=button][_ngcontent-%COMP%]:active {\n  color: #b8e6f0;\n}\nbutton[type=submit][_ngcontent-%COMP%] {\n  background-color: rgba(0, 150, 200, 0.4);\n  color: #e0f7ff;\n  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);\n  transition: all 0.3s ease;\n}\nbutton[type=submit][_ngcontent-%COMP%]:hover, \nbutton[type=submit][_ngcontent-%COMP%]:active {\n  background-color: rgba(0, 180, 216, 0.55);\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);\n}\n@media (min-width: 768px) {\n  dialog[_ngcontent-%COMP%] {\n    padding: 2rem;\n  }\n}\n/*# sourceMappingURL=nueva-tarea.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NuevaTarea, [{
     type: Component,
-    args: [{ selector: "app-nueva-tarea", imports: [FormsModule], template: '<div class="fondo" (click)="alCancelar()"></div>\n<dialog open>\n    <h2>Agregar Tarea</h2>\n    <form (ngSubmit)="alEnviar()">\n        <p>\n            <label for="titulo">Titulo</label>\n            <input type="text" id="titulo" name="titulo" [(ngModel)]="tituloIngresado" />\n        </p>\n\n        <p>\n            <label for="resumen">Resumen</label>\n            <textarea id="resumen" rows="5" name="resumen" [(ngModel)]="resumenIngresado"></textarea>\n        </p>\n\n        <p>\n            <label for="expira">Fecha Limite</label>\n            <input type="date" id="expira" name="expira" [(ngModel)]="fechaIngresado" />\n        </p>\n\n        <p class="acciones">\n            <button type="button" (click)="alCancelar()">Cancelar</button>\n            <button type="submit">Crear</button>\n        </p>\n    </form>\n</dialog>', styles: ["/* src/app/components/nueva-tarea/nueva-tarea.css */\n.fondo {\n  background-color: rgba(0, 0, 0, 0.9);\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100vh;\n}\ndialog {\n  width: 90%;\n  max-width: 30rem;\n  background-color: #433352;\n  border-radius: 6px;\n  border: none;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);\n  overflow: hidden;\n  padding: 1rem;\n  top: 5rem;\n}\nh2 {\n  margin: 0;\n  color: #d0c2e1;\n}\nlabel {\n  display: block;\n  font-weight: bold;\n  font-size: 0.85rem;\n  color: #ab9ac0;\n}\ninput,\ntextarea {\n  width: 100%;\n  font: inherit;\n  padding: 0.15rem 0.25rem;\n  border-radius: 4px;\n  border: 1px solid #ab9ac0;\n  background-color: #d0c2e1;\n}\n.acciones {\n  margin: 1rem 0 0;\n  display: flex;\n  justify-content: flex-end;\n  gap: 0.25rem;\n}\nbutton {\n  font: inherit;\n  cursor: pointer;\n  border: none;\n  padding: 0.35rem 1.25rem;\n  border-radius: 4px;\n  background-color: transparent;\n}\nbutton[type=button] {\n  color: #bdadcf;\n}\nbutton[type=button]:hover,\nbutton[type=button]:active {\n  color: #d0c2e1;\n}\nbutton[type=submit] {\n  background-color: #9c73ca;\n  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);\n  transition: all 0.3s ease;\n}\nbutton[type=submit]:hover,\nbutton[type=submit]:active {\n  background-color: #895cce;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);\n}\n@media (min-width: 768px) {\n  dialog {\n    padding: 2rem;\n  }\n}\n/*# sourceMappingURL=nueva-tarea.css.map */\n"] }]
+    args: [{ selector: "app-nueva-tarea", imports: [FormsModule], template: '<div class="fondo" (click)="alCancelar()"></div>\n<dialog open>\n    <h2>Agregar Tarea</h2>\n    <form (ngSubmit)="alEnviar()">\n        <p>\n            <label for="titulo">Titulo</label>\n            <input type="text" id="titulo" name="titulo" [(ngModel)]="tituloIngresado" />\n        </p>\n\n        <p>\n            <label for="resumen">Resumen</label>\n            <textarea id="resumen" rows="5" name="resumen" [(ngModel)]="resumenIngresado"></textarea>\n        </p>\n\n        <p>\n            <label for="expira">Fecha Limite</label>\n            <input type="date" id="expira" name="expira" [(ngModel)]="fechaIngresado" />\n        </p>\n\n        <p class="acciones">\n            <button type="button" (click)="alCancelar()">Cancelar</button>\n            <button type="submit">Crear</button>\n        </p>\n    </form>\n</dialog>', styles: ["/* src/app/components/nueva-tarea/nueva-tarea.css */\n.fondo {\n  background-color: rgba(0, 0, 0, 0.9);\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100vh;\n}\ndialog {\n  width: 90%;\n  max-width: 30rem;\n  background-color: rgba(8, 20, 50, 0.95);\n  border-radius: 6px;\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);\n  overflow: hidden;\n  padding: 1rem;\n  top: 5rem;\n  color: #c8d6e5;\n}\nh2 {\n  margin: 0;\n  color: #e0f2ff;\n}\nlabel {\n  display: block;\n  font-weight: bold;\n  font-size: 0.85rem;\n  color: #7ec8e3;\n}\ninput,\ntextarea {\n  width: 100%;\n  font: inherit;\n  padding: 0.15rem 0.25rem;\n  border-radius: 4px;\n  border: 1px solid rgba(0, 180, 216, 0.3);\n  background-color: rgba(0, 30, 60, 0.5);\n  color: #c8e6f0;\n}\n.acciones {\n  margin: 1rem 0 0;\n  display: flex;\n  justify-content: flex-end;\n  gap: 0.25rem;\n}\nbutton {\n  font: inherit;\n  cursor: pointer;\n  border: none;\n  padding: 0.35rem 1.25rem;\n  border-radius: 4px;\n  background-color: transparent;\n}\nbutton[type=button] {\n  color: #7ea8c0;\n}\nbutton[type=button]:hover,\nbutton[type=button]:active {\n  color: #b8e6f0;\n}\nbutton[type=submit] {\n  background-color: rgba(0, 150, 200, 0.4);\n  color: #e0f7ff;\n  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);\n  transition: all 0.3s ease;\n}\nbutton[type=submit]:hover,\nbutton[type=submit]:active {\n  background-color: rgba(0, 180, 216, 0.55);\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);\n}\n@media (min-width: 768px) {\n  dialog {\n    padding: 2rem;\n  }\n}\n/*# sourceMappingURL=nueva-tarea.css.map */\n"] }]
   }], null, { idUsuario: [{
     type: Input,
     args: [{ required: true }]
@@ -44624,7 +44645,7 @@ var NuevaTarea = class _NuevaTarea {
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NuevaTarea, { className: "NuevaTarea", filePath: "src/app/components/nueva-tarea/nueva-tarea.ts", lineNumber: 13 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NuevaTarea, { className: "NuevaTarea", filePath: "src/app/components/nueva-tarea/nueva-tarea.ts", lineNumber: 12 });
 })();
 
 // src/app/components/tareas/tareas.ts
@@ -44742,12 +44763,12 @@ var Tareas = class _Tareas {
       \u0275\u0275advance(2);
       \u0275\u0275conditional(ctx.cargando() ? 8 : 9);
     }
-  }, dependencies: [Tarea, NuevaTarea], styles: ["\n\n#tareas[_ngcontent-%COMP%] {\n  padding: 1rem;\n  border-radius: 8px;\n  max-height: 60vh;\n  overflow: auto;\n  background-color: #3a2c54;\n}\nheader[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: flex-start;\n  margin-bottom: 2rem;\n  gap: 1rem;\n}\nh2[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: 0.9rem;\n  width: 60%;\n  text-wrap: balance;\n}\nmenu[_ngcontent-%COMP%] {\n  margin: 0;\n  padding: 0;\n}\nmenu[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  font: inherit;\n  cursor: pointer;\n  background-color: #9965dd;\n  border-radius: 4px;\n  border: none;\n  padding: 0.35rem 0.8rem;\n  font-size: 0.9rem;\n}\nmenu[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:hover, \nmenu[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:active {\n  background-color: #a565dd;\n}\nul[_ngcontent-%COMP%] {\n  list-style: none;\n  margin: 1rem 0;\n  padding: 0;\n  display: flex;\n  flex-direction: column;\n  gap: 1rem;\n  max-height: 50vh;\n  overflow: auto;\n}\n.skeleton-card[_ngcontent-%COMP%] {\n  background: #f1f5f9;\n  border-radius: 12px;\n  padding: 1.5rem;\n  width: 100%;\n  max-width: 300px;\n  min-height: 160px;\n  display: flex;\n  flex-direction: column;\n  gap: 0.8rem;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);\n}\n.skeleton-title[_ngcontent-%COMP%], \n.skeleton-date[_ngcontent-%COMP%], \n.skeleton-body[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      90deg,\n      #e2e8f0 25%,\n      #cbd5e1 50%,\n      #e2e8f0 75%);\n  background-size: 200% 100%;\n  animation: _ngcontent-%COMP%_skeleton-loading 1.5s infinite;\n  border-radius: 4px;\n}\n.skeleton-title[_ngcontent-%COMP%] {\n  height: 24px;\n  width: 70%;\n}\n.skeleton-date[_ngcontent-%COMP%] {\n  height: 14px;\n  width: 40%;\n  margin-bottom: 0.5rem;\n}\n.skeleton-body[_ngcontent-%COMP%] {\n  height: 16px;\n  width: 100%;\n}\n.skeleton-body.short[_ngcontent-%COMP%] {\n  width: 80%;\n}\n.skeleton-body.shorter[_ngcontent-%COMP%] {\n  width: 60%;\n}\n@keyframes _ngcontent-%COMP%_skeleton-loading {\n  0% {\n    background-position: 200% 0;\n  }\n  100% {\n    background-position: -200% 0;\n  }\n}\n@media (min-width: 768px) {\n  h2[_ngcontent-%COMP%] {\n    font-size: 1.25rem;\n  }\n  menu[_ngcontent-%COMP%] {\n    width: auto;\n  }\n}\n/*# sourceMappingURL=tareas.css.map */"] });
+  }, dependencies: [Tarea, NuevaTarea], styles: ["\n\n#tareas[_ngcontent-%COMP%] {\n  padding: 1rem;\n  border-radius: 8px;\n  max-height: 60vh;\n  overflow: auto;\n  background-color: rgba(5, 20, 50, 0.6);\n  border: 1px solid rgba(0, 180, 216, 0.1);\n}\nheader[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: flex-start;\n  margin-bottom: 2rem;\n  gap: 1rem;\n}\nh2[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: 0.9rem;\n  width: 60%;\n  text-wrap: balance;\n  color: #b8e6f0;\n}\nmenu[_ngcontent-%COMP%] {\n  margin: 0;\n  padding: 0;\n}\nmenu[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  font: inherit;\n  cursor: pointer;\n  background-color: rgba(0, 150, 200, 0.3);\n  border-radius: 4px;\n  border: none;\n  padding: 0.35rem 0.8rem;\n  font-size: 0.9rem;\n  color: #b8e6f0;\n}\nmenu[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:hover, \nmenu[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:active {\n  background-color: rgba(0, 180, 216, 0.4);\n}\nul[_ngcontent-%COMP%] {\n  list-style: none;\n  margin: 1rem 0;\n  padding: 0;\n  display: flex;\n  flex-direction: column;\n  gap: 1rem;\n  max-height: 50vh;\n  overflow: auto;\n}\n.skeleton-card[_ngcontent-%COMP%] {\n  background: rgba(10, 25, 60, 0.5);\n  border-radius: 12px;\n  padding: 1.5rem;\n  width: 100%;\n  max-width: 300px;\n  min-height: 160px;\n  display: flex;\n  flex-direction: column;\n  gap: 0.8rem;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);\n}\n.skeleton-title[_ngcontent-%COMP%], \n.skeleton-date[_ngcontent-%COMP%], \n.skeleton-body[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      90deg,\n      rgba(0, 80, 130, 0.3) 25%,\n      rgba(0, 150, 200, 0.2) 50%,\n      rgba(0, 80, 130, 0.3) 75%);\n  background-size: 200% 100%;\n  animation: _ngcontent-%COMP%_skeleton-loading 1.5s infinite;\n  border-radius: 4px;\n}\n.skeleton-title[_ngcontent-%COMP%] {\n  height: 24px;\n  width: 70%;\n}\n.skeleton-date[_ngcontent-%COMP%] {\n  height: 14px;\n  width: 40%;\n  margin-bottom: 0.5rem;\n}\n.skeleton-body[_ngcontent-%COMP%] {\n  height: 16px;\n  width: 100%;\n}\n.skeleton-body.short[_ngcontent-%COMP%] {\n  width: 80%;\n}\n.skeleton-body.shorter[_ngcontent-%COMP%] {\n  width: 60%;\n}\n@keyframes _ngcontent-%COMP%_skeleton-loading {\n  0% {\n    background-position: 200% 0;\n  }\n  100% {\n    background-position: -200% 0;\n  }\n}\n@media (min-width: 768px) {\n  h2[_ngcontent-%COMP%] {\n    font-size: 1.25rem;\n  }\n  menu[_ngcontent-%COMP%] {\n    width: auto;\n  }\n}\n/*# sourceMappingURL=tareas.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Tareas, [{
     type: Component,
-    args: [{ selector: "app-tareas", imports: [Tarea, NuevaTarea], template: '@if (estaAgregandoTareaNueva) {\r\n<app-nueva-tarea [idUsuario]="idUsuario" (cerrar)="alCerrarTareaNueva()" />\r\n}\r\n\r\n<section id="tareas">\r\n    <header>\r\n        <h2>Tareas de {{ nombre }}</h2>\r\n        <menu>\r\n            @if (auth.estaAutenticado()) {\r\n              <button (click)="alIniciarNuevaTarea()">Agregar Tarea Nueva</button>\r\n            }\r\n        </menu>\r\n    </header>\r\n\r\n    <ul>\r\n        @if (cargando()) {\r\n            <li>\r\n                <div class="skeleton-card">\r\n                  <div class="skeleton-title"></div>\r\n                  <div class="skeleton-date"></div>\r\n                  <div class="skeleton-body"></div>\r\n                  <div class="skeleton-body short"></div>\r\n                </div>\r\n            </li>\r\n            <li>\r\n                <div class="skeleton-card">\r\n                  <div class="skeleton-title"></div>\r\n                  <div class="skeleton-date"></div>\r\n                  <div class="skeleton-body"></div>\r\n                  <div class="skeleton-body shorter"></div>\r\n                </div>\r\n            </li>\r\n        } @else {\r\n            @for (tarea of tareasUsuarioSeleccionado; track tarea.id) {\r\n            <li>\r\n                <app-tarea [tarea]="tarea" />\r\n            </li>\r\n            }\r\n        }\r\n    </ul>\r\n</section>', styles: ["/* src/app/components/tareas/tareas.css */\n#tareas {\n  padding: 1rem;\n  border-radius: 8px;\n  max-height: 60vh;\n  overflow: auto;\n  background-color: #3a2c54;\n}\nheader {\n  display: flex;\n  justify-content: space-between;\n  align-items: flex-start;\n  margin-bottom: 2rem;\n  gap: 1rem;\n}\nh2 {\n  margin: 0;\n  font-size: 0.9rem;\n  width: 60%;\n  text-wrap: balance;\n}\nmenu {\n  margin: 0;\n  padding: 0;\n}\nmenu button {\n  font: inherit;\n  cursor: pointer;\n  background-color: #9965dd;\n  border-radius: 4px;\n  border: none;\n  padding: 0.35rem 0.8rem;\n  font-size: 0.9rem;\n}\nmenu button:hover,\nmenu button:active {\n  background-color: #a565dd;\n}\nul {\n  list-style: none;\n  margin: 1rem 0;\n  padding: 0;\n  display: flex;\n  flex-direction: column;\n  gap: 1rem;\n  max-height: 50vh;\n  overflow: auto;\n}\n.skeleton-card {\n  background: #f1f5f9;\n  border-radius: 12px;\n  padding: 1.5rem;\n  width: 100%;\n  max-width: 300px;\n  min-height: 160px;\n  display: flex;\n  flex-direction: column;\n  gap: 0.8rem;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);\n}\n.skeleton-title,\n.skeleton-date,\n.skeleton-body {\n  background:\n    linear-gradient(\n      90deg,\n      #e2e8f0 25%,\n      #cbd5e1 50%,\n      #e2e8f0 75%);\n  background-size: 200% 100%;\n  animation: skeleton-loading 1.5s infinite;\n  border-radius: 4px;\n}\n.skeleton-title {\n  height: 24px;\n  width: 70%;\n}\n.skeleton-date {\n  height: 14px;\n  width: 40%;\n  margin-bottom: 0.5rem;\n}\n.skeleton-body {\n  height: 16px;\n  width: 100%;\n}\n.skeleton-body.short {\n  width: 80%;\n}\n.skeleton-body.shorter {\n  width: 60%;\n}\n@keyframes skeleton-loading {\n  0% {\n    background-position: 200% 0;\n  }\n  100% {\n    background-position: -200% 0;\n  }\n}\n@media (min-width: 768px) {\n  h2 {\n    font-size: 1.25rem;\n  }\n  menu {\n    width: auto;\n  }\n}\n/*# sourceMappingURL=tareas.css.map */\n"] }]
+    args: [{ selector: "app-tareas", imports: [Tarea, NuevaTarea], template: '@if (estaAgregandoTareaNueva) {\r\n<app-nueva-tarea [idUsuario]="idUsuario" (cerrar)="alCerrarTareaNueva()" />\r\n}\r\n\r\n<section id="tareas">\r\n    <header>\r\n        <h2>Tareas de {{ nombre }}</h2>\r\n        <menu>\r\n            @if (auth.estaAutenticado()) {\r\n              <button (click)="alIniciarNuevaTarea()">Agregar Tarea Nueva</button>\r\n            }\r\n        </menu>\r\n    </header>\r\n\r\n    <ul>\r\n        @if (cargando()) {\r\n            <li>\r\n                <div class="skeleton-card">\r\n                  <div class="skeleton-title"></div>\r\n                  <div class="skeleton-date"></div>\r\n                  <div class="skeleton-body"></div>\r\n                  <div class="skeleton-body short"></div>\r\n                </div>\r\n            </li>\r\n            <li>\r\n                <div class="skeleton-card">\r\n                  <div class="skeleton-title"></div>\r\n                  <div class="skeleton-date"></div>\r\n                  <div class="skeleton-body"></div>\r\n                  <div class="skeleton-body shorter"></div>\r\n                </div>\r\n            </li>\r\n        } @else {\r\n            @for (tarea of tareasUsuarioSeleccionado; track tarea.id) {\r\n            <li>\r\n                <app-tarea [tarea]="tarea" />\r\n            </li>\r\n            }\r\n        }\r\n    </ul>\r\n</section>', styles: ["/* src/app/components/tareas/tareas.css */\n#tareas {\n  padding: 1rem;\n  border-radius: 8px;\n  max-height: 60vh;\n  overflow: auto;\n  background-color: rgba(5, 20, 50, 0.6);\n  border: 1px solid rgba(0, 180, 216, 0.1);\n}\nheader {\n  display: flex;\n  justify-content: space-between;\n  align-items: flex-start;\n  margin-bottom: 2rem;\n  gap: 1rem;\n}\nh2 {\n  margin: 0;\n  font-size: 0.9rem;\n  width: 60%;\n  text-wrap: balance;\n  color: #b8e6f0;\n}\nmenu {\n  margin: 0;\n  padding: 0;\n}\nmenu button {\n  font: inherit;\n  cursor: pointer;\n  background-color: rgba(0, 150, 200, 0.3);\n  border-radius: 4px;\n  border: none;\n  padding: 0.35rem 0.8rem;\n  font-size: 0.9rem;\n  color: #b8e6f0;\n}\nmenu button:hover,\nmenu button:active {\n  background-color: rgba(0, 180, 216, 0.4);\n}\nul {\n  list-style: none;\n  margin: 1rem 0;\n  padding: 0;\n  display: flex;\n  flex-direction: column;\n  gap: 1rem;\n  max-height: 50vh;\n  overflow: auto;\n}\n.skeleton-card {\n  background: rgba(10, 25, 60, 0.5);\n  border-radius: 12px;\n  padding: 1.5rem;\n  width: 100%;\n  max-width: 300px;\n  min-height: 160px;\n  display: flex;\n  flex-direction: column;\n  gap: 0.8rem;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);\n}\n.skeleton-title,\n.skeleton-date,\n.skeleton-body {\n  background:\n    linear-gradient(\n      90deg,\n      rgba(0, 80, 130, 0.3) 25%,\n      rgba(0, 150, 200, 0.2) 50%,\n      rgba(0, 80, 130, 0.3) 75%);\n  background-size: 200% 100%;\n  animation: skeleton-loading 1.5s infinite;\n  border-radius: 4px;\n}\n.skeleton-title {\n  height: 24px;\n  width: 70%;\n}\n.skeleton-date {\n  height: 14px;\n  width: 40%;\n  margin-bottom: 0.5rem;\n}\n.skeleton-body {\n  height: 16px;\n  width: 100%;\n}\n.skeleton-body.short {\n  width: 80%;\n}\n.skeleton-body.shorter {\n  width: 60%;\n}\n@keyframes skeleton-loading {\n  0% {\n    background-position: 200% 0;\n  }\n  100% {\n    background-position: -200% 0;\n  }\n}\n@media (min-width: 768px) {\n  h2 {\n    font-size: 1.25rem;\n  }\n  menu {\n    width: auto;\n  }\n}\n/*# sourceMappingURL=tareas.css.map */\n"] }]
   }], () => [{ type: TareaService }], { nombre: [{
     type: Input,
     args: [{ required: true }]
@@ -44763,7 +44784,7 @@ var Tareas = class _Tareas {
 // src/app/components/login/login.ts
 function Login_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 10);
+    \u0275\u0275elementStart(0, "div", 11);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -44775,7 +44796,7 @@ function Login_Conditional_18_Template(rf, ctx) {
 }
 function Login_Conditional_20_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "span", 13);
+    \u0275\u0275element(0, "span", 14);
     \u0275\u0275text(1, " Verificando... ");
   }
 }
@@ -44820,7 +44841,7 @@ var Login = class _Login {
   static \u0275fac = function Login_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _Login)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _Login, selectors: [["app-login"]], outputs: { cerrar: "cerrar" }, decls: 24, vars: 8, consts: [[1, "login-overlay", 3, "click"], [1, "login-card", 3, "click"], [1, "login-header"], [1, "login-icon"], [1, "login-form", 3, "ngSubmit"], [1, "campo"], ["for", "login-username"], ["id", "login-username", "type", "text", "name", "username", "placeholder", "Nombre de usuario", "autocomplete", "username", 3, "ngModelChange", "ngModel", "disabled"], ["for", "login-password"], ["id", "login-password", "type", "password", "name", "password", "placeholder", "Contrase\xF1a", "autocomplete", "current-password", 3, "ngModelChange", "ngModel", "disabled"], [1, "error-msg"], ["type", "submit", 1, "btn-login", 3, "disabled"], ["type", "button", 1, "btn-cancelar", 3, "click", "disabled"], [1, "spinner"]], template: function Login_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _Login, selectors: [["app-login"]], outputs: { cerrar: "cerrar" }, decls: 24, vars: 8, consts: [[1, "login-overlay", 3, "click"], [1, "login-card", 3, "click"], [1, "login-header"], [1, "login-icon"], ["src", "img/icono-login.png", "alt", "Login", 1, "icono-modal"], [1, "login-form", 3, "ngSubmit"], [1, "campo"], ["for", "login-username"], ["id", "login-username", "type", "text", "name", "username", "placeholder", "Nombre de usuario", "autocomplete", "username", 3, "ngModelChange", "ngModel", "disabled"], ["for", "login-password"], ["id", "login-password", "type", "password", "name", "password", "placeholder", "Contrase\xF1a", "autocomplete", "current-password", 3, "ngModelChange", "ngModel", "disabled"], [1, "error-msg"], ["type", "submit", 1, "btn-login", 3, "disabled"], ["type", "button", 1, "btn-cancelar", 3, "click", "disabled"], [1, "spinner"]], template: function Login_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0);
       \u0275\u0275listener("click", function Login_Template_div_click_0_listener() {
@@ -44831,7 +44852,7 @@ var Login = class _Login {
         return $event.stopPropagation();
       });
       \u0275\u0275elementStart(2, "div", 2)(3, "div", 3);
-      \u0275\u0275text(4, "\u{1F510}");
+      \u0275\u0275element(4, "img", 4);
       \u0275\u0275elementEnd();
       \u0275\u0275elementStart(5, "h2");
       \u0275\u0275text(6, "Acceso Administrador");
@@ -44839,33 +44860,33 @@ var Login = class _Login {
       \u0275\u0275elementStart(7, "p");
       \u0275\u0275text(8, "Ingresa tus credenciales para gestionar tareas");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(9, "form", 4);
+      \u0275\u0275elementStart(9, "form", 5);
       \u0275\u0275listener("ngSubmit", function Login_Template_form_ngSubmit_9_listener() {
         return ctx.alEnviar();
       });
-      \u0275\u0275elementStart(10, "div", 5)(11, "label", 6);
+      \u0275\u0275elementStart(10, "div", 6)(11, "label", 7);
       \u0275\u0275text(12, "Usuario");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(13, "input", 7);
+      \u0275\u0275elementStart(13, "input", 8);
       \u0275\u0275twoWayListener("ngModelChange", function Login_Template_input_ngModelChange_13_listener($event) {
         \u0275\u0275twoWayBindingSet(ctx.username, $event) || (ctx.username = $event);
         return $event;
       });
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(14, "div", 5)(15, "label", 8);
+      \u0275\u0275elementStart(14, "div", 6)(15, "label", 9);
       \u0275\u0275text(16, "Contrase\xF1a");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(17, "input", 9);
+      \u0275\u0275elementStart(17, "input", 10);
       \u0275\u0275twoWayListener("ngModelChange", function Login_Template_input_ngModelChange_17_listener($event) {
         \u0275\u0275twoWayBindingSet(ctx.password, $event) || (ctx.password = $event);
         return $event;
       });
       \u0275\u0275elementEnd()();
-      \u0275\u0275conditionalCreate(18, Login_Conditional_18_Template, 2, 1, "div", 10);
-      \u0275\u0275elementStart(19, "button", 11);
+      \u0275\u0275conditionalCreate(18, Login_Conditional_18_Template, 2, 1, "div", 11);
+      \u0275\u0275elementStart(19, "button", 12);
       \u0275\u0275conditionalCreate(20, Login_Conditional_20_Template, 2, 0)(21, Login_Conditional_21_Template, 1, 0);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(22, "button", 12);
+      \u0275\u0275elementStart(22, "button", 13);
       \u0275\u0275listener("click", function Login_Template_button_click_22_listener() {
         return ctx.alCancelar();
       });
@@ -44888,12 +44909,12 @@ var Login = class _Login {
       \u0275\u0275advance(2);
       \u0275\u0275property("disabled", ctx.cargando());
     }
-  }, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, NgModel, NgForm], styles: ["\n\n.login-overlay[_ngcontent-%COMP%] {\n  position: fixed;\n  inset: 0;\n  z-index: 9999;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(10, 10, 20, 0.85);\n  backdrop-filter: blur(12px);\n  -webkit-backdrop-filter: blur(12px);\n  animation: _ngcontent-%COMP%_fadeIn 0.3s ease;\n}\n@keyframes _ngcontent-%COMP%_fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.login-card[_ngcontent-%COMP%] {\n  width: 100%;\n  max-width: 420px;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      #1a1a2e 0%,\n      #16213e 60%,\n      #0f3460 100%);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  border-radius: 20px;\n  padding: 2.5rem 2rem;\n  box-shadow:\n    0 25px 60px rgba(0, 0, 0, 0.5),\n    0 0 0 1px rgba(99, 102, 241, 0.15),\n    inset 0 1px 0 rgba(255, 255, 255, 0.06);\n  animation: _ngcontent-%COMP%_slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n@keyframes _ngcontent-%COMP%_slideUp {\n  from {\n    opacity: 0;\n    transform: translateY(40px) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n}\n.login-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.login-icon[_ngcontent-%COMP%] {\n  font-size: 2.8rem;\n  margin-bottom: 0.75rem;\n  filter: drop-shadow(0 0 16px rgba(99, 102, 241, 0.6));\n  animation: _ngcontent-%COMP%_pulse 2.5s ease-in-out infinite;\n}\n@keyframes _ngcontent-%COMP%_pulse {\n  0%, 100% {\n    transform: scale(1);\n  }\n  50% {\n    transform: scale(1.08);\n  }\n}\n.login-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 1.5rem;\n  font-weight: 700;\n  color: #e2e8f0;\n  margin: 0 0 0.4rem;\n  letter-spacing: -0.02em;\n}\n.login-header[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 0.875rem;\n  color: #94a3b8;\n  margin: 0;\n}\n.login-form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 1.2rem;\n}\n.campo[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n}\n.campo[_ngcontent-%COMP%]   label[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  font-weight: 600;\n  color: #94a3b8;\n  text-transform: uppercase;\n  letter-spacing: 0.08em;\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 0.75rem 1rem;\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  border-radius: 10px;\n  color: #e2e8f0;\n  font-size: 0.95rem;\n  transition:\n    border-color 0.2s,\n    box-shadow 0.2s,\n    background 0.2s;\n  outline: none;\n  box-sizing: border-box;\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%]::placeholder {\n  color: #475569;\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%]:focus {\n  border-color: #6366f1;\n  background: rgba(99, 102, 241, 0.08);\n  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%]:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.error-msg[_ngcontent-%COMP%] {\n  padding: 0.65rem 1rem;\n  background: rgba(239, 68, 68, 0.12);\n  border: 1px solid rgba(239, 68, 68, 0.35);\n  border-radius: 8px;\n  color: #fca5a5;\n  font-size: 0.85rem;\n  animation: _ngcontent-%COMP%_shake 0.35s ease;\n}\n@keyframes _ngcontent-%COMP%_shake {\n  0%, 100% {\n    transform: translateX(0);\n  }\n  25% {\n    transform: translateX(-6px);\n  }\n  75% {\n    transform: translateX(6px);\n  }\n}\n.btn-login[_ngcontent-%COMP%] {\n  padding: 0.85rem;\n  background:\n    linear-gradient(\n      135deg,\n      #6366f1,\n      #8b5cf6);\n  border: none;\n  border-radius: 10px;\n  color: #fff;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition:\n    opacity 0.2s,\n    transform 0.2s,\n    box-shadow 0.2s;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);\n}\n.btn-login[_ngcontent-%COMP%]:hover:not(:disabled) {\n  opacity: 0.92;\n  transform: translateY(-1px);\n  box-shadow: 0 8px 28px rgba(99, 102, 241, 0.55);\n}\n.btn-login[_ngcontent-%COMP%]:active:not(:disabled) {\n  transform: translateY(0);\n}\n.btn-login[_ngcontent-%COMP%]:disabled {\n  opacity: 0.6;\n  cursor: not-allowed;\n  transform: none;\n}\n.spinner[_ngcontent-%COMP%] {\n  display: inline-block;\n  width: 16px;\n  height: 16px;\n  border: 2px solid rgba(255, 255, 255, 0.3);\n  border-top-color: #fff;\n  border-radius: 50%;\n  animation: _ngcontent-%COMP%_spin 0.7s linear infinite;\n}\n@keyframes _ngcontent-%COMP%_spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.btn-cancelar[_ngcontent-%COMP%] {\n  padding: 0.85rem;\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  border-radius: 10px;\n  color: #94a3b8;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.btn-cancelar[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: rgba(255, 255, 255, 0.1);\n  color: #f1f5f9;\n}\n/*# sourceMappingURL=login.css.map */"] });
+  }, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, NgModel, NgForm], styles: ['\n\n.login-overlay[_ngcontent-%COMP%] {\n  position: fixed;\n  inset: 0;\n  z-index: 9999;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(3, 7, 20, 0.85);\n  backdrop-filter: blur(14px);\n  -webkit-backdrop-filter: blur(14px);\n  animation: _ngcontent-%COMP%_fadeIn 0.3s ease;\n}\n@keyframes _ngcontent-%COMP%_fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.login-card[_ngcontent-%COMP%] {\n  width: 100%;\n  max-width: 420px;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      145deg,\n      #0a1628 0%,\n      #081230 60%,\n      #0d1a3d 100%);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n  border-radius: 20px;\n  padding: 2.5rem 2rem;\n  box-shadow:\n    0 25px 60px rgba(0, 0, 0, 0.5),\n    0 0 0 1px rgba(0, 180, 216, 0.1),\n    inset 0 1px 0 rgba(0, 200, 255, 0.06);\n  animation: _ngcontent-%COMP%_slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n@keyframes _ngcontent-%COMP%_slideUp {\n  from {\n    opacity: 0;\n    transform: translateY(40px) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n}\n.login-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.login-icon[_ngcontent-%COMP%] {\n  font-size: 2.8rem;\n  margin-bottom: 0.75rem;\n  filter: drop-shadow(0 0 16px rgba(0, 180, 216, 0.6));\n  animation: _ngcontent-%COMP%_pulse 2.5s ease-in-out infinite;\n}\n.icono-modal[_ngcontent-%COMP%] {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n}\n@keyframes _ngcontent-%COMP%_pulse {\n  0%, 100% {\n    transform: scale(1);\n  }\n  50% {\n    transform: scale(1.08);\n  }\n}\n.login-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 1.5rem;\n  font-weight: 700;\n  color: #e0f2ff;\n  margin: 0 0 0.4rem;\n  letter-spacing: -0.02em;\n  font-family: "Orbitron", sans-serif;\n  text-shadow: 0 0 15px rgba(0, 180, 216, 0.3);\n}\n.login-header[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 0.875rem;\n  color: #7ea8c0;\n  margin: 0;\n}\n.login-form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 1.2rem;\n}\n.campo[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n}\n.campo[_ngcontent-%COMP%]   label[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  font-weight: 600;\n  color: #7ec8e3;\n  text-transform: uppercase;\n  letter-spacing: 0.08em;\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 0.75rem 1rem;\n  background: rgba(0, 30, 60, 0.5);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n  border-radius: 10px;\n  color: #c8e6f0;\n  font-size: 0.95rem;\n  transition:\n    border-color 0.2s,\n    box-shadow 0.2s,\n    background 0.2s;\n  outline: none;\n  box-sizing: border-box;\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%]::placeholder {\n  color: #3a5a70;\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%]:focus {\n  border-color: #00b4d8;\n  background: rgba(0, 50, 90, 0.4);\n  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%]:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.error-msg[_ngcontent-%COMP%] {\n  padding: 0.65rem 1rem;\n  background: rgba(239, 68, 68, 0.1);\n  border: 1px solid rgba(239, 68, 68, 0.3);\n  border-radius: 8px;\n  color: #ff8a8a;\n  font-size: 0.85rem;\n  animation: _ngcontent-%COMP%_shake 0.35s ease;\n}\n@keyframes _ngcontent-%COMP%_shake {\n  0%, 100% {\n    transform: translateX(0);\n  }\n  25% {\n    transform: translateX(-6px);\n  }\n  75% {\n    transform: translateX(6px);\n  }\n}\n.btn-login[_ngcontent-%COMP%] {\n  padding: 0.85rem;\n  background:\n    linear-gradient(\n      135deg,\n      #006d8e,\n      #0096c7);\n  border: 1px solid rgba(0, 180, 216, 0.4);\n  border-radius: 10px;\n  color: #fff;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  box-shadow: 0 4px 20px rgba(0, 150, 200, 0.3);\n}\n.btn-login[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #0096c7,\n      #00b4d8);\n  box-shadow: 0 8px 30px rgba(0, 180, 216, 0.4);\n  transform: translateY(-1px);\n}\n.btn-login[_ngcontent-%COMP%]:active:not(:disabled) {\n  transform: translateY(0);\n}\n.btn-login[_ngcontent-%COMP%]:disabled {\n  opacity: 0.6;\n  cursor: not-allowed;\n  transform: none;\n}\n.spinner[_ngcontent-%COMP%] {\n  display: inline-block;\n  width: 16px;\n  height: 16px;\n  border: 2px solid rgba(255, 255, 255, 0.3);\n  border-top-color: #fff;\n  border-radius: 50%;\n  animation: _ngcontent-%COMP%_spin 0.7s linear infinite;\n}\n@keyframes _ngcontent-%COMP%_spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.btn-cancelar[_ngcontent-%COMP%] {\n  padding: 0.85rem;\n  background: rgba(255, 255, 255, 0.04);\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  border-radius: 10px;\n  color: #7ea8c0;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.btn-cancelar[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: rgba(0, 180, 216, 0.08);\n  color: #b8e6f0;\n}\n/*# sourceMappingURL=login.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Login, [{
     type: Component,
-    args: [{ selector: "app-login", imports: [FormsModule], template: '<div class="login-overlay" (click)="alCancelar()">\n  <div class="login-card" (click)="$event.stopPropagation()">\n    <div class="login-header">\n      <div class="login-icon">\u{1F510}</div>\n      <h2>Acceso Administrador</h2>\n      <p>Ingresa tus credenciales para gestionar tareas</p>\n    </div>\n\n    <form class="login-form" (ngSubmit)="alEnviar()">\n      <div class="campo">\n        <label for="login-username">Usuario</label>\n        <input\n          id="login-username"\n          type="text"\n          [(ngModel)]="username"\n          name="username"\n          placeholder="Nombre de usuario"\n          autocomplete="username"\n          [disabled]="cargando()"\n        />\n      </div>\n\n      <div class="campo">\n        <label for="login-password">Contrase\xF1a</label>\n        <input\n          id="login-password"\n          type="password"\n          [(ngModel)]="password"\n          name="password"\n          placeholder="Contrase\xF1a"\n          autocomplete="current-password"\n          [disabled]="cargando()"\n        />\n      </div>\n\n      @if (error()) {\n        <div class="error-msg">\u26A0\uFE0F {{ error() }}</div>\n      }\n\n      <button type="submit" class="btn-login" [disabled]="cargando()">\n        @if (cargando()) {\n          <span class="spinner"></span> Verificando...\n        } @else {\n          Iniciar Sesi\xF3n\n        }\n      </button>\n\n      <button type="button" class="btn-cancelar" (click)="alCancelar()" [disabled]="cargando()">\n        Cancelar\n      </button>\n    </form>\n  </div>\n</div>\n', styles: ["/* src/app/components/login/login.css */\n.login-overlay {\n  position: fixed;\n  inset: 0;\n  z-index: 9999;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(10, 10, 20, 0.85);\n  backdrop-filter: blur(12px);\n  -webkit-backdrop-filter: blur(12px);\n  animation: fadeIn 0.3s ease;\n}\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.login-card {\n  width: 100%;\n  max-width: 420px;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      #1a1a2e 0%,\n      #16213e 60%,\n      #0f3460 100%);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  border-radius: 20px;\n  padding: 2.5rem 2rem;\n  box-shadow:\n    0 25px 60px rgba(0, 0, 0, 0.5),\n    0 0 0 1px rgba(99, 102, 241, 0.15),\n    inset 0 1px 0 rgba(255, 255, 255, 0.06);\n  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n@keyframes slideUp {\n  from {\n    opacity: 0;\n    transform: translateY(40px) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n}\n.login-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.login-icon {\n  font-size: 2.8rem;\n  margin-bottom: 0.75rem;\n  filter: drop-shadow(0 0 16px rgba(99, 102, 241, 0.6));\n  animation: pulse 2.5s ease-in-out infinite;\n}\n@keyframes pulse {\n  0%, 100% {\n    transform: scale(1);\n  }\n  50% {\n    transform: scale(1.08);\n  }\n}\n.login-header h2 {\n  font-size: 1.5rem;\n  font-weight: 700;\n  color: #e2e8f0;\n  margin: 0 0 0.4rem;\n  letter-spacing: -0.02em;\n}\n.login-header p {\n  font-size: 0.875rem;\n  color: #94a3b8;\n  margin: 0;\n}\n.login-form {\n  display: flex;\n  flex-direction: column;\n  gap: 1.2rem;\n}\n.campo {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n}\n.campo label {\n  font-size: 0.8rem;\n  font-weight: 600;\n  color: #94a3b8;\n  text-transform: uppercase;\n  letter-spacing: 0.08em;\n}\n.campo input {\n  width: 100%;\n  padding: 0.75rem 1rem;\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  border-radius: 10px;\n  color: #e2e8f0;\n  font-size: 0.95rem;\n  transition:\n    border-color 0.2s,\n    box-shadow 0.2s,\n    background 0.2s;\n  outline: none;\n  box-sizing: border-box;\n}\n.campo input::placeholder {\n  color: #475569;\n}\n.campo input:focus {\n  border-color: #6366f1;\n  background: rgba(99, 102, 241, 0.08);\n  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);\n}\n.campo input:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.error-msg {\n  padding: 0.65rem 1rem;\n  background: rgba(239, 68, 68, 0.12);\n  border: 1px solid rgba(239, 68, 68, 0.35);\n  border-radius: 8px;\n  color: #fca5a5;\n  font-size: 0.85rem;\n  animation: shake 0.35s ease;\n}\n@keyframes shake {\n  0%, 100% {\n    transform: translateX(0);\n  }\n  25% {\n    transform: translateX(-6px);\n  }\n  75% {\n    transform: translateX(6px);\n  }\n}\n.btn-login {\n  padding: 0.85rem;\n  background:\n    linear-gradient(\n      135deg,\n      #6366f1,\n      #8b5cf6);\n  border: none;\n  border-radius: 10px;\n  color: #fff;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition:\n    opacity 0.2s,\n    transform 0.2s,\n    box-shadow 0.2s;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);\n}\n.btn-login:hover:not(:disabled) {\n  opacity: 0.92;\n  transform: translateY(-1px);\n  box-shadow: 0 8px 28px rgba(99, 102, 241, 0.55);\n}\n.btn-login:active:not(:disabled) {\n  transform: translateY(0);\n}\n.btn-login:disabled {\n  opacity: 0.6;\n  cursor: not-allowed;\n  transform: none;\n}\n.spinner {\n  display: inline-block;\n  width: 16px;\n  height: 16px;\n  border: 2px solid rgba(255, 255, 255, 0.3);\n  border-top-color: #fff;\n  border-radius: 50%;\n  animation: spin 0.7s linear infinite;\n}\n@keyframes spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.btn-cancelar {\n  padding: 0.85rem;\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  border-radius: 10px;\n  color: #94a3b8;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.btn-cancelar:hover:not(:disabled) {\n  background: rgba(255, 255, 255, 0.1);\n  color: #f1f5f9;\n}\n/*# sourceMappingURL=login.css.map */\n"] }]
+    args: [{ selector: "app-login", imports: [FormsModule], template: '<div class="login-overlay" (click)="alCancelar()">\n  <div class="login-card" (click)="$event.stopPropagation()">\n    <div class="login-header">\n      <div class="login-icon"><img src="img/icono-login.png" alt="Login" class="icono-modal"></div>\n      <h2>Acceso Administrador</h2>\n      <p>Ingresa tus credenciales para gestionar tareas</p>\n    </div>\n\n    <form class="login-form" (ngSubmit)="alEnviar()">\n      <div class="campo">\n        <label for="login-username">Usuario</label>\n        <input\n          id="login-username"\n          type="text"\n          [(ngModel)]="username"\n          name="username"\n          placeholder="Nombre de usuario"\n          autocomplete="username"\n          [disabled]="cargando()"\n        />\n      </div>\n\n      <div class="campo">\n        <label for="login-password">Contrase\xF1a</label>\n        <input\n          id="login-password"\n          type="password"\n          [(ngModel)]="password"\n          name="password"\n          placeholder="Contrase\xF1a"\n          autocomplete="current-password"\n          [disabled]="cargando()"\n        />\n      </div>\n\n      @if (error()) {\n        <div class="error-msg">\u26A0\uFE0F {{ error() }}</div>\n      }\n\n      <button type="submit" class="btn-login" [disabled]="cargando()">\n        @if (cargando()) {\n          <span class="spinner"></span> Verificando...\n        } @else {\n          Iniciar Sesi\xF3n\n        }\n      </button>\n\n      <button type="button" class="btn-cancelar" (click)="alCancelar()" [disabled]="cargando()">\n        Cancelar\n      </button>\n    </form>\n  </div>\n</div>\n', styles: ['/* src/app/components/login/login.css */\n.login-overlay {\n  position: fixed;\n  inset: 0;\n  z-index: 9999;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(3, 7, 20, 0.85);\n  backdrop-filter: blur(14px);\n  -webkit-backdrop-filter: blur(14px);\n  animation: fadeIn 0.3s ease;\n}\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.login-card {\n  width: 100%;\n  max-width: 420px;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      145deg,\n      #0a1628 0%,\n      #081230 60%,\n      #0d1a3d 100%);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n  border-radius: 20px;\n  padding: 2.5rem 2rem;\n  box-shadow:\n    0 25px 60px rgba(0, 0, 0, 0.5),\n    0 0 0 1px rgba(0, 180, 216, 0.1),\n    inset 0 1px 0 rgba(0, 200, 255, 0.06);\n  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n@keyframes slideUp {\n  from {\n    opacity: 0;\n    transform: translateY(40px) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n}\n.login-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.login-icon {\n  font-size: 2.8rem;\n  margin-bottom: 0.75rem;\n  filter: drop-shadow(0 0 16px rgba(0, 180, 216, 0.6));\n  animation: pulse 2.5s ease-in-out infinite;\n}\n.icono-modal {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n}\n@keyframes pulse {\n  0%, 100% {\n    transform: scale(1);\n  }\n  50% {\n    transform: scale(1.08);\n  }\n}\n.login-header h2 {\n  font-size: 1.5rem;\n  font-weight: 700;\n  color: #e0f2ff;\n  margin: 0 0 0.4rem;\n  letter-spacing: -0.02em;\n  font-family: "Orbitron", sans-serif;\n  text-shadow: 0 0 15px rgba(0, 180, 216, 0.3);\n}\n.login-header p {\n  font-size: 0.875rem;\n  color: #7ea8c0;\n  margin: 0;\n}\n.login-form {\n  display: flex;\n  flex-direction: column;\n  gap: 1.2rem;\n}\n.campo {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n}\n.campo label {\n  font-size: 0.8rem;\n  font-weight: 600;\n  color: #7ec8e3;\n  text-transform: uppercase;\n  letter-spacing: 0.08em;\n}\n.campo input {\n  width: 100%;\n  padding: 0.75rem 1rem;\n  background: rgba(0, 30, 60, 0.5);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n  border-radius: 10px;\n  color: #c8e6f0;\n  font-size: 0.95rem;\n  transition:\n    border-color 0.2s,\n    box-shadow 0.2s,\n    background 0.2s;\n  outline: none;\n  box-sizing: border-box;\n}\n.campo input::placeholder {\n  color: #3a5a70;\n}\n.campo input:focus {\n  border-color: #00b4d8;\n  background: rgba(0, 50, 90, 0.4);\n  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);\n}\n.campo input:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.error-msg {\n  padding: 0.65rem 1rem;\n  background: rgba(239, 68, 68, 0.1);\n  border: 1px solid rgba(239, 68, 68, 0.3);\n  border-radius: 8px;\n  color: #ff8a8a;\n  font-size: 0.85rem;\n  animation: shake 0.35s ease;\n}\n@keyframes shake {\n  0%, 100% {\n    transform: translateX(0);\n  }\n  25% {\n    transform: translateX(-6px);\n  }\n  75% {\n    transform: translateX(6px);\n  }\n}\n.btn-login {\n  padding: 0.85rem;\n  background:\n    linear-gradient(\n      135deg,\n      #006d8e,\n      #0096c7);\n  border: 1px solid rgba(0, 180, 216, 0.4);\n  border-radius: 10px;\n  color: #fff;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  box-shadow: 0 4px 20px rgba(0, 150, 200, 0.3);\n}\n.btn-login:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #0096c7,\n      #00b4d8);\n  box-shadow: 0 8px 30px rgba(0, 180, 216, 0.4);\n  transform: translateY(-1px);\n}\n.btn-login:active:not(:disabled) {\n  transform: translateY(0);\n}\n.btn-login:disabled {\n  opacity: 0.6;\n  cursor: not-allowed;\n  transform: none;\n}\n.spinner {\n  display: inline-block;\n  width: 16px;\n  height: 16px;\n  border: 2px solid rgba(255, 255, 255, 0.3);\n  border-top-color: #fff;\n  border-radius: 50%;\n  animation: spin 0.7s linear infinite;\n}\n@keyframes spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.btn-cancelar {\n  padding: 0.85rem;\n  background: rgba(255, 255, 255, 0.04);\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  border-radius: 10px;\n  color: #7ea8c0;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.btn-cancelar:hover:not(:disabled) {\n  background: rgba(0, 180, 216, 0.08);\n  color: #b8e6f0;\n}\n/*# sourceMappingURL=login.css.map */\n'] }]
   }], null, { cerrar: [{
     type: Output
   }] });
@@ -44904,53 +44925,80 @@ var Login = class _Login {
 
 // src/app/components/admin-perfil/admin-perfil.ts
 var _forTrack02 = ($index, $item) => $item.id;
-function AdminPerfil_Conditional_16_Conditional_12_Template(rf, ctx) {
+function AdminPerfil_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "span", 19);
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 6);
+    \u0275\u0275listener("click", function AdminPerfil_Conditional_12_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.cambiarVista("crear"));
+    });
+    \u0275\u0275text(1, "Crear Adicional");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(2, "button", 6);
+    \u0275\u0275listener("click", function AdminPerfil_Conditional_12_Template_button_click_2_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.cambiarVista("gestionar"));
+    });
+    \u0275\u0275text(3, "Gestionar");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("active", ctx_r1.vistaActual === "crear");
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("active", ctx_r1.vistaActual === "gestionar");
+  }
+}
+function AdminPerfil_Conditional_13_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "span", 20);
     \u0275\u0275text(1, " Guardando... ");
   }
 }
-function AdminPerfil_Conditional_16_Conditional_13_Template(rf, ctx) {
+function AdminPerfil_Conditional_13_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0, " Actualizar Perfil ");
   }
 }
-function AdminPerfil_Conditional_16_Template(rf, ctx) {
+function AdminPerfil_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "form", 11);
-    \u0275\u0275listener("ngSubmit", function AdminPerfil_Conditional_16_Template_form_ngSubmit_0_listener() {
-      \u0275\u0275restoreView(_r1);
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "form", 12);
+    \u0275\u0275listener("ngSubmit", function AdminPerfil_Conditional_13_Template_form_ngSubmit_0_listener() {
+      \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.actualizarPerfil());
     });
-    \u0275\u0275elementStart(1, "p", 12);
+    \u0275\u0275elementStart(1, "p", 13);
     \u0275\u0275text(2, "Deja en blanco lo que NO desees cambiar.");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 13)(4, "label", 14);
+    \u0275\u0275elementStart(3, "div", 14)(4, "label", 15);
     \u0275\u0275text(5, "Nuevo Username");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "input", 15);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminPerfil_Conditional_16_Template_input_ngModelChange_6_listener($event) {
-      \u0275\u0275restoreView(_r1);
+    \u0275\u0275elementStart(6, "input", 16);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminPerfil_Conditional_13_Template_input_ngModelChange_6_listener($event) {
+      \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.perfilNuevoUsername, $event) || (ctx_r1.perfilNuevoUsername = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "div", 13)(8, "label", 16);
+    \u0275\u0275elementStart(7, "div", 14)(8, "label", 17);
     \u0275\u0275text(9, "Nueva Contrase\xF1a");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "input", 17);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminPerfil_Conditional_16_Template_input_ngModelChange_10_listener($event) {
-      \u0275\u0275restoreView(_r1);
+    \u0275\u0275elementStart(10, "input", 18);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminPerfil_Conditional_13_Template_input_ngModelChange_10_listener($event) {
+      \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.perfilNuevaPassword, $event) || (ctx_r1.perfilNuevaPassword = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(11, "button", 18);
-    \u0275\u0275conditionalCreate(12, AdminPerfil_Conditional_16_Conditional_12_Template, 2, 0)(13, AdminPerfil_Conditional_16_Conditional_13_Template, 1, 0);
+    \u0275\u0275elementStart(11, "button", 19);
+    \u0275\u0275conditionalCreate(12, AdminPerfil_Conditional_13_Conditional_12_Template, 2, 0)(13, AdminPerfil_Conditional_13_Conditional_13_Template, 1, 0);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -44967,175 +45015,194 @@ function AdminPerfil_Conditional_16_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.cargando() ? 12 : 13);
   }
 }
-function AdminPerfil_Conditional_17_Conditional_1_Template(rf, ctx) {
+function AdminPerfil_Conditional_14_For_3_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "form", 11);
-    \u0275\u0275listener("ngSubmit", function AdminPerfil_Conditional_17_Conditional_1_Template_form_ngSubmit_0_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.guardarEdicionAdmin());
-    });
-    \u0275\u0275elementStart(1, "p", 12);
-    \u0275\u0275text(2, "Editando a: ");
-    \u0275\u0275elementStart(3, "strong");
-    \u0275\u0275text(4);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(5, "div", 13)(6, "label", 21);
-    \u0275\u0275text(7, "Nuevo Username");
+    \u0275\u0275elementStart(0, "small", 23);
+    \u0275\u0275text(1, "(Principal)");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "input", 22);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminPerfil_Conditional_17_Conditional_1_Template_input_ngModelChange_8_listener($event) {
-      \u0275\u0275restoreView(_r3);
+  }
+}
+function AdminPerfil_Conditional_14_For_3_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 28);
+    \u0275\u0275listener("click", function AdminPerfil_Conditional_14_For_3_Conditional_7_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r6);
+      const a_r5 = \u0275\u0275nextContext().$implicit;
       const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.eliminarAdmin(a_r5.id));
+    });
+    \u0275\u0275text(1, "\u{1F5D1}\uFE0F");
+    \u0275\u0275elementEnd();
+  }
+}
+function AdminPerfil_Conditional_14_For_3_Conditional_8_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "span", 20);
+  }
+}
+function AdminPerfil_Conditional_14_For_3_Conditional_8_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Guardar ");
+  }
+}
+function AdminPerfil_Conditional_14_For_3_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 27)(1, "div", 14)(2, "label");
+    \u0275\u0275text(3, "Nuevo Username");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "input", 29);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminPerfil_Conditional_14_For_3_Conditional_8_Template_input_ngModelChange_4_listener($event) {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r1 = \u0275\u0275nextContext(3);
       \u0275\u0275twoWayBindingSet(ctx_r1.gestionarUsername, $event) || (ctx_r1.gestionarUsername = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "div", 13)(10, "label", 23);
-    \u0275\u0275text(11, "Nueva Contrase\xF1a");
+    \u0275\u0275elementStart(5, "div", 14)(6, "label");
+    \u0275\u0275text(7, "Nueva Contrase\xF1a");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "input", 24);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminPerfil_Conditional_17_Conditional_1_Template_input_ngModelChange_12_listener($event) {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275elementStart(8, "input", 30);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminPerfil_Conditional_14_For_3_Conditional_8_Template_input_ngModelChange_8_listener($event) {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r1 = \u0275\u0275nextContext(3);
       \u0275\u0275twoWayBindingSet(ctx_r1.gestionarPassword, $event) || (ctx_r1.gestionarPassword = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(13, "div", 25)(14, "button", 26);
-    \u0275\u0275listener("click", function AdminPerfil_Conditional_17_Conditional_1_Template_button_click_14_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275elementStart(9, "div", 31)(10, "button", 32);
+    \u0275\u0275listener("click", function AdminPerfil_Conditional_14_For_3_Conditional_8_Template_button_click_10_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.guardarEdicionAdmin());
+    });
+    \u0275\u0275conditionalCreate(11, AdminPerfil_Conditional_14_For_3_Conditional_8_Conditional_11_Template, 1, 0, "span", 20)(12, AdminPerfil_Conditional_14_For_3_Conditional_8_Conditional_12_Template, 1, 0);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(13, "button", 33);
+    \u0275\u0275listener("click", function AdminPerfil_Conditional_14_For_3_Conditional_8_Template_button_click_13_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.cancelarEdicion());
     });
-    \u0275\u0275text(15, "Cancelar");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "button", 27);
-    \u0275\u0275text(17, "Guardar");
+    \u0275\u0275text(14, "Cancelar");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(ctx_r1.adminEditando.username);
+    const ctx_r1 = \u0275\u0275nextContext(3);
     \u0275\u0275advance(4);
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.gestionarUsername);
     \u0275\u0275property("disabled", ctx_r1.cargando());
     \u0275\u0275advance(4);
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.gestionarPassword);
     \u0275\u0275property("disabled", ctx_r1.cargando());
-    \u0275\u0275advance(4);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("disabled", ctx_r1.cargando());
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.cargando() ? 11 : 12);
+    \u0275\u0275advance(2);
     \u0275\u0275property("disabled", ctx_r1.cargando());
   }
 }
-function AdminPerfil_Conditional_17_Conditional_2_For_2_Template(rf, ctx) {
+function AdminPerfil_Conditional_14_For_3_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 28)(1, "span");
+    \u0275\u0275elementStart(0, "div", 22)(1, "span");
     \u0275\u0275text(2);
+    \u0275\u0275conditionalCreate(3, AdminPerfil_Conditional_14_For_3_Conditional_3_Template, 2, 0, "small", 23);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 29)(4, "button", 30);
-    \u0275\u0275listener("click", function AdminPerfil_Conditional_17_Conditional_2_For_2_Template_button_click_4_listener() {
+    \u0275\u0275elementStart(4, "div", 24)(5, "button", 25);
+    \u0275\u0275listener("click", function AdminPerfil_Conditional_14_For_3_Template_button_click_5_listener() {
       const a_r5 = \u0275\u0275restoreView(_r4).$implicit;
-      const ctx_r1 = \u0275\u0275nextContext(3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.iniciarEdicion(a_r5));
     });
-    \u0275\u0275text(5, "\u270F\uFE0F");
+    \u0275\u0275text(6, "\u270F\uFE0F");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "button", 31);
-    \u0275\u0275listener("click", function AdminPerfil_Conditional_17_Conditional_2_For_2_Template_button_click_6_listener() {
-      const a_r5 = \u0275\u0275restoreView(_r4).$implicit;
-      const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.eliminarAdmin(a_r5.id));
-    });
-    \u0275\u0275text(7, "\u{1F5D1}\uFE0F");
-    \u0275\u0275elementEnd()()();
+    \u0275\u0275conditionalCreate(7, AdminPerfil_Conditional_14_For_3_Conditional_7_Template, 2, 0, "button", 26);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(8, AdminPerfil_Conditional_14_For_3_Conditional_8_Template, 15, 7, "div", 27);
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const a_r5 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(a_r5.username);
+    \u0275\u0275textInterpolate1(" ", a_r5.username, " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(a_r5.id === 1 ? 3 : -1);
+    \u0275\u0275advance(4);
+    \u0275\u0275conditional(a_r5.id !== 1 ? 7 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((ctx_r1.adminEditando == null ? null : ctx_r1.adminEditando.id) === a_r5.id ? 8 : -1);
   }
 }
-function AdminPerfil_Conditional_17_Conditional_2_ForEmpty_3_Template(rf, ctx) {
+function AdminPerfil_Conditional_14_ForEmpty_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p");
     \u0275\u0275text(1, "No hay administradores cargados.");
     \u0275\u0275elementEnd();
   }
 }
-function AdminPerfil_Conditional_17_Conditional_2_Template(rf, ctx) {
+function AdminPerfil_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20);
-    \u0275\u0275repeaterCreate(1, AdminPerfil_Conditional_17_Conditional_2_For_2_Template, 8, 1, "div", 28, _forTrack02, false, AdminPerfil_Conditional_17_Conditional_2_ForEmpty_3_Template, 2, 0, "p");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275repeater(ctx_r1.listaAdmins());
-  }
-}
-function AdminPerfil_Conditional_17_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 7);
-    \u0275\u0275conditionalCreate(1, AdminPerfil_Conditional_17_Conditional_1_Template, 18, 6, "form", 6)(2, AdminPerfil_Conditional_17_Conditional_2_Template, 4, 1, "div", 20);
-    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(0, "div", 8)(1, "div", 21);
+    \u0275\u0275repeaterCreate(2, AdminPerfil_Conditional_14_For_3_Template, 9, 4, "div", 22, _forTrack02, false, AdminPerfil_Conditional_14_ForEmpty_4_Template, 2, 0, "p");
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.adminEditando ? 1 : 2);
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r1.listaAdmins());
   }
 }
-function AdminPerfil_Conditional_18_Conditional_12_Template(rf, ctx) {
+function AdminPerfil_Conditional_15_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "span", 19);
+    \u0275\u0275element(0, "span", 20);
     \u0275\u0275text(1, " Guardando... ");
   }
 }
-function AdminPerfil_Conditional_18_Conditional_13_Template(rf, ctx) {
+function AdminPerfil_Conditional_15_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0, " Registrar Administrador ");
   }
 }
-function AdminPerfil_Conditional_18_Template(rf, ctx) {
+function AdminPerfil_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
-    const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "form", 11);
-    \u0275\u0275listener("ngSubmit", function AdminPerfil_Conditional_18_Template_form_ngSubmit_0_listener() {
-      \u0275\u0275restoreView(_r6);
+    const _r8 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "form", 12);
+    \u0275\u0275listener("ngSubmit", function AdminPerfil_Conditional_15_Template_form_ngSubmit_0_listener() {
+      \u0275\u0275restoreView(_r8);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.crearAdmin());
     });
-    \u0275\u0275elementStart(1, "p", 12);
+    \u0275\u0275elementStart(1, "p", 13);
     \u0275\u0275text(2, "Crea credenciales para otro administrador.");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 13)(4, "label", 32);
+    \u0275\u0275elementStart(3, "div", 14)(4, "label", 34);
     \u0275\u0275text(5, "Username");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "input", 33);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminPerfil_Conditional_18_Template_input_ngModelChange_6_listener($event) {
-      \u0275\u0275restoreView(_r6);
+    \u0275\u0275elementStart(6, "input", 35);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminPerfil_Conditional_15_Template_input_ngModelChange_6_listener($event) {
+      \u0275\u0275restoreView(_r8);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.crearUsername, $event) || (ctx_r1.crearUsername = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "div", 13)(8, "label", 34);
+    \u0275\u0275elementStart(7, "div", 14)(8, "label", 36);
     \u0275\u0275text(9, "Contrase\xF1a");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "input", 35);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminPerfil_Conditional_18_Template_input_ngModelChange_10_listener($event) {
-      \u0275\u0275restoreView(_r6);
+    \u0275\u0275elementStart(10, "input", 37);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminPerfil_Conditional_15_Template_input_ngModelChange_10_listener($event) {
+      \u0275\u0275restoreView(_r8);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.crearPassword, $event) || (ctx_r1.crearPassword = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(11, "button", 18);
-    \u0275\u0275conditionalCreate(12, AdminPerfil_Conditional_18_Conditional_12_Template, 2, 0)(13, AdminPerfil_Conditional_18_Conditional_13_Template, 1, 0);
+    \u0275\u0275elementStart(11, "button", 19);
+    \u0275\u0275conditionalCreate(12, AdminPerfil_Conditional_15_Conditional_12_Template, 2, 0)(13, AdminPerfil_Conditional_15_Conditional_13_Template, 1, 0);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -45152,9 +45219,9 @@ function AdminPerfil_Conditional_18_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.cargando() ? 12 : 13);
   }
 }
-function AdminPerfil_Conditional_19_Template(rf, ctx) {
+function AdminPerfil_Conditional_16_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 8);
+    \u0275\u0275elementStart(0, "div", 9);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -45164,9 +45231,9 @@ function AdminPerfil_Conditional_19_Template(rf, ctx) {
     \u0275\u0275textInterpolate1("\u26A0\uFE0F ", ctx_r1.mensajeError());
   }
 }
-function AdminPerfil_Conditional_20_Template(rf, ctx) {
+function AdminPerfil_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 9);
+    \u0275\u0275elementStart(0, "div", 10);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -45260,7 +45327,7 @@ var AdminPerfil = class _AdminPerfil {
       this.mensajeExito.set("Administrador creado con \xE9xito.");
       this.crearUsername = "";
       this.crearPassword = "";
-      await this.cargarAdmins();
+      this.cambiarVista("gestionar");
     } catch (e) {
       this.mensajeError.set(e.message ?? "Error al crear administrador");
     } finally {
@@ -45323,7 +45390,7 @@ var AdminPerfil = class _AdminPerfil {
   static \u0275fac = function AdminPerfil_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _AdminPerfil)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AdminPerfil, selectors: [["app-admin-perfil"]], outputs: { cerrar: "cerrar" }, decls: 23, vars: 10, consts: [[1, "perfil-overlay", 3, "click"], [1, "perfil-card", 3, "click"], [1, "perfil-header"], [1, "perfil-icon"], [1, "perfil-tabs"], ["type", "button", 3, "click"], [1, "perfil-form"], [1, "gestion-container"], [1, "error-msg"], [1, "success-msg"], ["type", "button", 1, "btn-cancelar", 3, "click", "disabled"], [1, "perfil-form", 3, "ngSubmit"], [1, "form-info"], [1, "campo"], ["for", "nuevo-usuario"], ["id", "nuevo-usuario", "type", "text", "name", "perfilNuevoUsername", "placeholder", "Opcional", 3, "ngModelChange", "ngModel", "disabled"], ["for", "nueva-clave"], ["id", "nueva-clave", "type", "password", "name", "perfilNuevaPassword", "placeholder", "Opcional", 3, "ngModelChange", "ngModel", "disabled"], ["type", "submit", 1, "btn-primary", 3, "disabled"], [1, "spinner"], [1, "lista-admins"], ["for", "gest-usuario"], ["id", "gest-usuario", "type", "text", "name", "gestUsername", 3, "ngModelChange", "ngModel", "disabled"], ["for", "gest-clave"], ["id", "gest-clave", "type", "password", "name", "gestPassword", "placeholder", "Solo si deseas cambiarla", 3, "ngModelChange", "ngModel", "disabled"], [2, "display", "flex", "gap", "10px", "margin-top", "5px"], ["type", "button", 1, "btn-cancelar", 2, "margin-top", "0", 3, "click"], ["type", "submit", 1, "btn-primary", 2, "flex", "1", 3, "disabled"], [1, "admin-item"], [1, "admin-acciones"], ["type", "button", 1, "btn-edit", 3, "click"], ["type", "button", 1, "btn-del", 3, "click"], ["for", "crear-usuario"], ["id", "crear-usuario", "type", "text", "name", "crearUsername", "required", "", 3, "ngModelChange", "ngModel", "disabled"], ["for", "crear-clave"], ["id", "crear-clave", "type", "password", "name", "crearPassword", "required", "", 3, "ngModelChange", "ngModel", "disabled"]], template: function AdminPerfil_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AdminPerfil, selectors: [["app-admin-perfil"]], outputs: { cerrar: "cerrar" }, decls: 20, vars: 7, consts: [[1, "perfil-overlay", 3, "click"], [1, "perfil-card", 3, "click"], [1, "perfil-header"], [1, "perfil-icon"], ["src", "img/icono-admin.png", "alt", "Admin", 1, "icono-modal"], [1, "perfil-tabs"], ["type", "button", 3, "click"], [1, "perfil-form"], [1, "gestion-container"], [1, "error-msg"], [1, "success-msg"], ["type", "button", 1, "btn-cancelar", 3, "click", "disabled"], [1, "perfil-form", 3, "ngSubmit"], [1, "form-info"], [1, "campo"], ["for", "nuevo-usuario"], ["id", "nuevo-usuario", "type", "text", "name", "perfilNuevoUsername", "placeholder", "Opcional", 3, "ngModelChange", "ngModel", "disabled"], ["for", "nueva-clave"], ["id", "nueva-clave", "type", "password", "name", "perfilNuevaPassword", "placeholder", "Opcional", 3, "ngModelChange", "ngModel", "disabled"], ["type", "submit", 1, "btn-primary", 3, "disabled"], [1, "spinner"], [1, "lista-admins"], [1, "admin-item"], [2, "color", "#ba5cff", "margin-left", "5px"], [1, "admin-acciones"], ["type", "button", "title", "Editar Admin", 1, "btn-edit", 3, "click"], ["type", "button", "title", "Borrar Admin", 1, "btn-del"], [1, "editar-inline"], ["type", "button", "title", "Borrar Admin", 1, "btn-del", 3, "click"], ["type", "text", "name", "gestionarUsername", "placeholder", "Opcional", 3, "ngModelChange", "ngModel", "disabled"], ["type", "password", "name", "gestionarPassword", "placeholder", "Opcional", 3, "ngModelChange", "ngModel", "disabled"], [1, "editar-inline-acciones"], ["type", "button", 1, "btn-primary", "btn-sm", 3, "click", "disabled"], ["type", "button", 1, "btn-cancelar", "btn-sm", 3, "click", "disabled"], ["for", "crear-usuario"], ["id", "crear-usuario", "type", "text", "name", "crearUsername", "required", "", 3, "ngModelChange", "ngModel", "disabled"], ["for", "crear-clave"], ["id", "crear-clave", "type", "password", "name", "crearPassword", "required", "", 3, "ngModelChange", "ngModel", "disabled"]], template: function AdminPerfil_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0);
       \u0275\u0275listener("click", function AdminPerfil_Template_div_click_0_listener() {
@@ -45334,7 +45401,7 @@ var AdminPerfil = class _AdminPerfil {
         return $event.stopPropagation();
       });
       \u0275\u0275elementStart(2, "div", 2)(3, "div", 3);
-      \u0275\u0275text(4, "\u{1F464}");
+      \u0275\u0275element(4, "img", 4);
       \u0275\u0275elementEnd();
       \u0275\u0275elementStart(5, "h2");
       \u0275\u0275text(6, "Panel Administrativo");
@@ -45342,51 +45409,41 @@ var AdminPerfil = class _AdminPerfil {
       \u0275\u0275elementStart(7, "p");
       \u0275\u0275text(8, "Modifica tu perfil o registra administradores");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(9, "div", 4)(10, "button", 5);
+      \u0275\u0275elementStart(9, "div", 5)(10, "button", 6);
       \u0275\u0275listener("click", function AdminPerfil_Template_button_click_10_listener() {
         return ctx.cambiarVista("editar");
       });
       \u0275\u0275text(11, "Editar Mi Perfil");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(12, "button", 5);
-      \u0275\u0275listener("click", function AdminPerfil_Template_button_click_12_listener() {
-        return ctx.cambiarVista("crear");
-      });
-      \u0275\u0275text(13, "Crear Adicional");
+      \u0275\u0275conditionalCreate(12, AdminPerfil_Conditional_12_Template, 4, 4);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(14, "button", 5);
-      \u0275\u0275listener("click", function AdminPerfil_Template_button_click_14_listener() {
-        return ctx.cambiarVista("gestionar");
-      });
-      \u0275\u0275text(15, "Gestionar");
-      \u0275\u0275elementEnd()();
-      \u0275\u0275conditionalCreate(16, AdminPerfil_Conditional_16_Template, 14, 6, "form", 6)(17, AdminPerfil_Conditional_17_Template, 3, 1, "div", 7)(18, AdminPerfil_Conditional_18_Template, 14, 6, "form", 6);
-      \u0275\u0275conditionalCreate(19, AdminPerfil_Conditional_19_Template, 2, 1, "div", 8);
-      \u0275\u0275conditionalCreate(20, AdminPerfil_Conditional_20_Template, 2, 1, "div", 9);
-      \u0275\u0275elementStart(21, "button", 10);
-      \u0275\u0275listener("click", function AdminPerfil_Template_button_click_21_listener() {
+      \u0275\u0275conditionalCreate(13, AdminPerfil_Conditional_13_Template, 14, 6, "form", 7)(14, AdminPerfil_Conditional_14_Template, 5, 1, "div", 8)(15, AdminPerfil_Conditional_15_Template, 14, 6, "form", 7);
+      \u0275\u0275conditionalCreate(16, AdminPerfil_Conditional_16_Template, 2, 1, "div", 9);
+      \u0275\u0275conditionalCreate(17, AdminPerfil_Conditional_17_Template, 2, 1, "div", 10);
+      \u0275\u0275elementStart(18, "button", 11);
+      \u0275\u0275listener("click", function AdminPerfil_Template_button_click_18_listener() {
         return ctx.alCancelar();
       });
-      \u0275\u0275text(22, " Cerrar ");
+      \u0275\u0275text(19, " Cerrar ");
       \u0275\u0275elementEnd()()();
     }
     if (rf & 2) {
+      let tmp_1_0;
+      let tmp_2_0;
       \u0275\u0275advance(10);
       \u0275\u0275classProp("active", ctx.vistaActual === "editar");
       \u0275\u0275advance(2);
-      \u0275\u0275classProp("active", ctx.vistaActual === "crear");
-      \u0275\u0275advance(2);
-      \u0275\u0275classProp("active", ctx.vistaActual === "gestionar");
-      \u0275\u0275advance(2);
-      \u0275\u0275conditional(ctx.vistaActual === "editar" ? 16 : ctx.vistaActual === "gestionar" ? 17 : 18);
-      \u0275\u0275advance(3);
-      \u0275\u0275conditional(ctx.mensajeError() ? 19 : -1);
+      \u0275\u0275conditional(((tmp_1_0 = ctx.auth.adminActual()) == null ? null : tmp_1_0.id) === 1 ? 12 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.mensajeExito() ? 20 : -1);
+      \u0275\u0275conditional(ctx.vistaActual === "editar" ? 13 : ctx.vistaActual === "gestionar" && ((tmp_2_0 = ctx.auth.adminActual()) == null ? null : tmp_2_0.id) === 1 ? 14 : ctx.vistaActual === "crear" && ((tmp_2_0 = ctx.auth.adminActual()) == null ? null : tmp_2_0.id) === 1 ? 15 : -1);
+      \u0275\u0275advance(3);
+      \u0275\u0275conditional(ctx.mensajeError() ? 16 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.mensajeExito() ? 17 : -1);
       \u0275\u0275advance();
       \u0275\u0275property("disabled", ctx.cargando());
     }
-  }, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, RequiredValidator, NgModel, NgForm], styles: ["\n\n.perfil-overlay[_ngcontent-%COMP%] {\n  position: fixed;\n  inset: 0;\n  z-index: 10000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(10, 10, 20, 0.85);\n  backdrop-filter: blur(12px);\n  -webkit-backdrop-filter: blur(12px);\n  animation: _ngcontent-%COMP%_fadeIn 0.3s ease;\n}\n@keyframes _ngcontent-%COMP%_fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.perfil-card[_ngcontent-%COMP%] {\n  width: 100%;\n  max-width: 440px;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      #2b1055 0%,\n      #1c0839 80%);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  border-radius: 20px;\n  padding: 2.5rem 2rem;\n  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);\n  animation: _ngcontent-%COMP%_slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n@keyframes _ngcontent-%COMP%_slideUp {\n  from {\n    opacity: 0;\n    transform: translateY(40px) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n}\n.perfil-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 1.5rem;\n}\n.perfil-icon[_ngcontent-%COMP%] {\n  font-size: 2.8rem;\n  margin-bottom: 0.75rem;\n  filter: drop-shadow(0 0 16px rgba(167, 139, 250, 0.6));\n}\n.perfil-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 1.5rem;\n  font-weight: 700;\n  color: #f8fafc;\n  margin: 0 0 0.4rem;\n}\n.perfil-header[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 0.875rem;\n  color: #94a3b8;\n  margin: 0;\n}\n.perfil-tabs[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 0.5rem;\n  background: rgba(0, 0, 0, 0.2);\n  padding: 0.4rem;\n  border-radius: 12px;\n  margin-bottom: 1.5rem;\n}\n.perfil-tabs[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  flex: 1;\n  padding: 0.6rem;\n  background: transparent;\n  border: none;\n  border-radius: 8px;\n  color: #94a3b8;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n}\n.perfil-tabs[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:hover {\n  color: #e2e8f0;\n}\n.perfil-tabs[_ngcontent-%COMP%]   button.active[_ngcontent-%COMP%] {\n  background: rgba(139, 92, 246, 0.3);\n  color: #fff;\n  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);\n}\n.perfil-form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 1.2rem;\n  margin-bottom: 0.5rem;\n}\n.form-info[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  color: #a78bfa;\n  margin: 0;\n  text-align: center;\n}\n.campo[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n}\n.campo[_ngcontent-%COMP%]   label[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  font-weight: 600;\n  color: #cbd5e1;\n  text-transform: uppercase;\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 0.75rem 1rem;\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  border-radius: 10px;\n  color: #f1f5f9;\n  font-size: 0.95rem;\n  outline: none;\n  box-sizing: border-box;\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%]:focus {\n  border-color: #8b5cf6;\n  background: rgba(139, 92, 246, 0.08);\n  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);\n}\n.btn-primary[_ngcontent-%COMP%] {\n  padding: 0.85rem;\n  background:\n    linear-gradient(\n      135deg,\n      #7c3aed,\n      #a855f7);\n  border: none;\n  border-radius: 10px;\n  color: #fff;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: transform 0.2s;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  gap: 0.5rem;\n}\n.btn-primary[_ngcontent-%COMP%]:hover:not(:disabled) {\n  transform: translateY(-1px);\n}\n.error-msg[_ngcontent-%COMP%] {\n  padding: 0.65rem 1rem;\n  background: rgba(239, 68, 68, 0.12);\n  border: 1px solid rgba(239, 68, 68, 0.35);\n  border-radius: 8px;\n  color: #fca5a5;\n  font-size: 0.85rem;\n  margin-top: 1rem;\n}\n.success-msg[_ngcontent-%COMP%] {\n  padding: 0.65rem 1rem;\n  background: rgba(34, 197, 94, 0.12);\n  border: 1px solid rgba(34, 197, 94, 0.35);\n  border-radius: 8px;\n  color: #86efac;\n  font-size: 0.85rem;\n  margin-top: 1rem;\n}\n.btn-cancelar[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 0.85rem;\n  background: transparent;\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  border-radius: 10px;\n  color: #94a3b8;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  margin-top: 1rem;\n  transition: background 0.2s;\n}\n.btn-cancelar[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 255, 255, 0.05);\n}\n.spinner[_ngcontent-%COMP%] {\n  width: 16px;\n  height: 16px;\n  border: 2px solid rgba(255, 255, 255, 0.3);\n  border-top-color: #fff;\n  border-radius: 50%;\n  animation: _ngcontent-%COMP%_spin 0.7s linear infinite;\n}\n@keyframes _ngcontent-%COMP%_spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.lista-admins[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n  max-height: 250px;\n  overflow-y: auto;\n  padding-right: 5px;\n}\n.admin-item[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  padding: 10px 15px;\n  border-radius: 8px;\n}\n.admin-item[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  color: #e2e8f0;\n  font-weight: 500;\n  font-size: 0.95rem;\n}\n.admin-acciones[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 5px;\n}\n.admin-acciones[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  background: transparent;\n  border: none;\n  cursor: pointer;\n  padding: 5px;\n  border-radius: 4px;\n  transition: background 0.2s;\n  font-size: 1.1rem;\n}\n.btn-edit[_ngcontent-%COMP%]:hover {\n  background: rgba(139, 92, 246, 0.3);\n}\n.btn-del[_ngcontent-%COMP%]:hover {\n  background: rgba(239, 68, 68, 0.3);\n}\n/*# sourceMappingURL=admin-perfil.css.map */"] });
+  }, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, RequiredValidator, NgModel, NgForm], styles: ['\n\n.perfil-overlay[_ngcontent-%COMP%] {\n  position: fixed;\n  inset: 0;\n  z-index: 10000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(3, 7, 20, 0.85);\n  backdrop-filter: blur(14px);\n  -webkit-backdrop-filter: blur(14px);\n  animation: _ngcontent-%COMP%_fadeIn 0.3s ease;\n}\n@keyframes _ngcontent-%COMP%_fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.perfil-card[_ngcontent-%COMP%] {\n  width: 100%;\n  max-width: 440px;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      145deg,\n      #0a1628 0%,\n      #081230 60%,\n      #0d1a3d 100%);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n  border-radius: 20px;\n  padding: 2.5rem 2rem;\n  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 180, 216, 0.1);\n  animation: _ngcontent-%COMP%_slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n@keyframes _ngcontent-%COMP%_slideUp {\n  from {\n    opacity: 0;\n    transform: translateY(40px) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n}\n.perfil-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 1.5rem;\n}\n.perfil-icon[_ngcontent-%COMP%] {\n  font-size: 2.8rem;\n  margin-bottom: 0.75rem;\n  filter: drop-shadow(0 0 16px rgba(0, 180, 216, 0.5));\n}\n.icono-modal[_ngcontent-%COMP%] {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n}\n.perfil-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 1.5rem;\n  font-weight: 700;\n  color: #e0f2ff;\n  margin: 0 0 0.4rem;\n  font-family: "Orbitron", sans-serif;\n  text-shadow: 0 0 15px rgba(0, 180, 216, 0.3);\n}\n.perfil-header[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 0.875rem;\n  color: #7ea8c0;\n  margin: 0;\n}\n.perfil-tabs[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 0.5rem;\n  background: rgba(0, 20, 50, 0.4);\n  padding: 0.4rem;\n  border-radius: 12px;\n  margin-bottom: 1.5rem;\n  border: 1px solid rgba(0, 180, 216, 0.08);\n}\n.perfil-tabs[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  flex: 1;\n  padding: 0.6rem;\n  background: transparent;\n  border: none;\n  border-radius: 8px;\n  color: #7ea8c0;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n}\n.perfil-tabs[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:hover {\n  color: #b8e6f0;\n}\n.perfil-tabs[_ngcontent-%COMP%]   button.active[_ngcontent-%COMP%] {\n  background: rgba(0, 150, 200, 0.2);\n  color: #e0f7ff;\n  box-shadow: 0 2px 10px rgba(0, 150, 200, 0.15);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n}\n.perfil-form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 1.2rem;\n  margin-bottom: 0.5rem;\n}\n.form-info[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  color: #5ba8c8;\n  margin: 0;\n  text-align: center;\n}\n.campo[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n}\n.campo[_ngcontent-%COMP%]   label[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  font-weight: 600;\n  color: #7ec8e3;\n  text-transform: uppercase;\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 0.75rem 1rem;\n  background: rgba(0, 30, 60, 0.5);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n  border-radius: 10px;\n  color: #c8e6f0;\n  font-size: 0.95rem;\n  outline: none;\n  box-sizing: border-box;\n  transition: border-color 0.2s, box-shadow 0.2s;\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%]:focus {\n  border-color: #00b4d8;\n  background: rgba(0, 50, 90, 0.4);\n  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);\n}\n.btn-primary[_ngcontent-%COMP%] {\n  padding: 0.85rem;\n  background:\n    linear-gradient(\n      135deg,\n      #006d8e,\n      #0096c7);\n  border: 1px solid rgba(0, 180, 216, 0.4);\n  border-radius: 10px;\n  color: #fff;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  gap: 0.5rem;\n  box-shadow: 0 4px 20px rgba(0, 150, 200, 0.25);\n}\n.btn-primary[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #0096c7,\n      #00b4d8);\n  box-shadow: 0 8px 30px rgba(0, 180, 216, 0.35);\n  transform: translateY(-1px);\n}\n.error-msg[_ngcontent-%COMP%] {\n  padding: 0.65rem 1rem;\n  background: rgba(239, 68, 68, 0.1);\n  border: 1px solid rgba(239, 68, 68, 0.3);\n  border-radius: 8px;\n  color: #ff8a8a;\n  font-size: 0.85rem;\n  margin-top: 1rem;\n}\n.success-msg[_ngcontent-%COMP%] {\n  padding: 0.65rem 1rem;\n  background: rgba(0, 180, 216, 0.1);\n  border: 1px solid rgba(0, 180, 216, 0.3);\n  border-radius: 8px;\n  color: #7ec8e3;\n  font-size: 0.85rem;\n  margin-top: 1rem;\n}\n.btn-cancelar[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 0.85rem;\n  background: transparent;\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  border-radius: 10px;\n  color: #7ea8c0;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  margin-top: 1rem;\n  transition: all 0.2s;\n}\n.btn-cancelar[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 180, 216, 0.08);\n  color: #b8e6f0;\n}\n.spinner[_ngcontent-%COMP%] {\n  width: 16px;\n  height: 16px;\n  border: 2px solid rgba(255, 255, 255, 0.3);\n  border-top-color: #fff;\n  border-radius: 50%;\n  animation: _ngcontent-%COMP%_spin 0.7s linear infinite;\n}\n@keyframes _ngcontent-%COMP%_spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.lista-admins[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n  max-height: 250px;\n  overflow-y: auto;\n  padding-right: 5px;\n}\n.admin-item[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  background: rgba(0, 30, 60, 0.4);\n  border: 1px solid rgba(0, 180, 216, 0.12);\n  padding: 10px 15px;\n  border-radius: 8px;\n  transition: border-color 0.2s;\n}\n.admin-item[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 180, 216, 0.25);\n}\n.admin-item[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  color: #b8e6f0;\n  font-weight: 500;\n  font-size: 0.95rem;\n}\n.admin-acciones[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 5px;\n}\n.admin-acciones[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  background: transparent;\n  border: none;\n  cursor: pointer;\n  padding: 5px;\n  border-radius: 4px;\n  transition: background 0.2s;\n  font-size: 1.1rem;\n}\n.btn-edit[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 150, 200, 0.2);\n}\n.btn-del[_ngcontent-%COMP%]:hover {\n  background: rgba(239, 68, 68, 0.2);\n}\n.admin-item[_ngcontent-%COMP%] {\n  flex-wrap: wrap;\n}\n.editar-inline[_ngcontent-%COMP%] {\n  width: 100%;\n  margin-top: 10px;\n  padding-top: 10px;\n  border-top: 1px solid rgba(0, 180, 216, 0.15);\n  display: flex;\n  flex-direction: column;\n  gap: 0.7rem;\n  animation: _ngcontent-%COMP%_fadeIn 0.2s ease;\n}\n.editar-inline-acciones[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 0.5rem;\n}\n.btn-sm[_ngcontent-%COMP%] {\n  padding: 0.45rem 1rem !important;\n  font-size: 0.85rem !important;\n  width: auto !important;\n  margin-top: 0 !important;\n  border-radius: 8px !important;\n}\n/*# sourceMappingURL=admin-perfil.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AdminPerfil, [{
@@ -45394,7 +45451,7 @@ var AdminPerfil = class _AdminPerfil {
     args: [{ selector: "app-admin-perfil", imports: [FormsModule], template: `<div class="perfil-overlay" (click)="alCancelar()">
   <div class="perfil-card" (click)="$event.stopPropagation()">
     <div class="perfil-header">
-      <div class="perfil-icon">\u{1F464}</div>
+      <div class="perfil-icon"><img src="img/icono-admin.png" alt="Admin" class="icono-modal"></div>
       <h2>Panel Administrativo</h2>
       <p>Modifica tu perfil o registra administradores</p>
     </div>
@@ -45405,14 +45462,16 @@ var AdminPerfil = class _AdminPerfil {
         [class.active]="vistaActual === 'editar'" 
         (click)="cambiarVista('editar')"
         type="button">Editar Mi Perfil</button>
-      <button 
-        [class.active]="vistaActual === 'crear'" 
-        (click)="cambiarVista('crear')"
-        type="button">Crear Adicional</button>
-      <button 
-        [class.active]="vistaActual === 'gestionar'" 
-        (click)="cambiarVista('gestionar')"
-        type="button">Gestionar</button>
+      @if (auth.adminActual()?.id === 1) {
+        <button 
+          [class.active]="vistaActual === 'crear'" 
+          (click)="cambiarVista('crear')"
+          type="button">Crear Adicional</button>
+        <button 
+          [class.active]="vistaActual === 'gestionar'" 
+          (click)="cambiarVista('gestionar')"
+          type="button">Gestionar</button>
+      }
     </div>
 
     @if (vistaActual === 'editar') {
@@ -45448,41 +45507,49 @@ var AdminPerfil = class _AdminPerfil {
           }
         </button>
       </form>
-    } @else if (vistaActual === 'gestionar') {
+    } @else if (vistaActual === 'gestionar' && auth.adminActual()?.id === 1) {
       <div class="gestion-container">
-        @if (adminEditando) {
-          <form class="perfil-form" (ngSubmit)="guardarEdicionAdmin()">
-            <p class="form-info">Editando a: <strong>{{ adminEditando.username }}</strong></p>
-            <div class="campo">
-              <label for="gest-usuario">Nuevo Username</label>
-              <input id="gest-usuario" type="text" [(ngModel)]="gestionarUsername" name="gestUsername" [disabled]="cargando()" />
-            </div>
-            <div class="campo">
-              <label for="gest-clave">Nueva Contrase\xF1a</label>
-              <input id="gest-clave" type="password" [(ngModel)]="gestionarPassword" name="gestPassword" placeholder="Solo si deseas cambiarla" [disabled]="cargando()" />
-            </div>
-            <div style="display: flex; gap: 10px; margin-top: 5px;">
-              <button type="button" class="btn-cancelar" style="margin-top:0;" (click)="cancelarEdicion()">Cancelar</button>
-              <button type="submit" class="btn-primary" style="flex:1;" [disabled]="cargando()">Guardar</button>
-            </div>
-          </form>
-        } @else {
-          <div class="lista-admins">
-            @for (a of listaAdmins(); track a.id) {
-              <div class="admin-item">
-                <span>{{ a.username }}</span>
-                <div class="admin-acciones">
-                  <button type="button" class="btn-edit" (click)="iniciarEdicion(a)">\u270F\uFE0F</button>
-                  <button type="button" class="btn-del" (click)="eliminarAdmin(a.id)">\u{1F5D1}\uFE0F</button>
-                </div>
+        <div class="lista-admins">
+          @for (a of listaAdmins(); track a.id) {
+            <div class="admin-item">
+              <span>
+                {{ a.username }}
+                @if (a.id === 1) { <small style="color: #ba5cff; margin-left: 5px;">(Principal)</small> }
+              </span>
+              
+              <div class="admin-acciones">
+                <button type="button" class="btn-edit" (click)="iniciarEdicion(a)" title="Editar Admin">\u270F\uFE0F</button>
+                @if (a.id !== 1) {
+                  <button type="button" class="btn-del" (click)="eliminarAdmin(a.id)" title="Borrar Admin">\u{1F5D1}\uFE0F</button>
+                }
               </div>
-            } @empty {
-              <p>No hay administradores cargados.</p>
-            }
-          </div>
-        }
+
+              <!-- Formulario inline de edici\xF3n -->
+              @if (adminEditando?.id === a.id) {
+                <div class="editar-inline">
+                  <div class="campo">
+                    <label>Nuevo Username</label>
+                    <input type="text" [(ngModel)]="gestionarUsername" name="gestionarUsername" placeholder="Opcional" [disabled]="cargando()" />
+                  </div>
+                  <div class="campo">
+                    <label>Nueva Contrase\xF1a</label>
+                    <input type="password" [(ngModel)]="gestionarPassword" name="gestionarPassword" placeholder="Opcional" [disabled]="cargando()" />
+                  </div>
+                  <div class="editar-inline-acciones">
+                    <button type="button" class="btn-primary btn-sm" (click)="guardarEdicionAdmin()" [disabled]="cargando()">
+                      @if (cargando()) { <span class="spinner"></span> } @else { Guardar }
+                    </button>
+                    <button type="button" class="btn-cancelar btn-sm" (click)="cancelarEdicion()" [disabled]="cargando()">Cancelar</button>
+                  </div>
+                </div>
+              }
+            </div>
+          } @empty {
+            <p>No hay administradores cargados.</p>
+          }
+        </div>
       </div>
-    } @else {
+    } @else if (vistaActual === 'crear' && auth.adminActual()?.id === 1) {
       <form class="perfil-form" (ngSubmit)="crearAdmin()">
         <p class="form-info">Crea credenciales para otro administrador.</p>
         <div class="campo">
@@ -45531,7 +45598,7 @@ var AdminPerfil = class _AdminPerfil {
     </button>
   </div>
 </div>
-`, styles: ["/* src/app/components/admin-perfil/admin-perfil.css */\n.perfil-overlay {\n  position: fixed;\n  inset: 0;\n  z-index: 10000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(10, 10, 20, 0.85);\n  backdrop-filter: blur(12px);\n  -webkit-backdrop-filter: blur(12px);\n  animation: fadeIn 0.3s ease;\n}\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.perfil-card {\n  width: 100%;\n  max-width: 440px;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      #2b1055 0%,\n      #1c0839 80%);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  border-radius: 20px;\n  padding: 2.5rem 2rem;\n  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);\n  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n@keyframes slideUp {\n  from {\n    opacity: 0;\n    transform: translateY(40px) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n}\n.perfil-header {\n  text-align: center;\n  margin-bottom: 1.5rem;\n}\n.perfil-icon {\n  font-size: 2.8rem;\n  margin-bottom: 0.75rem;\n  filter: drop-shadow(0 0 16px rgba(167, 139, 250, 0.6));\n}\n.perfil-header h2 {\n  font-size: 1.5rem;\n  font-weight: 700;\n  color: #f8fafc;\n  margin: 0 0 0.4rem;\n}\n.perfil-header p {\n  font-size: 0.875rem;\n  color: #94a3b8;\n  margin: 0;\n}\n.perfil-tabs {\n  display: flex;\n  gap: 0.5rem;\n  background: rgba(0, 0, 0, 0.2);\n  padding: 0.4rem;\n  border-radius: 12px;\n  margin-bottom: 1.5rem;\n}\n.perfil-tabs button {\n  flex: 1;\n  padding: 0.6rem;\n  background: transparent;\n  border: none;\n  border-radius: 8px;\n  color: #94a3b8;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n}\n.perfil-tabs button:hover {\n  color: #e2e8f0;\n}\n.perfil-tabs button.active {\n  background: rgba(139, 92, 246, 0.3);\n  color: #fff;\n  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);\n}\n.perfil-form {\n  display: flex;\n  flex-direction: column;\n  gap: 1.2rem;\n  margin-bottom: 0.5rem;\n}\n.form-info {\n  font-size: 0.8rem;\n  color: #a78bfa;\n  margin: 0;\n  text-align: center;\n}\n.campo {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n}\n.campo label {\n  font-size: 0.8rem;\n  font-weight: 600;\n  color: #cbd5e1;\n  text-transform: uppercase;\n}\n.campo input {\n  width: 100%;\n  padding: 0.75rem 1rem;\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  border-radius: 10px;\n  color: #f1f5f9;\n  font-size: 0.95rem;\n  outline: none;\n  box-sizing: border-box;\n}\n.campo input:focus {\n  border-color: #8b5cf6;\n  background: rgba(139, 92, 246, 0.08);\n  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);\n}\n.btn-primary {\n  padding: 0.85rem;\n  background:\n    linear-gradient(\n      135deg,\n      #7c3aed,\n      #a855f7);\n  border: none;\n  border-radius: 10px;\n  color: #fff;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: transform 0.2s;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  gap: 0.5rem;\n}\n.btn-primary:hover:not(:disabled) {\n  transform: translateY(-1px);\n}\n.error-msg {\n  padding: 0.65rem 1rem;\n  background: rgba(239, 68, 68, 0.12);\n  border: 1px solid rgba(239, 68, 68, 0.35);\n  border-radius: 8px;\n  color: #fca5a5;\n  font-size: 0.85rem;\n  margin-top: 1rem;\n}\n.success-msg {\n  padding: 0.65rem 1rem;\n  background: rgba(34, 197, 94, 0.12);\n  border: 1px solid rgba(34, 197, 94, 0.35);\n  border-radius: 8px;\n  color: #86efac;\n  font-size: 0.85rem;\n  margin-top: 1rem;\n}\n.btn-cancelar {\n  width: 100%;\n  padding: 0.85rem;\n  background: transparent;\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  border-radius: 10px;\n  color: #94a3b8;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  margin-top: 1rem;\n  transition: background 0.2s;\n}\n.btn-cancelar:hover {\n  background: rgba(255, 255, 255, 0.05);\n}\n.spinner {\n  width: 16px;\n  height: 16px;\n  border: 2px solid rgba(255, 255, 255, 0.3);\n  border-top-color: #fff;\n  border-radius: 50%;\n  animation: spin 0.7s linear infinite;\n}\n@keyframes spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.lista-admins {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n  max-height: 250px;\n  overflow-y: auto;\n  padding-right: 5px;\n}\n.admin-item {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  padding: 10px 15px;\n  border-radius: 8px;\n}\n.admin-item span {\n  color: #e2e8f0;\n  font-weight: 500;\n  font-size: 0.95rem;\n}\n.admin-acciones {\n  display: flex;\n  gap: 5px;\n}\n.admin-acciones button {\n  background: transparent;\n  border: none;\n  cursor: pointer;\n  padding: 5px;\n  border-radius: 4px;\n  transition: background 0.2s;\n  font-size: 1.1rem;\n}\n.btn-edit:hover {\n  background: rgba(139, 92, 246, 0.3);\n}\n.btn-del:hover {\n  background: rgba(239, 68, 68, 0.3);\n}\n/*# sourceMappingURL=admin-perfil.css.map */\n"] }]
+`, styles: ['/* src/app/components/admin-perfil/admin-perfil.css */\n.perfil-overlay {\n  position: fixed;\n  inset: 0;\n  z-index: 10000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(3, 7, 20, 0.85);\n  backdrop-filter: blur(14px);\n  -webkit-backdrop-filter: blur(14px);\n  animation: fadeIn 0.3s ease;\n}\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.perfil-card {\n  width: 100%;\n  max-width: 440px;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      145deg,\n      #0a1628 0%,\n      #081230 60%,\n      #0d1a3d 100%);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n  border-radius: 20px;\n  padding: 2.5rem 2rem;\n  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 180, 216, 0.1);\n  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n@keyframes slideUp {\n  from {\n    opacity: 0;\n    transform: translateY(40px) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n}\n.perfil-header {\n  text-align: center;\n  margin-bottom: 1.5rem;\n}\n.perfil-icon {\n  font-size: 2.8rem;\n  margin-bottom: 0.75rem;\n  filter: drop-shadow(0 0 16px rgba(0, 180, 216, 0.5));\n}\n.icono-modal {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n}\n.perfil-header h2 {\n  font-size: 1.5rem;\n  font-weight: 700;\n  color: #e0f2ff;\n  margin: 0 0 0.4rem;\n  font-family: "Orbitron", sans-serif;\n  text-shadow: 0 0 15px rgba(0, 180, 216, 0.3);\n}\n.perfil-header p {\n  font-size: 0.875rem;\n  color: #7ea8c0;\n  margin: 0;\n}\n.perfil-tabs {\n  display: flex;\n  gap: 0.5rem;\n  background: rgba(0, 20, 50, 0.4);\n  padding: 0.4rem;\n  border-radius: 12px;\n  margin-bottom: 1.5rem;\n  border: 1px solid rgba(0, 180, 216, 0.08);\n}\n.perfil-tabs button {\n  flex: 1;\n  padding: 0.6rem;\n  background: transparent;\n  border: none;\n  border-radius: 8px;\n  color: #7ea8c0;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n}\n.perfil-tabs button:hover {\n  color: #b8e6f0;\n}\n.perfil-tabs button.active {\n  background: rgba(0, 150, 200, 0.2);\n  color: #e0f7ff;\n  box-shadow: 0 2px 10px rgba(0, 150, 200, 0.15);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n}\n.perfil-form {\n  display: flex;\n  flex-direction: column;\n  gap: 1.2rem;\n  margin-bottom: 0.5rem;\n}\n.form-info {\n  font-size: 0.8rem;\n  color: #5ba8c8;\n  margin: 0;\n  text-align: center;\n}\n.campo {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n}\n.campo label {\n  font-size: 0.8rem;\n  font-weight: 600;\n  color: #7ec8e3;\n  text-transform: uppercase;\n}\n.campo input {\n  width: 100%;\n  padding: 0.75rem 1rem;\n  background: rgba(0, 30, 60, 0.5);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n  border-radius: 10px;\n  color: #c8e6f0;\n  font-size: 0.95rem;\n  outline: none;\n  box-sizing: border-box;\n  transition: border-color 0.2s, box-shadow 0.2s;\n}\n.campo input:focus {\n  border-color: #00b4d8;\n  background: rgba(0, 50, 90, 0.4);\n  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);\n}\n.btn-primary {\n  padding: 0.85rem;\n  background:\n    linear-gradient(\n      135deg,\n      #006d8e,\n      #0096c7);\n  border: 1px solid rgba(0, 180, 216, 0.4);\n  border-radius: 10px;\n  color: #fff;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  gap: 0.5rem;\n  box-shadow: 0 4px 20px rgba(0, 150, 200, 0.25);\n}\n.btn-primary:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #0096c7,\n      #00b4d8);\n  box-shadow: 0 8px 30px rgba(0, 180, 216, 0.35);\n  transform: translateY(-1px);\n}\n.error-msg {\n  padding: 0.65rem 1rem;\n  background: rgba(239, 68, 68, 0.1);\n  border: 1px solid rgba(239, 68, 68, 0.3);\n  border-radius: 8px;\n  color: #ff8a8a;\n  font-size: 0.85rem;\n  margin-top: 1rem;\n}\n.success-msg {\n  padding: 0.65rem 1rem;\n  background: rgba(0, 180, 216, 0.1);\n  border: 1px solid rgba(0, 180, 216, 0.3);\n  border-radius: 8px;\n  color: #7ec8e3;\n  font-size: 0.85rem;\n  margin-top: 1rem;\n}\n.btn-cancelar {\n  width: 100%;\n  padding: 0.85rem;\n  background: transparent;\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  border-radius: 10px;\n  color: #7ea8c0;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  margin-top: 1rem;\n  transition: all 0.2s;\n}\n.btn-cancelar:hover {\n  background: rgba(0, 180, 216, 0.08);\n  color: #b8e6f0;\n}\n.spinner {\n  width: 16px;\n  height: 16px;\n  border: 2px solid rgba(255, 255, 255, 0.3);\n  border-top-color: #fff;\n  border-radius: 50%;\n  animation: spin 0.7s linear infinite;\n}\n@keyframes spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.lista-admins {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n  max-height: 250px;\n  overflow-y: auto;\n  padding-right: 5px;\n}\n.admin-item {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  background: rgba(0, 30, 60, 0.4);\n  border: 1px solid rgba(0, 180, 216, 0.12);\n  padding: 10px 15px;\n  border-radius: 8px;\n  transition: border-color 0.2s;\n}\n.admin-item:hover {\n  border-color: rgba(0, 180, 216, 0.25);\n}\n.admin-item span {\n  color: #b8e6f0;\n  font-weight: 500;\n  font-size: 0.95rem;\n}\n.admin-acciones {\n  display: flex;\n  gap: 5px;\n}\n.admin-acciones button {\n  background: transparent;\n  border: none;\n  cursor: pointer;\n  padding: 5px;\n  border-radius: 4px;\n  transition: background 0.2s;\n  font-size: 1.1rem;\n}\n.btn-edit:hover {\n  background: rgba(0, 150, 200, 0.2);\n}\n.btn-del:hover {\n  background: rgba(239, 68, 68, 0.2);\n}\n.admin-item {\n  flex-wrap: wrap;\n}\n.editar-inline {\n  width: 100%;\n  margin-top: 10px;\n  padding-top: 10px;\n  border-top: 1px solid rgba(0, 180, 216, 0.15);\n  display: flex;\n  flex-direction: column;\n  gap: 0.7rem;\n  animation: fadeIn 0.2s ease;\n}\n.editar-inline-acciones {\n  display: flex;\n  gap: 0.5rem;\n}\n.btn-sm {\n  padding: 0.45rem 1rem !important;\n  font-size: 0.85rem !important;\n  width: auto !important;\n  margin-top: 0 !important;\n  border-radius: 8px !important;\n}\n/*# sourceMappingURL=admin-perfil.css.map */\n'] }]
   }], null, { cerrar: [{
     type: Output
   }] });
@@ -45540,8 +45607,709 @@ var AdminPerfil = class _AdminPerfil {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AdminPerfil, { className: "AdminPerfil", filePath: "src/app/components/admin-perfil/admin-perfil.ts", lineNumber: 11 });
 })();
 
-// src/app/app.ts
+// src/app/servicios/usuario.service.ts
+var UsuarioService = class _UsuarioService {
+  platformId = inject2(PLATFORM_ID);
+  isBrowser = isPlatformBrowser(this.platformId);
+  http = inject2(HttpClient);
+  /** Signal reactivo con la lista de usuarios desde MySQL */
+  _usuarios = signal([], ...ngDevMode ? [{ debugName: "_usuarios" }] : (
+    /* istanbul ignore next */
+    []
+  ));
+  /** Lista pública de usuarios (solo lectura) */
+  usuarios = this._usuarios.asReadonly();
+  /** Signal reactivo con la lista de avatares disponibles */
+  _avatares = signal([], ...ngDevMode ? [{ debugName: "_avatares" }] : (
+    /* istanbul ignore next */
+    []
+  ));
+  avatares = this._avatares.asReadonly();
+  constructor() {
+    if (this.isBrowser) {
+      this.cargar();
+      this.cargarAvatares();
+    }
+  }
+  /** Obtiene un usuario por ID (computed-like) */
+  obtenerPorId(id) {
+    return this._usuarios().find((u3) => u3.id === id);
+  }
+  /** RF-01: Carga todos los usuarios desde MySQL */
+  async cargar() {
+    try {
+      const usuarios = await firstValueFrom(this.http.get(`${environment.apiUrl}/api/usuarios`));
+      this._usuarios.set(usuarios);
+    } catch (e) {
+      console.error("Error al cargar usuarios:", e);
+    }
+  }
+  /** RF-05: Carga la lista de avatares disponibles en el servidor */
+  async cargarAvatares() {
+    try {
+      const avatares = await firstValueFrom(this.http.get(`${environment.apiUrl}/api/avatares`));
+      this._avatares.set(avatares);
+    } catch (e) {
+      console.error("Error al cargar avatares:", e);
+    }
+  }
+  /** RF-02: Crear un nuevo usuario */
+  async crear(nombre, avatar) {
+    try {
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/api/usuarios`, { nombre, avatar }));
+      await this.cargar();
+    } catch (e) {
+      if (e instanceof HttpErrorResponse) {
+        throw new Error(e.error?.error ?? "Error al crear usuario");
+      }
+      throw e;
+    }
+  }
+  /** RF-02: Actualizar nombre y/o avatar de un usuario */
+  async actualizar(id, nombre, avatar) {
+    try {
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/api/usuarios/${id}`, { nombre, avatar }));
+      await this.cargar();
+    } catch (e) {
+      if (e instanceof HttpErrorResponse) {
+        throw new Error(e.error?.error ?? "Error al actualizar usuario");
+      }
+      throw e;
+    }
+  }
+  /** RF-02 + RF-06: Eliminar usuario (cascade elimina sus tareas) */
+  async eliminar(id) {
+    try {
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/api/usuarios/${id}`));
+      await this.cargar();
+    } catch (e) {
+      if (e instanceof HttpErrorResponse) {
+        throw new Error(e.error?.error ?? "Error al eliminar usuario");
+      }
+      throw e;
+    }
+  }
+  static \u0275fac = function UsuarioService_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _UsuarioService)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _UsuarioService, factory: _UsuarioService.\u0275fac, providedIn: "root" });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UsuarioService, [{
+    type: Injectable,
+    args: [{ providedIn: "root" }]
+  }], () => [], null);
+})();
+
+// src/app/components/gestion-usuarios/gestion-usuarios.ts
 var _forTrack03 = ($index, $item) => $item.id;
+function GestionUsuarios_For_13_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 6)(1, "div", 13);
+    \u0275\u0275element(2, "img", 14);
+    \u0275\u0275elementStart(3, "span", 15);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(5, "div", 16)(6, "button", 17);
+    \u0275\u0275listener("click", function GestionUsuarios_For_13_Template_button_click_6_listener() {
+      const usuario_r2 = \u0275\u0275restoreView(_r1).$implicit;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.abrirEditar(usuario_r2));
+    });
+    \u0275\u0275text(7, " \u270F\uFE0F ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "button", 18);
+    \u0275\u0275listener("click", function GestionUsuarios_For_13_Template_button_click_8_listener() {
+      const usuario_r2 = \u0275\u0275restoreView(_r1).$implicit;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.pedirConfirmacion(usuario_r2));
+    });
+    \u0275\u0275text(9, " \u{1F5D1}\uFE0F ");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const usuario_r2 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275property("src", "img/" + usuario_r2.avatar, \u0275\u0275sanitizeUrl)("alt", usuario_r2.nombre);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(usuario_r2.nombre);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("disabled", ctx_r2.cargando());
+    \u0275\u0275advance(2);
+    \u0275\u0275property("disabled", ctx_r2.cargando());
+  }
+}
+function GestionUsuarios_ForEmpty_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 7);
+    \u0275\u0275text(1, "No hay usuarios registrados.");
+    \u0275\u0275elementEnd();
+  }
+}
+function GestionUsuarios_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 8);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1("\u26A0\uFE0F ", ctx_r2.mensajeError());
+  }
+}
+function GestionUsuarios_Conditional_16_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 9);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1("\u2705 ", ctx_r2.mensajeExito());
+  }
+}
+function GestionUsuarios_Conditional_19_For_16_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 30);
+    \u0275\u0275listener("click", function GestionUsuarios_Conditional_19_For_16_Template_button_click_0_listener() {
+      const avatar_r6 = \u0275\u0275restoreView(_r5).$implicit;
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.seleccionarAvatar(avatar_r6));
+    });
+    \u0275\u0275element(1, "img", 31);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const avatar_r6 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("seleccionado", ctx_r2.avatarSeleccionado === avatar_r6);
+    \u0275\u0275property("disabled", ctx_r2.cargando());
+    \u0275\u0275advance();
+    \u0275\u0275property("src", "img/" + avatar_r6, \u0275\u0275sanitizeUrl)("alt", avatar_r6);
+  }
+}
+function GestionUsuarios_Conditional_19_Conditional_19_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "span", 32);
+    \u0275\u0275text(1, " Guardando... ");
+  }
+}
+function GestionUsuarios_Conditional_19_Conditional_20_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0);
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r2.modoEdicion() ? "Actualizar Usuario" : "Crear Usuario", " ");
+  }
+}
+function GestionUsuarios_Conditional_19_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 19);
+    \u0275\u0275listener("click", function GestionUsuarios_Conditional_19_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.cerrarFormulario());
+    });
+    \u0275\u0275elementStart(1, "div", 20);
+    \u0275\u0275listener("click", function GestionUsuarios_Conditional_19_Template_div_click_1_listener($event) {
+      return $event.stopPropagation();
+    });
+    \u0275\u0275elementStart(2, "div", 21)(3, "h3");
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "p");
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "div", 22)(8, "label", 23);
+    \u0275\u0275text(9, "Nombre del Usuario");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "input", 24);
+    \u0275\u0275twoWayListener("ngModelChange", function GestionUsuarios_Conditional_19_Template_input_ngModelChange_10_listener($event) {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r2.nombreIngresado, $event) || (ctx_r2.nombreIngresado = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(11, "div", 22)(12, "label");
+    \u0275\u0275text(13, "Selecciona un Avatar");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(14, "div", 25);
+    \u0275\u0275repeaterCreate(15, GestionUsuarios_Conditional_19_For_16_Template, 2, 5, "button", 26, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(17, "div", 27)(18, "button", 28);
+    \u0275\u0275listener("click", function GestionUsuarios_Conditional_19_Template_button_click_18_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.guardarUsuario());
+    });
+    \u0275\u0275conditionalCreate(19, GestionUsuarios_Conditional_19_Conditional_19_Template, 2, 0)(20, GestionUsuarios_Conditional_19_Conditional_20_Template, 1, 1);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(21, "button", 29);
+    \u0275\u0275listener("click", function GestionUsuarios_Conditional_19_Template_button_click_21_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.cerrarFormulario());
+    });
+    \u0275\u0275text(22, " Cancelar ");
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(ctx_r2.modoEdicion() ? "Editar Usuario" : "Nuevo Usuario");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r2.modoEdicion() ? "Modifica el nombre y avatar del usuario" : "Completa los datos del nuevo usuario");
+    \u0275\u0275advance(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.nombreIngresado);
+    \u0275\u0275property("disabled", ctx_r2.cargando());
+    \u0275\u0275advance(5);
+    \u0275\u0275repeater(ctx_r2.usuarioService.avatares());
+    \u0275\u0275advance(3);
+    \u0275\u0275property("disabled", ctx_r2.cargando());
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.cargando() ? 19 : 20);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("disabled", ctx_r2.cargando());
+  }
+}
+function GestionUsuarios_Conditional_20_Conditional_16_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "span", 32);
+    \u0275\u0275text(1, " Eliminando... ");
+  }
+}
+function GestionUsuarios_Conditional_20_Conditional_17_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " S\xED, eliminar ");
+  }
+}
+function GestionUsuarios_Conditional_20_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 33);
+    \u0275\u0275listener("click", function GestionUsuarios_Conditional_20_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.cancelarEliminacion());
+    });
+    \u0275\u0275elementStart(1, "div", 34);
+    \u0275\u0275listener("click", function GestionUsuarios_Conditional_20_Template_div_click_1_listener($event) {
+      return $event.stopPropagation();
+    });
+    \u0275\u0275elementStart(2, "div", 35);
+    \u0275\u0275text(3, "\u26A0\uFE0F");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "h3");
+    \u0275\u0275text(5, "\xBFEliminar usuario?");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "p");
+    \u0275\u0275text(7, "Se eliminar\xE1 a ");
+    \u0275\u0275elementStart(8, "strong");
+    \u0275\u0275text(9);
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(10, " y ");
+    \u0275\u0275elementStart(11, "strong");
+    \u0275\u0275text(12, "todas sus tareas");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(13, " de forma permanente.");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(14, "div", 36)(15, "button", 37);
+    \u0275\u0275listener("click", function GestionUsuarios_Conditional_20_Template_button_click_15_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.confirmarEliminacion());
+    });
+    \u0275\u0275conditionalCreate(16, GestionUsuarios_Conditional_20_Conditional_16_Template, 2, 0)(17, GestionUsuarios_Conditional_20_Conditional_17_Template, 1, 0);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(18, "button", 38);
+    \u0275\u0275listener("click", function GestionUsuarios_Conditional_20_Template_button_click_18_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.cancelarEliminacion());
+    });
+    \u0275\u0275text(19, " Cancelar ");
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(9);
+    \u0275\u0275textInterpolate(ctx_r2.usuarioAEliminar == null ? null : ctx_r2.usuarioAEliminar.nombre);
+    \u0275\u0275advance(6);
+    \u0275\u0275property("disabled", ctx_r2.cargando());
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.cargando() ? 16 : 17);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("disabled", ctx_r2.cargando());
+  }
+}
+var GestionUsuarios = class _GestionUsuarios {
+  cerrar = new EventEmitter();
+  usuarioService = inject2(UsuarioService);
+  tareaService = inject2(TareaService);
+  // Estado del modal
+  cargando = signal(false, ...ngDevMode ? [{ debugName: "cargando" }] : (
+    /* istanbul ignore next */
+    []
+  ));
+  mensajeExito = signal("", ...ngDevMode ? [{ debugName: "mensajeExito" }] : (
+    /* istanbul ignore next */
+    []
+  ));
+  mensajeError = signal("", ...ngDevMode ? [{ debugName: "mensajeError" }] : (
+    /* istanbul ignore next */
+    []
+  ));
+  // Sub-modal crear/editar
+  mostrarFormulario = signal(false, ...ngDevMode ? [{ debugName: "mostrarFormulario" }] : (
+    /* istanbul ignore next */
+    []
+  ));
+  modoEdicion = signal(false, ...ngDevMode ? [{ debugName: "modoEdicion" }] : (
+    /* istanbul ignore next */
+    []
+  ));
+  usuarioEditandoId = null;
+  // Campos del formulario
+  nombreIngresado = "";
+  avatarSeleccionado = "usuario-1.png";
+  ngOnInit() {
+    this.usuarioService.cargar();
+    this.usuarioService.cargarAvatares();
+  }
+  // ==========================================
+  // ABRIR FORMULARIO
+  // ==========================================
+  abrirCrear() {
+    this.nombreIngresado = "";
+    this.avatarSeleccionado = "usuario-1.png";
+    this.modoEdicion.set(false);
+    this.usuarioEditandoId = null;
+    this.limpiarMensajes();
+    this.mostrarFormulario.set(true);
+  }
+  abrirEditar(usuario) {
+    this.nombreIngresado = usuario.nombre;
+    this.avatarSeleccionado = usuario.avatar;
+    this.modoEdicion.set(true);
+    this.usuarioEditandoId = usuario.id;
+    this.limpiarMensajes();
+    this.mostrarFormulario.set(true);
+  }
+  cerrarFormulario() {
+    this.mostrarFormulario.set(false);
+    this.usuarioEditandoId = null;
+  }
+  // ==========================================
+  // OPERACIONES CRUD
+  // ==========================================
+  async guardarUsuario() {
+    if (!this.nombreIngresado.trim()) {
+      this.mensajeError.set("El nombre del usuario es obligatorio.");
+      return;
+    }
+    this.cargando.set(true);
+    this.limpiarMensajes();
+    try {
+      if (this.modoEdicion() && this.usuarioEditandoId !== null) {
+        await this.usuarioService.actualizar(this.usuarioEditandoId, this.nombreIngresado.trim(), this.avatarSeleccionado);
+        this.mensajeExito.set("Usuario actualizado exitosamente.");
+      } else {
+        await this.usuarioService.crear(this.nombreIngresado.trim(), this.avatarSeleccionado);
+        this.mensajeExito.set("Usuario creado exitosamente.");
+      }
+      this.cerrarFormulario();
+    } catch (e) {
+      this.mensajeError.set(e.message ?? "Error al guardar usuario.");
+    } finally {
+      this.cargando.set(false);
+    }
+  }
+  async eliminarUsuario(usuario) {
+    this.limpiarMensajes();
+    this.cargando.set(true);
+    try {
+      await this.usuarioService.eliminar(usuario.id);
+      await this.tareaService.recargar();
+      this.mensajeExito.set(`Usuario "${usuario.nombre}" y sus tareas eliminados.`);
+    } catch (e) {
+      this.mensajeError.set(e.message ?? "Error al eliminar usuario.");
+    } finally {
+      this.cargando.set(false);
+    }
+  }
+  // Controla la visibilidad del diálogo de confirmación
+  usuarioAEliminar = null;
+  mostrarConfirmacion = signal(false, ...ngDevMode ? [{ debugName: "mostrarConfirmacion" }] : (
+    /* istanbul ignore next */
+    []
+  ));
+  pedirConfirmacion(usuario) {
+    this.usuarioAEliminar = usuario;
+    this.mostrarConfirmacion.set(true);
+  }
+  cancelarEliminacion() {
+    this.usuarioAEliminar = null;
+    this.mostrarConfirmacion.set(false);
+  }
+  async confirmarEliminacion() {
+    if (this.usuarioAEliminar) {
+      await this.eliminarUsuario(this.usuarioAEliminar);
+    }
+    this.cancelarEliminacion();
+  }
+  // ==========================================
+  // HELPERS
+  // ==========================================
+  seleccionarAvatar(avatar) {
+    this.avatarSeleccionado = avatar;
+  }
+  limpiarMensajes() {
+    this.mensajeExito.set("");
+    this.mensajeError.set("");
+  }
+  alCerrar() {
+    this.cerrar.emit();
+  }
+  static \u0275fac = function GestionUsuarios_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _GestionUsuarios)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GestionUsuarios, selectors: [["app-gestion-usuarios"]], outputs: { cerrar: "cerrar" }, decls: 21, vars: 7, consts: [[1, "gestion-overlay", 3, "click"], [1, "gestion-card", 3, "click"], [1, "gestion-header"], [1, "gestion-icon"], [1, "btn-agregar", 3, "click", "disabled"], [1, "lista-usuarios"], [1, "usuario-item"], [1, "sin-usuarios"], [1, "error-msg"], [1, "success-msg"], ["type", "button", 1, "btn-cerrar", 3, "click", "disabled"], [1, "formulario-overlay"], [1, "confirmacion-overlay"], [1, "usuario-info"], [1, "avatar-mini", 3, "src", "alt"], [1, "usuario-nombre"], [1, "usuario-acciones"], ["type", "button", "title", "Editar usuario", 1, "btn-accion", "btn-editar", 3, "click", "disabled"], ["type", "button", "title", "Eliminar usuario", 1, "btn-accion", "btn-eliminar", 3, "click", "disabled"], [1, "formulario-overlay", 3, "click"], [1, "formulario-card", 3, "click"], [1, "formulario-header"], [1, "campo"], ["for", "nombre-usuario"], ["id", "nombre-usuario", "type", "text", "name", "nombreIngresado", "placeholder", "Escribe el nombre completo", 3, "ngModelChange", "ngModel", "disabled"], [1, "avatar-grid"], ["type", "button", 1, "avatar-opcion", 3, "seleccionado", "disabled"], [1, "formulario-acciones"], ["type", "button", 1, "btn-guardar", 3, "click", "disabled"], ["type", "button", 1, "btn-cancelar-form", 3, "click", "disabled"], ["type", "button", 1, "avatar-opcion", 3, "click", "disabled"], [3, "src", "alt"], [1, "spinner"], [1, "confirmacion-overlay", 3, "click"], [1, "confirmacion-card", 3, "click"], [1, "confirmacion-icon"], [1, "confirmacion-acciones"], [1, "btn-confirmar-eliminar", 3, "click", "disabled"], [1, "btn-cancelar-form", 3, "click", "disabled"]], template: function GestionUsuarios_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div", 0);
+      \u0275\u0275listener("click", function GestionUsuarios_Template_div_click_0_listener() {
+        return ctx.alCerrar();
+      });
+      \u0275\u0275elementStart(1, "div", 1);
+      \u0275\u0275listener("click", function GestionUsuarios_Template_div_click_1_listener($event) {
+        return $event.stopPropagation();
+      });
+      \u0275\u0275elementStart(2, "div", 2)(3, "div", 3);
+      \u0275\u0275text(4, "\u{1F465}");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(5, "h2");
+      \u0275\u0275text(6, "Gesti\xF3n de Usuarios");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(7, "p");
+      \u0275\u0275text(8, "Administra los usuarios del sistema");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(9, "button", 4);
+      \u0275\u0275listener("click", function GestionUsuarios_Template_button_click_9_listener() {
+        return ctx.abrirCrear();
+      });
+      \u0275\u0275text(10, " \u2795 Agregar Usuario Nuevo ");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(11, "div", 5);
+      \u0275\u0275repeaterCreate(12, GestionUsuarios_For_13_Template, 10, 5, "div", 6, _forTrack03, false, GestionUsuarios_ForEmpty_14_Template, 2, 0, "p", 7);
+      \u0275\u0275elementEnd();
+      \u0275\u0275conditionalCreate(15, GestionUsuarios_Conditional_15_Template, 2, 1, "div", 8);
+      \u0275\u0275conditionalCreate(16, GestionUsuarios_Conditional_16_Template, 2, 1, "div", 9);
+      \u0275\u0275elementStart(17, "button", 10);
+      \u0275\u0275listener("click", function GestionUsuarios_Template_button_click_17_listener() {
+        return ctx.alCerrar();
+      });
+      \u0275\u0275text(18, " Cerrar ");
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275conditionalCreate(19, GestionUsuarios_Conditional_19_Template, 23, 7, "div", 11);
+      \u0275\u0275conditionalCreate(20, GestionUsuarios_Conditional_20_Template, 20, 4, "div", 12);
+    }
+    if (rf & 2) {
+      \u0275\u0275advance(9);
+      \u0275\u0275property("disabled", ctx.cargando());
+      \u0275\u0275advance(3);
+      \u0275\u0275repeater(ctx.usuarioService.usuarios());
+      \u0275\u0275advance(3);
+      \u0275\u0275conditional(ctx.mensajeError() ? 15 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.mensajeExito() ? 16 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275property("disabled", ctx.cargando());
+      \u0275\u0275advance(2);
+      \u0275\u0275conditional(ctx.mostrarFormulario() ? 19 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.mostrarConfirmacion() ? 20 : -1);
+    }
+  }, dependencies: [FormsModule, DefaultValueAccessor, NgControlStatus, NgModel], styles: ['\n\n.gestion-overlay[_ngcontent-%COMP%] {\n  position: fixed;\n  inset: 0;\n  z-index: 10000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(3, 7, 20, 0.85);\n  backdrop-filter: blur(14px);\n  -webkit-backdrop-filter: blur(14px);\n  animation: _ngcontent-%COMP%_fadeIn 0.3s ease;\n}\n@keyframes _ngcontent-%COMP%_fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.gestion-card[_ngcontent-%COMP%] {\n  width: 100%;\n  max-width: 520px;\n  max-height: 90vh;\n  overflow-y: auto;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      145deg,\n      #0a1628 0%,\n      #081230 60%,\n      #0d1a3d 100%);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n  border-radius: 20px;\n  padding: 2.5rem 2rem;\n  box-shadow:\n    0 25px 60px rgba(0, 0, 0, 0.5),\n    0 0 0 1px rgba(0, 180, 216, 0.1),\n    inset 0 1px 0 rgba(0, 200, 255, 0.06);\n  animation: _ngcontent-%COMP%_slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n@keyframes _ngcontent-%COMP%_slideUp {\n  from {\n    opacity: 0;\n    transform: translateY(40px) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n}\n.gestion-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 1.5rem;\n}\n.gestion-icon[_ngcontent-%COMP%] {\n  font-size: 2.8rem;\n  margin-bottom: 0.75rem;\n  filter: drop-shadow(0 0 16px rgba(0, 180, 216, 0.5));\n  animation: _ngcontent-%COMP%_pulse 2.5s ease-in-out infinite;\n}\n@keyframes _ngcontent-%COMP%_pulse {\n  0%, 100% {\n    transform: scale(1);\n  }\n  50% {\n    transform: scale(1.08);\n  }\n}\n.gestion-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 1.5rem;\n  font-weight: 700;\n  color: #e0f2ff;\n  margin: 0 0 0.4rem;\n  font-family: "Orbitron", sans-serif;\n  text-shadow: 0 0 15px rgba(0, 180, 216, 0.3);\n}\n.gestion-header[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 0.875rem;\n  color: #7ea8c0;\n  margin: 0;\n}\n.btn-agregar[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 0.85rem;\n  background:\n    linear-gradient(\n      135deg,\n      #006d8e,\n      #0096c7);\n  border: 1px solid rgba(0, 180, 216, 0.4);\n  border-radius: 12px;\n  color: #fff;\n  font-size: 1rem;\n  font-weight: 700;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  margin-bottom: 1.5rem;\n  box-shadow: 0 4px 20px rgba(0, 150, 200, 0.3);\n  letter-spacing: 0.02em;\n}\n.btn-agregar[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #0096c7,\n      #00b4d8);\n  box-shadow: 0 8px 30px rgba(0, 180, 216, 0.4);\n  transform: translateY(-2px);\n}\n.btn-agregar[_ngcontent-%COMP%]:active:not(:disabled) {\n  transform: translateY(0);\n}\n.btn-agregar[_ngcontent-%COMP%]:disabled {\n  opacity: 0.6;\n  cursor: not-allowed;\n}\n.lista-usuarios[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n  max-height: 320px;\n  overflow-y: auto;\n  padding-right: 5px;\n  margin-bottom: 1rem;\n}\n.usuario-item[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  background: rgba(0, 30, 60, 0.4);\n  border: 1px solid rgba(0, 180, 216, 0.12);\n  padding: 10px 15px;\n  border-radius: 10px;\n  transition: border-color 0.2s, background 0.2s;\n}\n.usuario-item[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 180, 216, 0.3);\n  background: rgba(0, 40, 80, 0.4);\n}\n.usuario-info[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n}\n.avatar-mini[_ngcontent-%COMP%] {\n  width: 40px;\n  height: 40px;\n  border-radius: 50%;\n  object-fit: cover;\n  border: 2px solid rgba(0, 180, 216, 0.25);\n  box-shadow: 0 2px 8px rgba(0, 150, 200, 0.2);\n}\n.usuario-nombre[_ngcontent-%COMP%] {\n  color: #b8e6f0;\n  font-weight: 600;\n  font-size: 0.95rem;\n}\n.usuario-acciones[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 6px;\n}\n.btn-accion[_ngcontent-%COMP%] {\n  background: transparent;\n  border: 1px solid transparent;\n  cursor: pointer;\n  padding: 6px 8px;\n  border-radius: 8px;\n  font-size: 1.15rem;\n  transition: all 0.2s;\n  line-height: 1;\n}\n.btn-editar[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 150, 200, 0.2);\n  border-color: rgba(0, 180, 216, 0.3);\n}\n.btn-eliminar[_ngcontent-%COMP%]:hover {\n  background: rgba(239, 68, 68, 0.2);\n  border-color: rgba(239, 68, 68, 0.3);\n}\n.sin-usuarios[_ngcontent-%COMP%] {\n  text-align: center;\n  color: #5a8a9a;\n  font-size: 0.9rem;\n  padding: 1.5rem;\n  font-style: italic;\n}\n.error-msg[_ngcontent-%COMP%] {\n  padding: 0.65rem 1rem;\n  background: rgba(239, 68, 68, 0.1);\n  border: 1px solid rgba(239, 68, 68, 0.3);\n  border-radius: 8px;\n  color: #ff8a8a;\n  font-size: 0.85rem;\n  margin-bottom: 0.75rem;\n  animation: _ngcontent-%COMP%_shake 0.35s ease;\n}\n@keyframes _ngcontent-%COMP%_shake {\n  0%, 100% {\n    transform: translateX(0);\n  }\n  25% {\n    transform: translateX(-6px);\n  }\n  75% {\n    transform: translateX(6px);\n  }\n}\n.success-msg[_ngcontent-%COMP%] {\n  padding: 0.65rem 1rem;\n  background: rgba(0, 180, 216, 0.1);\n  border: 1px solid rgba(0, 180, 216, 0.3);\n  border-radius: 8px;\n  color: #7ec8e3;\n  font-size: 0.85rem;\n  margin-bottom: 0.75rem;\n  animation: _ngcontent-%COMP%_fadeIn 0.3s ease;\n}\n.btn-cerrar[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 0.85rem;\n  background: transparent;\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  border-radius: 10px;\n  color: #7ea8c0;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n}\n.btn-cerrar[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: rgba(0, 180, 216, 0.08);\n  color: #b8e6f0;\n}\n.formulario-overlay[_ngcontent-%COMP%] {\n  position: fixed;\n  inset: 0;\n  z-index: 10001;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(3, 7, 20, 0.8);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  animation: _ngcontent-%COMP%_fadeIn 0.25s ease;\n}\n.formulario-card[_ngcontent-%COMP%] {\n  width: 100%;\n  max-width: 460px;\n  max-height: 85vh;\n  overflow-y: auto;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      145deg,\n      #0c1a30 0%,\n      #0a1535 60%,\n      #0f1e45 100%);\n  border: 1px solid rgba(0, 180, 216, 0.25);\n  border-radius: 20px;\n  padding: 2rem 1.75rem;\n  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 180, 216, 0.12);\n  animation: _ngcontent-%COMP%_slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.formulario-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 1.5rem;\n}\n.formulario-header[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  font-size: 1.3rem;\n  font-weight: 700;\n  color: #e0f2ff;\n  margin: 0 0 0.3rem;\n  font-family: "Orbitron", sans-serif;\n  text-shadow: 0 0 12px rgba(0, 180, 216, 0.25);\n}\n.formulario-header[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 0.85rem;\n  color: #7ea8c0;\n  margin: 0;\n}\n.campo[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n  margin-bottom: 1.2rem;\n}\n.campo[_ngcontent-%COMP%]   label[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  font-weight: 600;\n  color: #7ec8e3;\n  text-transform: uppercase;\n  letter-spacing: 0.06em;\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 0.75rem 1rem;\n  background: rgba(0, 30, 60, 0.5);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n  border-radius: 10px;\n  color: #c8e6f0;\n  font-size: 0.95rem;\n  outline: none;\n  box-sizing: border-box;\n  transition:\n    border-color 0.2s,\n    box-shadow 0.2s,\n    background 0.2s;\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%]::placeholder {\n  color: #3a5a70;\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%]:focus {\n  border-color: #00b4d8;\n  background: rgba(0, 50, 90, 0.4);\n  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);\n}\n.campo[_ngcontent-%COMP%]   input[_ngcontent-%COMP%]:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.avatar-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 10px;\n  margin-top: 0.5rem;\n}\n.avatar-opcion[_ngcontent-%COMP%] {\n  background: rgba(0, 30, 60, 0.4);\n  border: 2px solid rgba(0, 180, 216, 0.12);\n  border-radius: 12px;\n  padding: 8px;\n  cursor: pointer;\n  transition: all 0.25s ease;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.avatar-opcion[_ngcontent-%COMP%]   img[_ngcontent-%COMP%] {\n  width: 56px;\n  height: 56px;\n  border-radius: 50%;\n  object-fit: cover;\n  transition: transform 0.2s;\n}\n.avatar-opcion[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 180, 216, 0.4);\n  background: rgba(0, 50, 90, 0.3);\n}\n.avatar-opcion[_ngcontent-%COMP%]:hover   img[_ngcontent-%COMP%] {\n  transform: scale(1.08);\n}\n.avatar-opcion.seleccionado[_ngcontent-%COMP%] {\n  border-color: #00b4d8;\n  background: rgba(0, 150, 200, 0.2);\n  box-shadow: 0 0 18px rgba(0, 180, 216, 0.3), inset 0 0 12px rgba(0, 180, 216, 0.08);\n}\n.avatar-opcion.seleccionado[_ngcontent-%COMP%]   img[_ngcontent-%COMP%] {\n  box-shadow: 0 0 12px rgba(0, 180, 216, 0.5);\n}\n.avatar-opcion[_ngcontent-%COMP%]:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.formulario-acciones[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 0.75rem;\n  margin-top: 0.5rem;\n}\n.btn-guardar[_ngcontent-%COMP%] {\n  padding: 0.85rem;\n  background:\n    linear-gradient(\n      135deg,\n      #006d8e,\n      #0096c7);\n  border: 1px solid rgba(0, 180, 216, 0.4);\n  border-radius: 10px;\n  color: #fff;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  box-shadow: 0 4px 20px rgba(0, 150, 200, 0.25);\n}\n.btn-guardar[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #0096c7,\n      #00b4d8);\n  box-shadow: 0 8px 30px rgba(0, 180, 216, 0.35);\n  transform: translateY(-1px);\n}\n.btn-guardar[_ngcontent-%COMP%]:disabled {\n  opacity: 0.6;\n  cursor: not-allowed;\n}\n.btn-cancelar-form[_ngcontent-%COMP%] {\n  padding: 0.85rem;\n  background: transparent;\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  border-radius: 10px;\n  color: #7ea8c0;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n}\n.btn-cancelar-form[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: rgba(0, 180, 216, 0.08);\n  color: #b8e6f0;\n}\n.confirmacion-overlay[_ngcontent-%COMP%] {\n  position: fixed;\n  inset: 0;\n  z-index: 10002;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(3, 7, 20, 0.85);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  animation: _ngcontent-%COMP%_fadeIn 0.2s ease;\n}\n.confirmacion-card[_ngcontent-%COMP%] {\n  width: 100%;\n  max-width: 380px;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      145deg,\n      #0a1628,\n      #10203e);\n  border: 1px solid rgba(239, 68, 68, 0.25);\n  border-radius: 20px;\n  padding: 2rem;\n  text-align: center;\n  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);\n  animation: _ngcontent-%COMP%_slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.confirmacion-icon[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  margin-bottom: 0.75rem;\n}\n.confirmacion-card[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  font-size: 1.2rem;\n  font-weight: 700;\n  color: #ff8a8a;\n  margin: 0 0 0.5rem;\n  font-family: "Orbitron", sans-serif;\n}\n.confirmacion-card[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 0.9rem;\n  color: #a0b8c8;\n  margin: 0 0 1.5rem;\n  line-height: 1.5;\n}\n.confirmacion-card[_ngcontent-%COMP%]   strong[_ngcontent-%COMP%] {\n  color: #e0f2ff;\n}\n.confirmacion-acciones[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 0.6rem;\n}\n.btn-confirmar-eliminar[_ngcontent-%COMP%] {\n  padding: 0.8rem;\n  background:\n    linear-gradient(\n      135deg,\n      #8b2020,\n      #c53030);\n  border: 1px solid rgba(239, 68, 68, 0.4);\n  border-radius: 10px;\n  color: #fff;\n  font-size: 0.95rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);\n}\n.btn-confirmar-eliminar[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #c53030,\n      #ef4444);\n  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);\n  transform: translateY(-1px);\n}\n.btn-confirmar-eliminar[_ngcontent-%COMP%]:disabled {\n  opacity: 0.6;\n  cursor: not-allowed;\n}\n.spinner[_ngcontent-%COMP%] {\n  display: inline-block;\n  width: 16px;\n  height: 16px;\n  border: 2px solid rgba(255, 255, 255, 0.3);\n  border-top-color: #fff;\n  border-radius: 50%;\n  animation: _ngcontent-%COMP%_spin 0.7s linear infinite;\n}\n@keyframes _ngcontent-%COMP%_spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.lista-usuarios[_ngcontent-%COMP%]::-webkit-scrollbar, \n.gestion-card[_ngcontent-%COMP%]::-webkit-scrollbar, \n.formulario-card[_ngcontent-%COMP%]::-webkit-scrollbar {\n  width: 5px;\n}\n.lista-usuarios[_ngcontent-%COMP%]::-webkit-scrollbar-track, \n.gestion-card[_ngcontent-%COMP%]::-webkit-scrollbar-track, \n.formulario-card[_ngcontent-%COMP%]::-webkit-scrollbar-track {\n  background: rgba(0, 20, 50, 0.3);\n}\n.lista-usuarios[_ngcontent-%COMP%]::-webkit-scrollbar-thumb, \n.gestion-card[_ngcontent-%COMP%]::-webkit-scrollbar-thumb, \n.formulario-card[_ngcontent-%COMP%]::-webkit-scrollbar-thumb {\n  background:\n    linear-gradient(\n      180deg,\n      #00b4d8,\n      #0077b6);\n  border-radius: 10px;\n}\n/*# sourceMappingURL=gestion-usuarios.css.map */'] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GestionUsuarios, [{
+    type: Component,
+    args: [{ selector: "app-gestion-usuarios", imports: [FormsModule], template: `<!-- ==========================================
+     OVERLAY PRINCIPAL \u2014 Gesti\xF3n de Usuarios
+     RNF-02: backdrop-filter + animaci\xF3n
+     ========================================== -->
+<div class="gestion-overlay" (click)="alCerrar()">
+  <div class="gestion-card" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="gestion-header">
+      <div class="gestion-icon">\u{1F465}</div>
+      <h2>Gesti\xF3n de Usuarios</h2>
+      <p>Administra los usuarios del sistema</p>
+    </div>
+
+    <!-- Bot\xF3n Agregar Usuario (azul) -->
+    <button class="btn-agregar" (click)="abrirCrear()" [disabled]="cargando()">
+      \u2795 Agregar Usuario Nuevo
+    </button>
+
+    <!-- Lista de Usuarios -->
+    <div class="lista-usuarios">
+      @for (usuario of usuarioService.usuarios(); track usuario.id) {
+        <div class="usuario-item">
+          <div class="usuario-info">
+            <img [src]="'img/' + usuario.avatar" [alt]="usuario.nombre" class="avatar-mini" />
+            <span class="usuario-nombre">{{ usuario.nombre }}</span>
+          </div>
+          <div class="usuario-acciones">
+            <button
+              type="button"
+              class="btn-accion btn-editar"
+              (click)="abrirEditar(usuario)"
+              title="Editar usuario"
+              [disabled]="cargando()">
+              \u270F\uFE0F
+            </button>
+            <button
+              type="button"
+              class="btn-accion btn-eliminar"
+              (click)="pedirConfirmacion(usuario)"
+              title="Eliminar usuario"
+              [disabled]="cargando()">
+              \u{1F5D1}\uFE0F
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <p class="sin-usuarios">No hay usuarios registrados.</p>
+      }
+    </div>
+
+    <!-- Mensajes -->
+    @if (mensajeError()) {
+      <div class="error-msg">\u26A0\uFE0F {{ mensajeError() }}</div>
+    }
+    @if (mensajeExito()) {
+      <div class="success-msg">\u2705 {{ mensajeExito() }}</div>
+    }
+
+    <!-- Bot\xF3n Cerrar -->
+    <button type="button" class="btn-cerrar" (click)="alCerrar()" [disabled]="cargando()">
+      Cerrar
+    </button>
+  </div>
+</div>
+
+<!-- ==========================================
+     SUB-MODAL: Crear / Editar Usuario
+     RF-05: Selector de avatares din\xE1micos
+     ========================================== -->
+@if (mostrarFormulario()) {
+  <div class="formulario-overlay" (click)="cerrarFormulario()">
+    <div class="formulario-card" (click)="$event.stopPropagation()">
+
+      <div class="formulario-header">
+        <h3>{{ modoEdicion() ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
+        <p>{{ modoEdicion() ? 'Modifica el nombre y avatar del usuario' : 'Completa los datos del nuevo usuario' }}</p>
+      </div>
+
+      <!-- Campo Nombre -->
+      <div class="campo">
+        <label for="nombre-usuario">Nombre del Usuario</label>
+        <input
+          id="nombre-usuario"
+          type="text"
+          [(ngModel)]="nombreIngresado"
+          name="nombreIngresado"
+          placeholder="Escribe el nombre completo"
+          [disabled]="cargando()"
+        />
+      </div>
+
+      <!-- RF-05: Cat\xE1logo de Avatares -->
+      <div class="campo">
+        <label>Selecciona un Avatar</label>
+        <div class="avatar-grid">
+          @for (avatar of usuarioService.avatares(); track avatar) {
+            <button
+              type="button"
+              class="avatar-opcion"
+              [class.seleccionado]="avatarSeleccionado === avatar"
+              (click)="seleccionarAvatar(avatar)"
+              [disabled]="cargando()">
+              <img [src]="'img/' + avatar" [alt]="avatar" />
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Botones del formulario -->
+      <div class="formulario-acciones">
+        <button
+          type="button"
+          class="btn-guardar"
+          (click)="guardarUsuario()"
+          [disabled]="cargando()">
+          @if (cargando()) {
+            <span class="spinner"></span> Guardando...
+          } @else {
+            {{ modoEdicion() ? 'Actualizar Usuario' : 'Crear Usuario' }}
+          }
+        </button>
+        <button
+          type="button"
+          class="btn-cancelar-form"
+          (click)="cerrarFormulario()"
+          [disabled]="cargando()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ==========================================
+     DI\xC1LOGO DE CONFIRMACI\xD3N DE ELIMINACI\xD3N
+     ========================================== -->
+@if (mostrarConfirmacion()) {
+  <div class="confirmacion-overlay" (click)="cancelarEliminacion()">
+    <div class="confirmacion-card" (click)="$event.stopPropagation()">
+      <div class="confirmacion-icon">\u26A0\uFE0F</div>
+      <h3>\xBFEliminar usuario?</h3>
+      <p>Se eliminar\xE1 a <strong>{{ usuarioAEliminar?.nombre }}</strong> y <strong>todas sus tareas</strong> de forma permanente.</p>
+      <div class="confirmacion-acciones">
+        <button class="btn-confirmar-eliminar" (click)="confirmarEliminacion()" [disabled]="cargando()">
+          @if (cargando()) {
+            <span class="spinner"></span> Eliminando...
+          } @else {
+            S\xED, eliminar
+          }
+        </button>
+        <button class="btn-cancelar-form" (click)="cancelarEliminacion()" [disabled]="cargando()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+`, styles: ['/* src/app/components/gestion-usuarios/gestion-usuarios.css */\n.gestion-overlay {\n  position: fixed;\n  inset: 0;\n  z-index: 10000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(3, 7, 20, 0.85);\n  backdrop-filter: blur(14px);\n  -webkit-backdrop-filter: blur(14px);\n  animation: fadeIn 0.3s ease;\n}\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.gestion-card {\n  width: 100%;\n  max-width: 520px;\n  max-height: 90vh;\n  overflow-y: auto;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      145deg,\n      #0a1628 0%,\n      #081230 60%,\n      #0d1a3d 100%);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n  border-radius: 20px;\n  padding: 2.5rem 2rem;\n  box-shadow:\n    0 25px 60px rgba(0, 0, 0, 0.5),\n    0 0 0 1px rgba(0, 180, 216, 0.1),\n    inset 0 1px 0 rgba(0, 200, 255, 0.06);\n  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n@keyframes slideUp {\n  from {\n    opacity: 0;\n    transform: translateY(40px) scale(0.95);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n}\n.gestion-header {\n  text-align: center;\n  margin-bottom: 1.5rem;\n}\n.gestion-icon {\n  font-size: 2.8rem;\n  margin-bottom: 0.75rem;\n  filter: drop-shadow(0 0 16px rgba(0, 180, 216, 0.5));\n  animation: pulse 2.5s ease-in-out infinite;\n}\n@keyframes pulse {\n  0%, 100% {\n    transform: scale(1);\n  }\n  50% {\n    transform: scale(1.08);\n  }\n}\n.gestion-header h2 {\n  font-size: 1.5rem;\n  font-weight: 700;\n  color: #e0f2ff;\n  margin: 0 0 0.4rem;\n  font-family: "Orbitron", sans-serif;\n  text-shadow: 0 0 15px rgba(0, 180, 216, 0.3);\n}\n.gestion-header p {\n  font-size: 0.875rem;\n  color: #7ea8c0;\n  margin: 0;\n}\n.btn-agregar {\n  width: 100%;\n  padding: 0.85rem;\n  background:\n    linear-gradient(\n      135deg,\n      #006d8e,\n      #0096c7);\n  border: 1px solid rgba(0, 180, 216, 0.4);\n  border-radius: 12px;\n  color: #fff;\n  font-size: 1rem;\n  font-weight: 700;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  margin-bottom: 1.5rem;\n  box-shadow: 0 4px 20px rgba(0, 150, 200, 0.3);\n  letter-spacing: 0.02em;\n}\n.btn-agregar:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #0096c7,\n      #00b4d8);\n  box-shadow: 0 8px 30px rgba(0, 180, 216, 0.4);\n  transform: translateY(-2px);\n}\n.btn-agregar:active:not(:disabled) {\n  transform: translateY(0);\n}\n.btn-agregar:disabled {\n  opacity: 0.6;\n  cursor: not-allowed;\n}\n.lista-usuarios {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n  max-height: 320px;\n  overflow-y: auto;\n  padding-right: 5px;\n  margin-bottom: 1rem;\n}\n.usuario-item {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  background: rgba(0, 30, 60, 0.4);\n  border: 1px solid rgba(0, 180, 216, 0.12);\n  padding: 10px 15px;\n  border-radius: 10px;\n  transition: border-color 0.2s, background 0.2s;\n}\n.usuario-item:hover {\n  border-color: rgba(0, 180, 216, 0.3);\n  background: rgba(0, 40, 80, 0.4);\n}\n.usuario-info {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n}\n.avatar-mini {\n  width: 40px;\n  height: 40px;\n  border-radius: 50%;\n  object-fit: cover;\n  border: 2px solid rgba(0, 180, 216, 0.25);\n  box-shadow: 0 2px 8px rgba(0, 150, 200, 0.2);\n}\n.usuario-nombre {\n  color: #b8e6f0;\n  font-weight: 600;\n  font-size: 0.95rem;\n}\n.usuario-acciones {\n  display: flex;\n  gap: 6px;\n}\n.btn-accion {\n  background: transparent;\n  border: 1px solid transparent;\n  cursor: pointer;\n  padding: 6px 8px;\n  border-radius: 8px;\n  font-size: 1.15rem;\n  transition: all 0.2s;\n  line-height: 1;\n}\n.btn-editar:hover {\n  background: rgba(0, 150, 200, 0.2);\n  border-color: rgba(0, 180, 216, 0.3);\n}\n.btn-eliminar:hover {\n  background: rgba(239, 68, 68, 0.2);\n  border-color: rgba(239, 68, 68, 0.3);\n}\n.sin-usuarios {\n  text-align: center;\n  color: #5a8a9a;\n  font-size: 0.9rem;\n  padding: 1.5rem;\n  font-style: italic;\n}\n.error-msg {\n  padding: 0.65rem 1rem;\n  background: rgba(239, 68, 68, 0.1);\n  border: 1px solid rgba(239, 68, 68, 0.3);\n  border-radius: 8px;\n  color: #ff8a8a;\n  font-size: 0.85rem;\n  margin-bottom: 0.75rem;\n  animation: shake 0.35s ease;\n}\n@keyframes shake {\n  0%, 100% {\n    transform: translateX(0);\n  }\n  25% {\n    transform: translateX(-6px);\n  }\n  75% {\n    transform: translateX(6px);\n  }\n}\n.success-msg {\n  padding: 0.65rem 1rem;\n  background: rgba(0, 180, 216, 0.1);\n  border: 1px solid rgba(0, 180, 216, 0.3);\n  border-radius: 8px;\n  color: #7ec8e3;\n  font-size: 0.85rem;\n  margin-bottom: 0.75rem;\n  animation: fadeIn 0.3s ease;\n}\n.btn-cerrar {\n  width: 100%;\n  padding: 0.85rem;\n  background: transparent;\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  border-radius: 10px;\n  color: #7ea8c0;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n}\n.btn-cerrar:hover:not(:disabled) {\n  background: rgba(0, 180, 216, 0.08);\n  color: #b8e6f0;\n}\n.formulario-overlay {\n  position: fixed;\n  inset: 0;\n  z-index: 10001;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(3, 7, 20, 0.8);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  animation: fadeIn 0.25s ease;\n}\n.formulario-card {\n  width: 100%;\n  max-width: 460px;\n  max-height: 85vh;\n  overflow-y: auto;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      145deg,\n      #0c1a30 0%,\n      #0a1535 60%,\n      #0f1e45 100%);\n  border: 1px solid rgba(0, 180, 216, 0.25);\n  border-radius: 20px;\n  padding: 2rem 1.75rem;\n  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 180, 216, 0.12);\n  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.formulario-header {\n  text-align: center;\n  margin-bottom: 1.5rem;\n}\n.formulario-header h3 {\n  font-size: 1.3rem;\n  font-weight: 700;\n  color: #e0f2ff;\n  margin: 0 0 0.3rem;\n  font-family: "Orbitron", sans-serif;\n  text-shadow: 0 0 12px rgba(0, 180, 216, 0.25);\n}\n.formulario-header p {\n  font-size: 0.85rem;\n  color: #7ea8c0;\n  margin: 0;\n}\n.campo {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n  margin-bottom: 1.2rem;\n}\n.campo label {\n  font-size: 0.8rem;\n  font-weight: 600;\n  color: #7ec8e3;\n  text-transform: uppercase;\n  letter-spacing: 0.06em;\n}\n.campo input {\n  width: 100%;\n  padding: 0.75rem 1rem;\n  background: rgba(0, 30, 60, 0.5);\n  border: 1px solid rgba(0, 180, 216, 0.2);\n  border-radius: 10px;\n  color: #c8e6f0;\n  font-size: 0.95rem;\n  outline: none;\n  box-sizing: border-box;\n  transition:\n    border-color 0.2s,\n    box-shadow 0.2s,\n    background 0.2s;\n}\n.campo input::placeholder {\n  color: #3a5a70;\n}\n.campo input:focus {\n  border-color: #00b4d8;\n  background: rgba(0, 50, 90, 0.4);\n  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);\n}\n.campo input:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.avatar-grid {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 10px;\n  margin-top: 0.5rem;\n}\n.avatar-opcion {\n  background: rgba(0, 30, 60, 0.4);\n  border: 2px solid rgba(0, 180, 216, 0.12);\n  border-radius: 12px;\n  padding: 8px;\n  cursor: pointer;\n  transition: all 0.25s ease;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.avatar-opcion img {\n  width: 56px;\n  height: 56px;\n  border-radius: 50%;\n  object-fit: cover;\n  transition: transform 0.2s;\n}\n.avatar-opcion:hover {\n  border-color: rgba(0, 180, 216, 0.4);\n  background: rgba(0, 50, 90, 0.3);\n}\n.avatar-opcion:hover img {\n  transform: scale(1.08);\n}\n.avatar-opcion.seleccionado {\n  border-color: #00b4d8;\n  background: rgba(0, 150, 200, 0.2);\n  box-shadow: 0 0 18px rgba(0, 180, 216, 0.3), inset 0 0 12px rgba(0, 180, 216, 0.08);\n}\n.avatar-opcion.seleccionado img {\n  box-shadow: 0 0 12px rgba(0, 180, 216, 0.5);\n}\n.avatar-opcion:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.formulario-acciones {\n  display: flex;\n  flex-direction: column;\n  gap: 0.75rem;\n  margin-top: 0.5rem;\n}\n.btn-guardar {\n  padding: 0.85rem;\n  background:\n    linear-gradient(\n      135deg,\n      #006d8e,\n      #0096c7);\n  border: 1px solid rgba(0, 180, 216, 0.4);\n  border-radius: 10px;\n  color: #fff;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  box-shadow: 0 4px 20px rgba(0, 150, 200, 0.25);\n}\n.btn-guardar:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #0096c7,\n      #00b4d8);\n  box-shadow: 0 8px 30px rgba(0, 180, 216, 0.35);\n  transform: translateY(-1px);\n}\n.btn-guardar:disabled {\n  opacity: 0.6;\n  cursor: not-allowed;\n}\n.btn-cancelar-form {\n  padding: 0.85rem;\n  background: transparent;\n  border: 1px solid rgba(0, 180, 216, 0.15);\n  border-radius: 10px;\n  color: #7ea8c0;\n  font-size: 1rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n}\n.btn-cancelar-form:hover:not(:disabled) {\n  background: rgba(0, 180, 216, 0.08);\n  color: #b8e6f0;\n}\n.confirmacion-overlay {\n  position: fixed;\n  inset: 0;\n  z-index: 10002;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(3, 7, 20, 0.85);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  animation: fadeIn 0.2s ease;\n}\n.confirmacion-card {\n  width: 100%;\n  max-width: 380px;\n  margin: 1rem;\n  background:\n    linear-gradient(\n      145deg,\n      #0a1628,\n      #10203e);\n  border: 1px solid rgba(239, 68, 68, 0.25);\n  border-radius: 20px;\n  padding: 2rem;\n  text-align: center;\n  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);\n  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.confirmacion-icon {\n  font-size: 2.5rem;\n  margin-bottom: 0.75rem;\n}\n.confirmacion-card h3 {\n  font-size: 1.2rem;\n  font-weight: 700;\n  color: #ff8a8a;\n  margin: 0 0 0.5rem;\n  font-family: "Orbitron", sans-serif;\n}\n.confirmacion-card p {\n  font-size: 0.9rem;\n  color: #a0b8c8;\n  margin: 0 0 1.5rem;\n  line-height: 1.5;\n}\n.confirmacion-card strong {\n  color: #e0f2ff;\n}\n.confirmacion-acciones {\n  display: flex;\n  flex-direction: column;\n  gap: 0.6rem;\n}\n.btn-confirmar-eliminar {\n  padding: 0.8rem;\n  background:\n    linear-gradient(\n      135deg,\n      #8b2020,\n      #c53030);\n  border: 1px solid rgba(239, 68, 68, 0.4);\n  border-radius: 10px;\n  color: #fff;\n  font-size: 0.95rem;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.3s ease;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);\n}\n.btn-confirmar-eliminar:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #c53030,\n      #ef4444);\n  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);\n  transform: translateY(-1px);\n}\n.btn-confirmar-eliminar:disabled {\n  opacity: 0.6;\n  cursor: not-allowed;\n}\n.spinner {\n  display: inline-block;\n  width: 16px;\n  height: 16px;\n  border: 2px solid rgba(255, 255, 255, 0.3);\n  border-top-color: #fff;\n  border-radius: 50%;\n  animation: spin 0.7s linear infinite;\n}\n@keyframes spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.lista-usuarios::-webkit-scrollbar,\n.gestion-card::-webkit-scrollbar,\n.formulario-card::-webkit-scrollbar {\n  width: 5px;\n}\n.lista-usuarios::-webkit-scrollbar-track,\n.gestion-card::-webkit-scrollbar-track,\n.formulario-card::-webkit-scrollbar-track {\n  background: rgba(0, 20, 50, 0.3);\n}\n.lista-usuarios::-webkit-scrollbar-thumb,\n.gestion-card::-webkit-scrollbar-thumb,\n.formulario-card::-webkit-scrollbar-thumb {\n  background:\n    linear-gradient(\n      180deg,\n      #00b4d8,\n      #0077b6);\n  border-radius: 10px;\n}\n/*# sourceMappingURL=gestion-usuarios.css.map */\n'] }]
+  }], null, { cerrar: [{
+    type: Output
+  }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GestionUsuarios, { className: "GestionUsuarios", filePath: "src/app/components/gestion-usuarios/gestion-usuarios.ts", lineNumber: 13 });
+})();
+
+// src/app/app.ts
+var _forTrack04 = ($index, $item) => $item.id;
 function App_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -45566,25 +46334,37 @@ function App_Conditional_1_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
 }
-function App_For_6_Template(rf, ctx) {
+function App_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "li")(1, "app-usuario", 5);
-    \u0275\u0275listener("seleccion", function App_For_6_Template_app_usuario_seleccion_1_listener($event) {
+    \u0275\u0275elementStart(0, "app-gestion-usuarios", 4);
+    \u0275\u0275listener("cerrar", function App_Conditional_2_Template_app_gestion_usuarios_cerrar_0_listener() {
       \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.ocultarGestionUsuarios());
+    });
+    \u0275\u0275elementEnd();
+  }
+}
+function App_For_7_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "li")(1, "app-usuario", 5);
+    \u0275\u0275listener("seleccion", function App_For_7_Template_app_usuario_seleccion_1_listener($event) {
+      \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.alSeleccionarUsuario($event));
     });
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const usuario_r5 = ctx.$implicit;
+    const usuario_r6 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("seleccionado", usuario_r5.id === ctx_r1.idUsuarioSeleccionado)("usuario", usuario_r5);
+    \u0275\u0275property("seleccionado", usuario_r6.id === ctx_r1.idUsuarioSeleccionado)("usuario", usuario_r6);
   }
 }
-function App_Conditional_7_Template(rf, ctx) {
+function App_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "app-tareas", 2);
   }
@@ -45593,7 +46373,7 @@ function App_Conditional_7_Template(rf, ctx) {
     \u0275\u0275property("idUsuario", ctx_r1.usuarioSeleccionado.id)("nombre", ctx_r1.usuarioSeleccionado.nombre);
   }
 }
-function App_Conditional_8_Template(rf, ctx) {
+function App_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p", 3);
     \u0275\u0275text(1, "Selecciona un usuario de la lista");
@@ -45602,7 +46382,7 @@ function App_Conditional_8_Template(rf, ctx) {
 }
 var App = class _App {
   auth = inject2(AuthService);
-  usuarios = USUARIOS_FALSOS;
+  usuarioService = inject2(UsuarioService);
   idUsuarioSeleccionado;
   /** Controla si el panel de login está visible */
   mostrarLogin = signal(false, ...ngDevMode ? [{ debugName: "mostrarLogin" }] : (
@@ -45614,8 +46394,13 @@ var App = class _App {
     /* istanbul ignore next */
     []
   ));
+  /** Controla si el panel de gestión de usuarios está visible */
+  mostrarGestionUsuarios = signal(false, ...ngDevMode ? [{ debugName: "mostrarGestionUsuarios" }] : (
+    /* istanbul ignore next */
+    []
+  ));
   get usuarioSeleccionado() {
-    return this.usuarios.find((usuario) => usuario.id === this.idUsuarioSeleccionado);
+    return this.usuarioService.usuarios().find((usuario) => usuario.id === this.idUsuarioSeleccionado);
   }
   alSeleccionarUsuario(id) {
     this.idUsuarioSeleccionado = id;
@@ -45626,47 +46411,55 @@ var App = class _App {
   ocultarPerfil() {
     this.mostrarPerfil.set(false);
   }
+  ocultarGestionUsuarios() {
+    this.mostrarGestionUsuarios.set(false);
+  }
   static \u0275fac = function App_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _App)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _App, selectors: [["app-root"]], decls: 9, vars: 3, consts: [[3, "abrirLogin", "abrirPerfil", "irAInicio"], ["id", "usuarios"], [3, "idUsuario", "nombre"], ["id", "textoCondicional"], [3, "cerrar"], [3, "seleccion", "seleccionado", "usuario"]], template: function App_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _App, selectors: [["app-root"]], decls: 10, vars: 4, consts: [[3, "abrirLogin", "abrirPerfil", "abrirGestionUsuarios", "irAInicio"], ["id", "usuarios"], [3, "idUsuario", "nombre"], ["id", "textoCondicional"], [3, "cerrar"], [3, "seleccion", "seleccionado", "usuario"]], template: function App_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275conditionalCreate(0, App_Conditional_0_Template, 1, 0, "app-login");
       \u0275\u0275conditionalCreate(1, App_Conditional_1_Template, 1, 0, "app-admin-perfil");
-      \u0275\u0275elementStart(2, "app-encabezado", 0);
-      \u0275\u0275listener("abrirLogin", function App_Template_app_encabezado_abrirLogin_2_listener() {
+      \u0275\u0275conditionalCreate(2, App_Conditional_2_Template, 1, 0, "app-gestion-usuarios");
+      \u0275\u0275elementStart(3, "app-encabezado", 0);
+      \u0275\u0275listener("abrirLogin", function App_Template_app_encabezado_abrirLogin_3_listener() {
         return ctx.mostrarLogin.set(true);
-      })("abrirPerfil", function App_Template_app_encabezado_abrirPerfil_2_listener() {
+      })("abrirPerfil", function App_Template_app_encabezado_abrirPerfil_3_listener() {
         return ctx.mostrarPerfil.set(true);
-      })("irAInicio", function App_Template_app_encabezado_irAInicio_2_listener() {
+      })("abrirGestionUsuarios", function App_Template_app_encabezado_abrirGestionUsuarios_3_listener() {
+        return ctx.mostrarGestionUsuarios.set(true);
+      })("irAInicio", function App_Template_app_encabezado_irAInicio_3_listener() {
         return ctx.idUsuarioSeleccionado = void 0;
       });
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(3, "main")(4, "ul", 1);
-      \u0275\u0275repeaterCreate(5, App_For_6_Template, 2, 2, "li", null, _forTrack03);
+      \u0275\u0275elementStart(4, "main")(5, "ul", 1);
+      \u0275\u0275repeaterCreate(6, App_For_7_Template, 2, 2, "li", null, _forTrack04);
       \u0275\u0275elementEnd();
-      \u0275\u0275conditionalCreate(7, App_Conditional_7_Template, 1, 2, "app-tareas", 2)(8, App_Conditional_8_Template, 2, 0, "p", 3);
+      \u0275\u0275conditionalCreate(8, App_Conditional_8_Template, 1, 2, "app-tareas", 2)(9, App_Conditional_9_Template, 2, 0, "p", 3);
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
       \u0275\u0275conditional(ctx.mostrarLogin() ? 0 : -1);
       \u0275\u0275advance();
       \u0275\u0275conditional(ctx.mostrarPerfil() && ctx.auth.estaAutenticado() ? 1 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.mostrarGestionUsuarios() && ctx.auth.estaAutenticado() ? 2 : -1);
       \u0275\u0275advance(4);
-      \u0275\u0275repeater(ctx.usuarios);
+      \u0275\u0275repeater(ctx.usuarioService.usuarios());
       \u0275\u0275advance(2);
-      \u0275\u0275conditional(ctx.usuarioSeleccionado ? 7 : 8);
+      \u0275\u0275conditional(ctx.usuarioSeleccionado ? 8 : 9);
     }
-  }, dependencies: [Encabezado, Usuario, Tareas, Login, AdminPerfil], styles: ["\n\nmain[_ngcontent-%COMP%] {\n  width: 90%;\n  max-width: 50rem;\n  margin: 2.5rem auto;\n  display: grid;\n  grid-auto-flow: row;\n  gap: 2rem;\n}\n#usuarios[_ngcontent-%COMP%] {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  display: flex;\n  gap: 0.5rem;\n  overflow: auto;\n}\n#textoCondicional[_ngcontent-%COMP%] {\n  font-weight: bold;\n  font-size: 1.15rem;\n  margin: 0;\n  text-align: center;\n}\n@media (min-width: 768px) {\n  main[_ngcontent-%COMP%] {\n    margin: 4rem auto;\n    grid-template-columns: 1fr 3fr;\n  }\n  #usuarios[_ngcontent-%COMP%] {\n    flex-direction: column;\n  }\n  #textoCondicional[_ngcontent-%COMP%] {\n    font-size: 1.5rem;\n    text-align: left;\n  }\n}\n/*# sourceMappingURL=app.css.map */"] });
+  }, dependencies: [Encabezado, Usuario, Tareas, Login, AdminPerfil, GestionUsuarios], styles: ['\n\nmain[_ngcontent-%COMP%] {\n  width: 90%;\n  max-width: 50rem;\n  margin: 2.5rem auto;\n  display: grid;\n  grid-auto-flow: row;\n  gap: 2rem;\n}\n#usuarios[_ngcontent-%COMP%] {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  display: flex;\n  gap: 0.5rem;\n  overflow: auto;\n}\n#textoCondicional[_ngcontent-%COMP%] {\n  font-family: "Orbitron", sans-serif;\n  font-weight: bold;\n  font-size: 1.15rem;\n  margin: 0;\n  text-align: center;\n  color: #7ec8e3;\n  text-shadow: 0 0 20px rgba(0, 180, 216, 0.4);\n}\n@media (min-width: 768px) {\n  main[_ngcontent-%COMP%] {\n    margin: 4rem auto;\n    grid-template-columns: 1fr 3fr;\n  }\n  #usuarios[_ngcontent-%COMP%] {\n    flex-direction: column;\n  }\n  #textoCondicional[_ngcontent-%COMP%] {\n    font-size: 1.5rem;\n    text-align: left;\n  }\n}\n/*# sourceMappingURL=app.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(App, [{
     type: Component,
-    args: [{ selector: "app-root", imports: [Encabezado, Usuario, Tareas, Login, AdminPerfil], template: '<!-- Login modal: solo se muestra cuando el usuario lo solicita expl\xEDcitamente -->\n@if (mostrarLogin()) {\n  <app-login (cerrar)="ocultarLogin()" />\n}\n\n<!-- Modal del perfil administrativo -->\n@if (mostrarPerfil() && auth.estaAutenticado()) {\n  <app-admin-perfil (cerrar)="ocultarPerfil()" />\n}\n\n<app-encabezado (abrirLogin)="mostrarLogin.set(true)" (abrirPerfil)="mostrarPerfil.set(true)" (irAInicio)="idUsuarioSeleccionado = undefined" />\n\n<main>\n  <ul id="usuarios">\n    @for (usuario of usuarios; track usuario.id) {\n    <li>\n      <app-usuario [seleccionado]="usuario.id === idUsuarioSeleccionado" [usuario]="usuario"\n        (seleccion)="alSeleccionarUsuario($event)" />\n    </li>\n    }\n  </ul>\n\n  @if (usuarioSeleccionado) {\n  <app-tareas [idUsuario]="usuarioSeleccionado.id" [nombre]="usuarioSeleccionado.nombre" />\n  } @else {\n  <p id="textoCondicional">Selecciona un usuario de la lista</p>\n  }\n</main>', styles: ["/* src/app/app.css */\nmain {\n  width: 90%;\n  max-width: 50rem;\n  margin: 2.5rem auto;\n  display: grid;\n  grid-auto-flow: row;\n  gap: 2rem;\n}\n#usuarios {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  display: flex;\n  gap: 0.5rem;\n  overflow: auto;\n}\n#textoCondicional {\n  font-weight: bold;\n  font-size: 1.15rem;\n  margin: 0;\n  text-align: center;\n}\n@media (min-width: 768px) {\n  main {\n    margin: 4rem auto;\n    grid-template-columns: 1fr 3fr;\n  }\n  #usuarios {\n    flex-direction: column;\n  }\n  #textoCondicional {\n    font-size: 1.5rem;\n    text-align: left;\n  }\n}\n/*# sourceMappingURL=app.css.map */\n"] }]
+    args: [{ selector: "app-root", imports: [Encabezado, Usuario, Tareas, Login, AdminPerfil, GestionUsuarios], template: '<!-- Login modal: solo se muestra cuando el usuario lo solicita expl\xEDcitamente -->\n@if (mostrarLogin()) {\n  <app-login (cerrar)="ocultarLogin()" />\n}\n\n<!-- Modal del perfil administrativo -->\n@if (mostrarPerfil() && auth.estaAutenticado()) {\n  <app-admin-perfil (cerrar)="ocultarPerfil()" />\n}\n\n<!-- RF-02: Modal de gesti\xF3n de usuarios -->\n@if (mostrarGestionUsuarios() && auth.estaAutenticado()) {\n  <app-gestion-usuarios (cerrar)="ocultarGestionUsuarios()" />\n}\n\n<app-encabezado\n  (abrirLogin)="mostrarLogin.set(true)"\n  (abrirPerfil)="mostrarPerfil.set(true)"\n  (abrirGestionUsuarios)="mostrarGestionUsuarios.set(true)"\n  (irAInicio)="idUsuarioSeleccionado = undefined" />\n\n<main>\n  <ul id="usuarios">\n    @for (usuario of usuarioService.usuarios(); track usuario.id) {\n    <li>\n      <app-usuario [seleccionado]="usuario.id === idUsuarioSeleccionado" [usuario]="usuario"\n        (seleccion)="alSeleccionarUsuario($event)" />\n    </li>\n    }\n  </ul>\n\n  @if (usuarioSeleccionado) {\n  <app-tareas [idUsuario]="usuarioSeleccionado.id" [nombre]="usuarioSeleccionado.nombre" />\n  } @else {\n  <p id="textoCondicional">Selecciona un usuario de la lista</p>\n  }\n</main>', styles: ['/* src/app/app.css */\nmain {\n  width: 90%;\n  max-width: 50rem;\n  margin: 2.5rem auto;\n  display: grid;\n  grid-auto-flow: row;\n  gap: 2rem;\n}\n#usuarios {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  display: flex;\n  gap: 0.5rem;\n  overflow: auto;\n}\n#textoCondicional {\n  font-family: "Orbitron", sans-serif;\n  font-weight: bold;\n  font-size: 1.15rem;\n  margin: 0;\n  text-align: center;\n  color: #7ec8e3;\n  text-shadow: 0 0 20px rgba(0, 180, 216, 0.4);\n}\n@media (min-width: 768px) {\n  main {\n    margin: 4rem auto;\n    grid-template-columns: 1fr 3fr;\n  }\n  #usuarios {\n    flex-direction: column;\n  }\n  #textoCondicional {\n    font-size: 1.5rem;\n    text-align: left;\n  }\n}\n/*# sourceMappingURL=app.css.map */\n'] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(App, { className: "App", filePath: "src/app/app.ts", lineNumber: 16 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(App, { className: "App", filePath: "src/app/app.ts", lineNumber: 17 });
 })();
 
 // node_modules/@angular/common/locales/es.js

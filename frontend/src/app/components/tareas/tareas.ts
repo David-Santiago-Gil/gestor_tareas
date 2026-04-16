@@ -12,7 +12,7 @@ import { AuthService } from '../../servicios/auth.service';
 })
 export class Tareas implements OnInit {
   @Input({ required: true }) nombre!: string;
-  @Input({ required: true }) idUsuario!: string;
+  @Input({ required: true }) idUsuario!: number;
   estaAgregandoTareaNueva = false;
 
   auth = inject(AuthService);

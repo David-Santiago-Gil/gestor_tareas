@@ -7,6 +7,8 @@ const cors       = require('cors');
 const mysql      = require('mysql2');
 const jwt        = require('jsonwebtoken');
 const bcrypt     = require('bcryptjs');
+const fs         = require('fs');
+const path       = require('path');
 
 // ==========================================
 // VALIDACIÓN CRÍTICA DE VARIABLES DE ENTORNO
@@ -64,7 +66,7 @@ sql.connect((err) => {
 // ==========================================
 // AUTO-CREACIÓN DE TABLAS + SEEDING
 // Crea las tablas si no existen, luego verifica
-// si administradores está vacía e inserta el admin por defecto.
+// si administradores/usuarios están vacías e inserta datos por defecto.
 // Funciona tanto en local (MySQL Workbench) como en Railway.
 // ==========================================
 function inicializarBaseDeDatos() {
@@ -76,14 +78,23 @@ function inicializarBaseDeDatos() {
         )
     `;
 
+    const crearTablaUsuarios = `
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id     INT          AUTO_INCREMENT PRIMARY KEY,
+            nombre VARCHAR(150) NOT NULL,
+            avatar VARCHAR(100) NOT NULL DEFAULT 'usuario-1.png'
+        )
+    `;
+
     const crearTablaTareas = `
         CREATE TABLE IF NOT EXISTS tareas (
             id         VARCHAR(50)  PRIMARY KEY,
             titulo     VARCHAR(255) NOT NULL,
             resumen    TEXT,
             expira     DATE,
-            idUsuario  VARCHAR(50)  NOT NULL,
-            completada TINYINT      DEFAULT 0
+            idUsuario  INT          NOT NULL,
+            completada TINYINT      DEFAULT 0,
+            FOREIGN KEY (idUsuario) REFERENCES usuarios(id) ON DELETE CASCADE
         )
     `;
 
@@ -95,36 +106,73 @@ function inicializarBaseDeDatos() {
         }
         console.log('✅ Tabla administradores lista');
 
-        // Paso 2: Crear tabla tareas
-        sql.query(crearTablaTareas, (err2) => {
+        // Paso 2: Crear tabla usuarios
+        sql.query(crearTablaUsuarios, (err2) => {
             if (err2) {
-                console.error('❌ Error creando tabla tareas:', err2);
+                console.error('❌ Error creando tabla usuarios:', err2);
                 return;
             }
-            console.log('✅ Tabla tareas lista');
+            console.log('✅ Tabla usuarios lista');
 
-            // Paso 3: Seed del admin por defecto
-            sql.query('SELECT COUNT(*) AS total FROM administradores', (err3, rows) => {
+            // Paso 3: Crear tabla tareas (depende de usuarios por la FK)
+            sql.query(crearTablaTareas, (err3) => {
                 if (err3) {
-                    console.error('❌ Error contando administradores:', err3);
+                    console.error('❌ Error creando tabla tareas:', err3);
                     return;
                 }
-                if (rows[0].total === 0) {
-                    const hash = bcrypt.hashSync('admin123', 10);
-                    sql.query(
-                        'INSERT INTO administradores (username, password) VALUES (?, ?)',
-                        ['admin', hash],
-                        (err4) => {
-                            if (err4) {
-                                console.error('❌ Error insertando admin por defecto:', err4);
-                            } else {
-                                console.log('🌱 Seed: admin creado con contraseña "admin123"');
+                console.log('✅ Tabla tareas lista');
+
+                // Paso 4: Seed del admin por defecto
+                sql.query('SELECT COUNT(*) AS total FROM administradores', (err4, rows) => {
+                    if (err4) {
+                        console.error('❌ Error contando administradores:', err4);
+                        return;
+                    }
+                    if (rows[0].total === 0) {
+                        const hash = bcrypt.hashSync('admin123', 10);
+                        sql.query(
+                            'INSERT INTO administradores (username, password) VALUES (?, ?)',
+                            ['admin', hash],
+                            (err5) => {
+                                if (err5) {
+                                    console.error('❌ Error insertando admin por defecto:', err5);
+                                } else {
+                                    console.log('🌱 Seed: admin creado con contraseña "admin123"');
+                                }
                             }
-                        }
-                    );
-                } else {
-                    console.log(`ℹ️  Seed omitido: ya existen ${rows[0].total} administrador(es)`);
-                }
+                        );
+                    } else {
+                        console.log(`ℹ️  Seed omitido: ya existen ${rows[0].total} administrador(es)`);
+                    }
+                });
+
+                // Paso 5: Seed de usuarios por defecto
+                sql.query('SELECT COUNT(*) AS total FROM usuarios', (err4, rows) => {
+                    if (err4) {
+                        console.error('❌ Error contando usuarios:', err4);
+                        return;
+                    }
+                    if (rows[0].total === 0) {
+                        const usuariosIniciales = [
+                            ['Antonia Céspedes', 'usuario-1.png'],
+                            ['Emilia Torres',    'usuario-2.png'],
+                            ['Marcos Jeremías',  'usuario-3.png'],
+                            ['David Mercado',    'usuario-4.png'],
+                            ['Pamela Chan',      'usuario-5.png'],
+                            ['Adrián Serbio',    'usuario-6.png'],
+                        ];
+                        const insertQuery = 'INSERT INTO usuarios (nombre, avatar) VALUES ?';
+                        sql.query(insertQuery, [usuariosIniciales], (err5) => {
+                            if (err5) {
+                                console.error('❌ Error insertando usuarios por defecto:', err5);
+                            } else {
+                                console.log('🌱 Seed: 6 usuarios creados correctamente');
+                            }
+                        });
+                    } else {
+                        console.log(`ℹ️  Seed omitido: ya existen ${rows[0].total} usuario(s)`);
+                    }
+                });
             });
         });
     });
@@ -333,10 +381,8 @@ app.put('/api/auth/admins/:id', verificarToken, async (req, res) => {
     const { id } = req.params;
     const { username, password } = req.body;
 
-    // No se puede modificar al administrador principal por aquí
-    if (parseInt(id, 10) === 1) {
-        return res.status(403).json({ error: 'El administrador principal no puede ser modificado aquí' });
-    }
+    // Permitimos modificar todos los admins (incluso el principal ID=1)
+    
 
     if (!username && !password) {
         return res.status(400).json({ error: 'Datos insuficientes' });
@@ -378,6 +424,133 @@ app.put('/api/auth/admins/:id', verificarToken, async (req, res) => {
 });
 
 // ==========================================
+// RF-02 — GET /api/usuarios (PÚBLICO)
+// Listar todos los usuarios
+// ==========================================
+app.get('/api/usuarios', (req, res) => {
+    sql.query('SELECT id, nombre, avatar FROM usuarios ORDER BY id ASC', (err, results) => {
+        if (err) {
+            console.error('❌ Error GET usuarios:', err);
+            return res.status(500).json({ error: 'Error al obtener usuarios' });
+        }
+        res.json(results);
+    });
+});
+
+// ==========================================
+// RF-02 — POST /api/usuarios (PROTEGIDO)
+// Crear un nuevo usuario
+// ==========================================
+app.post('/api/usuarios', verificarToken, (req, res) => {
+    const { nombre, avatar } = req.body;
+
+    if (!nombre || !nombre.trim()) {
+        return res.status(400).json({ error: 'El nombre del usuario es requerido' });
+    }
+
+    const avatarFinal = avatar || 'usuario-1.png';
+
+    sql.query(
+        'INSERT INTO usuarios (nombre, avatar) VALUES (?, ?)',
+        [nombre.trim(), avatarFinal],
+        (err, result) => {
+            if (err) {
+                console.error('❌ Error POST usuario:', err);
+                return res.status(500).json({ error: 'Error al crear usuario' });
+            }
+            res.status(201).json({
+                id: result.insertId,
+                nombre: nombre.trim(),
+                avatar: avatarFinal,
+                mensaje: 'Usuario creado exitosamente'
+            });
+        }
+    );
+});
+
+// ==========================================
+// RF-02 — PUT /api/usuarios/:id (PROTEGIDO)
+// Actualizar nombre y/o avatar de un usuario
+// ==========================================
+app.put('/api/usuarios/:id', verificarToken, (req, res) => {
+    const { id } = req.params;
+    const { nombre, avatar } = req.body;
+
+    if (!nombre && !avatar) {
+        return res.status(400).json({ error: 'Debes proporcionar nombre y/o avatar a actualizar' });
+    }
+
+    const campos = [];
+    const valores = [];
+
+    if (nombre) {
+        campos.push('nombre = ?');
+        valores.push(nombre.trim());
+    }
+
+    if (avatar) {
+        campos.push('avatar = ?');
+        valores.push(avatar);
+    }
+
+    valores.push(id);
+
+    const query = `UPDATE usuarios SET ${campos.join(', ')} WHERE id = ?`;
+
+    sql.query(query, valores, (err, result) => {
+        if (err) {
+            console.error('❌ Error PUT usuario:', err);
+            return res.status(500).json({ error: 'Error al actualizar usuario' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+        res.json({ mensaje: 'Usuario actualizado exitosamente' });
+    });
+});
+
+// ==========================================
+// RF-02 + RF-06 — DELETE /api/usuarios/:id (PROTEGIDO)
+// Eliminar usuario y sus tareas (CASCADE)
+// ==========================================
+app.delete('/api/usuarios/:id', verificarToken, (req, res) => {
+    const { id } = req.params;
+
+    sql.query('DELETE FROM usuarios WHERE id = ?', [id], (err, result) => {
+        if (err) {
+            console.error('❌ Error DELETE usuario:', err);
+            return res.status(500).json({ error: 'Error al eliminar usuario' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+        // Gracias a ON DELETE CASCADE, las tareas del usuario ya fueron eliminadas
+        res.json({ mensaje: 'Usuario y sus tareas eliminados exitosamente' });
+    });
+});
+
+// ==========================================
+// RF-05 — GET /api/avatares (PÚBLICO)
+// Listar avatares disponibles en el servidor
+// ==========================================
+app.get('/api/avatares', (req, res) => {
+    // Lista estática de avatares disponibles en el proyecto
+    const avatares = [
+        'usuario-1.png',
+        'usuario-2.png',
+        'usuario-3.png',
+        'usuario-4.png',
+        'usuario-5.png',
+        'usuario-6.png',
+        'usuario-7.png',
+        'usuario-8.png',
+        'usuario-9.png',
+        'usuario-10.png',
+    ];
+    res.json(avatares);
+});
+
+// ==========================================
 // RF-C1 — GET /tareas (PÚBLICO)
 // ==========================================
 app.get('/tareas', (req, res) => {
@@ -398,17 +571,28 @@ app.post('/tareas', verificarToken, (req, res) => {
 
     console.log('📥 Datos recibidos:', req.body);
 
-    const query = `
-        INSERT INTO tareas (id, titulo, resumen, expira, idUsuario, completada)
-        VALUES (?, ?, ?, ?, ?, 0)
-    `;
-
-    sql.query(query, [id, titulo, resumen, expira, idUsuario], (err) => {
-        if (err) {
-            console.error('❌ Error INSERT tarea:', err);
-            return res.status(500).json(err);
+    // RF-03: Validar que el usuario existe antes de crear la tarea
+    sql.query('SELECT id FROM usuarios WHERE id = ?', [idUsuario], (errU, rows) => {
+        if (errU) {
+            console.error('❌ Error verificando usuario:', errU);
+            return res.status(500).json({ error: 'Error interno' });
         }
-        res.json({ mensaje: 'Tarea creada correctamente' });
+        if (rows.length === 0) {
+            return res.status(400).json({ error: 'El usuario especificado no existe' });
+        }
+
+        const query = `
+            INSERT INTO tareas (id, titulo, resumen, expira, idUsuario, completada)
+            VALUES (?, ?, ?, ?, ?, 0)
+        `;
+
+        sql.query(query, [id, titulo, resumen, expira, idUsuario], (err) => {
+            if (err) {
+                console.error('❌ Error INSERT tarea:', err);
+                return res.status(500).json(err);
+            }
+            res.json({ mensaje: 'Tarea creada correctamente' });
+        });
     });
 });
 
@@ -427,6 +611,21 @@ app.put('/tareas/:id', verificarToken, (req, res) => {
         }
         console.log('✔️ Filas afectadas:', result.affectedRows);
         res.json({ mensaje: 'Tarea completada' });
+    });
+});
+
+// ==========================================
+// RF-C2 — PUT /tareas/:id/reabrir (PROTEGIDO)
+// ==========================================
+app.put('/tareas/:id/reabrir', verificarToken, (req, res) => {
+    const { id } = req.params;
+
+    sql.query('UPDATE tareas SET completada = 0 WHERE id = ?', [id], (err, result) => {
+        if (err) {
+            console.error('❌ Error UPDATE tarea (reabrir):', err);
+            return res.status(500).json(err);
+        }
+        res.json({ mensaje: 'Tarea reabierta' });
     });
 });
 

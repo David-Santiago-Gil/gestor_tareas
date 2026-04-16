@@ -30,6 +30,10 @@ export class Tarea {
     }
   }
 
+  async alReabrirTarea() {
+    await this.tareasService.reabrirTarea(this.tarea.id);
+  }
+
   alBorrarTarea() {
     if (this.auth.estaAutenticado()) {
       this.tareasService.borrarTarea(this.tarea.id);

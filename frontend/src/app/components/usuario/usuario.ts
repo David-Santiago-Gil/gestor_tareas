@@ -1,4 +1,4 @@
-import { Component, computed, EventEmitter, Input, input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { type Usuarios } from './usuario.model';
 import { Tarjeta } from "../tarjeta/tarjeta";
 
@@ -12,7 +12,7 @@ export class Usuario {
 
   @Input({ required: true }) usuario!: Usuarios;
   @Input({ required: true }) seleccionado!: boolean;
-  @Output() seleccion = new EventEmitter();
+  @Output() seleccion = new EventEmitter<number>();
 
 
   get rutaImagen() {

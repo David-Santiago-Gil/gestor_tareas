@@ -111,6 +111,24 @@ p {
     transform: scale(1.04);
 }
 
+.btn-gestion-usuarios {
+    font-size: 0.8rem;
+    background: rgba(0, 150, 200, 0.18);
+    border: 1px solid rgba(0, 180, 216, 0.35);
+    border-radius: 999px;
+    padding: 0.3rem 0.9rem;
+    color: #7ec8e3;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.btn-gestion-usuarios:hover {
+    background: rgba(0, 180, 216, 0.3);
+    transform: scale(1.04);
+    box-shadow: 0 2px 12px rgba(0, 180, 216, 0.2);
+}
+
 .logo-click {
     cursor: pointer;
     transition: transform 0.2s ease, filter 0.2s;

@@ -16,7 +16,7 @@ export class TareaService {
   private async cargarTareasDesdeBackend() {
     try {
       const response = await firstValueFrom(
-        this.http.get<tarea[]>(`${environment.apiUrl}/tareas`)
+        this.http.get<tarea[]>(`${environment.apiUrl}/tareas?_t=${new Date().getTime()}`)
       );
       this.tareas = response;
     } catch (e) {

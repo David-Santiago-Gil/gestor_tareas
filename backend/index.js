@@ -26,15 +26,13 @@ const JWT_EXPIRATION = process.env.JWT_EXPIRATION || '8h';
 // ==========================================
 const app = express();
 
-// CORS explícito — NO se usa cors() vacío
-const allowedOrigins = ['http://localhost:4200'];
-if (process.env.FRONTEND_URL) {
-    allowedOrigins.push(process.env.FRONTEND_URL);
-}
-
 app.use(cors({
-    origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    origin: function (origin, callback) {
+        // PERMITIR TODO DINÁMICAMENTE PARA DESPLIEGUE EN VERCEL
+        // Esto evita bloqueos de CORS sin importar qué URL asigne Vercel
+        return callback(null, true);
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 }));
@@ -42,22 +40,26 @@ app.use(cors({
 app.use(express.json());
 
 // ==========================================
-// CONEXIÓN MYSQL
+// CONEXIÓN MYSQL (POOL para Railway)
 // ==========================================
-const sql = mysql.createConnection({
+// Railway exige manejar límites de conexión, Pool es obligatorio para no crashear
+const sql = mysql.createPool({
     host:     process.env.MYSQLHOST     || process.env.SQL_HOST     || 'localhost',
     port:     process.env.MYSQLPORT     || process.env.SQL_PORT     || 3306,
     user:     process.env.MYSQLUSER     || process.env.SQL_USER     || 'root',
     password: process.env.MYSQLPASSWORD || process.env.SQL_PASSWORD || '',
     database: process.env.MYSQLDATABASE || process.env.SQL_NAME     || 'tareas_db',
+    connectionLimit: 10,
+    waitForConnections: true
 });
 
-sql.connect((err) => {
+sql.getConnection((err, connection) => {
     if (err) {
-        console.error('❌ Error conexión MySQL:', err);
+        console.error('❌ Error conexión MySQL (Railway Pool):', err);
         return;
     }
-    console.log('✅ Conectado a MySQL');
+    if (connection) connection.release();
+    console.log('✅ Conectado a MySQL (Railway Pool)');
 
     // Una vez conectados, garantizamos las tablas y corremos el seed
     inicializarBaseDeDatos();
@@ -684,6 +686,7 @@ app.delete('/tareas/:id', verificarToken, (req, res) => {
 // ==========================================
 // SERVIDOR
 // ==========================================
-app.listen(3000, () => {
-    console.log('🚀 Servidor corriendo en http://localhost:3000');
+const port = process.env.PORT || 3000;
+app.listen(port, '0.0.0.0', () => {
+    console.log(`🚀 Servidor corriendo en el puerto ${port}`);
 });

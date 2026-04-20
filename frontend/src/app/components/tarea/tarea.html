@@ -1,32 +1,8 @@
-<!-- MODAL DE EDICIÓN -->
-@if (editando) {
-<div class="overlay" (click)="alCancelarEdicion()"></div>
-<dialog open class="modal-editar">
-    <h2>Editar Tarea</h2>
-    <form (ngSubmit)="alGuardarEdicion()">
-        <p>
-            <label for="editTitulo">Título</label>
-            <input type="text" id="editTitulo" [(ngModel)]="tituloEditado" name="titulo" />
-        </p>
-        <p>
-            <label for="editResumen">Resumen</label>
-            <textarea id="editResumen" rows="4" [(ngModel)]="resumenEditado" name="resumen"></textarea>
-        </p>
-        <p>
-            <label for="editExpira">Fecha Límite</label>
-            <input type="date" id="editExpira" [(ngModel)]="expiraEditado" name="expira" />
-        </p>
-        <p class="modal-acciones">
-            <button type="button" (click)="alCancelarEdicion()">Cancelar</button>
-            <button type="submit">Guardar</button>
-        </p>
-    </form>
-</dialog>
-}
-
 <!-- TARJETA NORMAL -->
 <app-tarjeta>
-    <article [ngClass]="{ 'completada': tarea.completada === 1 }">
+    <article [ngClass]="{ 'completada': tarea.completada === 1 }"
+             [style.backgroundImage]="'linear-gradient(to right, rgba(15, 10, 25, 0.95) 0%, rgba(15, 10, 25, 0.7) 45%, rgba(15, 10, 25, 0.1) 100%), url(img/' + (tarea.imagenFondo ? tarea.imagenFondo : 'bg_jujutsu.png') + ')'"
+             style="background-size: cover; background-position: center;">
         <h2>{{ tarea.titulo }}</h2>
         <time>{{ tarea.expira | date: 'fullDate' }}</time>
         <p>{{ tarea.resumen }}</p>

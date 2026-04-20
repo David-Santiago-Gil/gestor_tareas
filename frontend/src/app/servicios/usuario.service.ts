@@ -63,10 +63,10 @@ export class UsuarioService {
   }
 
   /** RF-02: Crear un nuevo usuario */
-  async crear(nombre: string, avatar: string): Promise<void> {
+  async crear(nombre: string, avatar: string, fondoCard: string = 'bg_jujutsu.png'): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.post(`${environment.apiUrl}/api/usuarios`, { nombre, avatar })
+        this.http.post(`${environment.apiUrl}/api/usuarios`, { nombre, avatar, fondoCard })
       );
       await this.cargar(); // RF-07: reactividad automática
     } catch (e: any) {
@@ -77,11 +77,11 @@ export class UsuarioService {
     }
   }
 
-  /** RF-02: Actualizar nombre y/o avatar de un usuario */
-  async actualizar(id: number, nombre: string, avatar: string): Promise<void> {
+  /** RF-02: Actualizar nombre, avatar y/o fondo de un usuario */
+  async actualizar(id: number, nombre: string, avatar: string, fondoCard?: string): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.put(`${environment.apiUrl}/api/usuarios/${id}`, { nombre, avatar })
+        this.http.put(`${environment.apiUrl}/api/usuarios/${id}`, { nombre, avatar, fondoCard })
       );
       await this.cargar(); // RF-07: reactividad automática
     } catch (e: any) {

@@ -26,7 +26,7 @@
   width: 100%;
   max-width: 440px;
   margin: 1rem;
-  background: linear-gradient(145deg, #0a1628 0%, #081230 60%, #0d1a3d 100%);
+  background: linear-gradient(rgba(10, 15, 30, 0.85), rgba(5, 10, 20, 0.95)), url('/img/fondo.png') center / cover no-repeat;
   border: 1px solid rgba(0, 180, 216, 0.2);
   border-radius: 20px;
   padding: 2.5rem 2rem;
@@ -257,15 +257,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(0, 30, 60, 0.4);
-  border: 1px solid rgba(0, 180, 216, 0.12);
+  background: linear-gradient(to right, rgba(15, 10, 25, 0.95) 0%, rgba(15, 10, 25, 0.8) 50%, rgba(15, 10, 25, 0.3) 100%), url('/img/fondo.png') center / cover no-repeat;
+  border: 1px solid rgba(139, 92, 246, 0.2);
   padding: 10px 15px;
-  border-radius: 8px;
-  transition: border-color 0.2s;
+  border-radius: 12px;
+  transition: border-color 0.2s, transform 0.2s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .admin-item:hover {
-  border-color: rgba(0, 180, 216, 0.25);
+  border-color: rgba(139, 92, 246, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5), 0 0 10px rgba(139, 92, 246, 0.2);
 }
 
 .admin-item span {

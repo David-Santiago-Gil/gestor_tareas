@@ -5,10 +5,12 @@ export interface tarea {
     resumen: string,
     expira: string,
     completada?: number,
+    imagenFondo?: string,
 }
 
 export interface NuevaTareaInfo {
     titulo: string;
     resumen: string;
-    fecha: string
+    fecha: string;
+    imagenFondo?: string;
 }

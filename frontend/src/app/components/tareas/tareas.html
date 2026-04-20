@@ -2,12 +2,16 @@
 <app-nueva-tarea [idUsuario]="idUsuario" (cerrar)="alCerrarTareaNueva()" />
 }
 
+@if (tareaSeleccionadaParaEditar) {
+<app-editar-tarea [tarea]="tareaSeleccionadaParaEditar" (cerrar)="alCerrarEdicion()" />
+}
+
 <section id="tareas">
     <header>
         <h2>Tareas de {{ nombre }}</h2>
         <menu>
             @if (auth.estaAutenticado()) {
-              <button (click)="alIniciarNuevaTarea()">Agregar Tarea Nueva</button>
+              <button (click)="alIniciarNuevaTarea()">Agregar Tarea</button>
             }
         </menu>
     </header>
@@ -33,7 +37,7 @@
         } @else {
             @for (tarea of tareasUsuarioSeleccionado; track tarea.id) {
             <li>
-                <app-tarea [tarea]="tarea" />
+                <app-tarea [tarea]="tarea" (solicitarEdicion)="alAbrirEdicion(tarea)" />
             </li>
             }
         }

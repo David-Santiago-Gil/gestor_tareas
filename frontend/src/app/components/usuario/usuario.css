@@ -2,22 +2,34 @@ button {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.35rem 0.5rem;
-    background-color: rgba(5, 20, 50, 0.7);
+    padding: 0.45rem 0.75rem;
+    background-color: transparent;
     color: #8ab4d0;
-    border: none;
+    border: 1px solid transparent;
+    border-radius: 999px;
     font: inherit;
     cursor: pointer;
     width: 100%;
     min-width: 10rem;
     text-align: left;
+    transition: all 0.2s ease, transform 0.2s;
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
 }
 
 button:hover,
-button:active,
-.active {
-    background-color: rgba(0, 150, 200, 0.25);
+button:active {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(0, 180, 216, 0.3);
     color: #e0f2ff;
+}
+
+.active {
+    background-color: rgba(124, 58, 237, 0.4);
+    border-color: rgba(180, 120, 255, 0.8);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
 }
 
 img {

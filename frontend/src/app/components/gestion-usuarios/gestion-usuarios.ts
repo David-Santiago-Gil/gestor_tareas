@@ -29,6 +29,19 @@ export class GestionUsuarios implements OnInit {
   // Campos del formulario
   nombreIngresado = '';
   avatarSeleccionado = 'usuario-1.png';
+  fondoSeleccionado = 'usr_samurai.png';
+
+  // Opciones de fondos disponibles
+  fondosDisponibles = [
+    { archivo: 'usr_samurai.png',   nombre: 'Samurai Neón' },
+    { archivo: 'usr_mecha.png',     nombre: 'Mecha Cyber' },
+    { archivo: 'usr_mage.png',      nombre: 'Mago Osuro' },
+    { archivo: 'usr_dragon.png',    nombre: 'Dragón Astral' },
+    { archivo: 'usr_cybercity.png', nombre: 'Ciudad Noche' },
+    { archivo: 'usr_epic.png',      nombre: 'Silueta Épica' },
+    { archivo: 'usr_void.png',      nombre: 'Gojo Satoru' },
+    { archivo: 'usr_ghoul.png',     nombre: 'Ghoul Oscuro' },
+  ];
 
   ngOnInit() {
     this.usuarioService.cargar();
@@ -41,6 +54,7 @@ export class GestionUsuarios implements OnInit {
   abrirCrear() {
     this.nombreIngresado = '';
     this.avatarSeleccionado = 'usuario-1.png';
+    this.fondoSeleccionado = 'usr_samurai.png';
     this.modoEdicion.set(false);
     this.usuarioEditandoId = null;
     this.limpiarMensajes();
@@ -50,6 +64,7 @@ export class GestionUsuarios implements OnInit {
   abrirEditar(usuario: Usuarios) {
     this.nombreIngresado = usuario.nombre;
     this.avatarSeleccionado = usuario.avatar;
+    this.fondoSeleccionado = usuario.fondoCard || 'usr_samurai.png';
     this.modoEdicion.set(true);
     this.usuarioEditandoId = usuario.id;
     this.limpiarMensajes();
@@ -78,13 +93,15 @@ export class GestionUsuarios implements OnInit {
         await this.usuarioService.actualizar(
           this.usuarioEditandoId,
           this.nombreIngresado.trim(),
-          this.avatarSeleccionado
+          this.avatarSeleccionado,
+          this.fondoSeleccionado
         );
         this.mensajeExito.set('Usuario actualizado exitosamente.');
       } else {
         await this.usuarioService.crear(
           this.nombreIngresado.trim(),
-          this.avatarSeleccionado
+          this.avatarSeleccionado,
+          this.fondoSeleccionado
         );
         this.mensajeExito.set('Usuario creado exitosamente.');
       }
@@ -139,6 +156,10 @@ export class GestionUsuarios implements OnInit {
   // ==========================================
   seleccionarAvatar(avatar: string) {
     this.avatarSeleccionado = avatar;
+  }
+
+  seleccionarFondo(fondo: string) {
+    this.fondoSeleccionado = fondo;
   }
 
   limpiarMensajes() {

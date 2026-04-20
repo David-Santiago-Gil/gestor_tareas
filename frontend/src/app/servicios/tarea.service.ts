@@ -37,6 +37,7 @@ export class TareaService {
       expira: info.fecha,
       idUsuario,
       completada: 0,
+      imagenFondo: info.imagenFondo,
     };
     try {
       await firstValueFrom(
@@ -81,10 +82,13 @@ export class TareaService {
     }
   }
 
-  async editarTarea(id: string, titulo: string, resumen: string, expira: string) {
+  async editarTarea(id: string, titulo: string, resumen: string, expira: string, imagenFondo?: string) {
     try {
+      const data: any = { titulo, resumen, expira };
+      if (imagenFondo) data.imagenFondo = imagenFondo;
+
       await firstValueFrom(
-        this.http.put(`${environment.apiUrl}/tareas/${id}/editar`, { titulo, resumen, expira })
+        this.http.put(`${environment.apiUrl}/tareas/${id}/editar`, data)
       );
       await this.cargarTareasDesdeBackend();
     } catch (e) {

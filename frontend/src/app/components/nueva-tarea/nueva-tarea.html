@@ -17,6 +17,19 @@
             <input type="date" id="expira" name="expira" [(ngModel)]="fechaIngresado" />
         </p>
 
+        <p>
+            <label>Selecciona el Tema / Fondo Anime en 4K</label>
+            <span class="bg-grid">
+                <span *ngFor="let bg of fondosAvanzados" 
+                     class="bg-opcion" 
+                     [class.seleccionado]="fondoIngresado === bg.id"
+                     (click)="fondoIngresado = bg.id"
+                     [title]="bg.nombre">
+                     <img [src]="'img/' + bg.id" alt="bg">
+                </span>
+            </span>
+        </p>
+
         <p class="acciones">
             <button type="button" (click)="alCancelar()">Cancelar</button>
             <button type="submit">Crear</button>

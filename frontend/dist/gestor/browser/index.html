@@ -21,10 +21,17 @@ main[_ngcontent-ng-c3666239702] {
 #usuarios[_ngcontent-ng-c3666239702] {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 1rem;
   display: flex;
   gap: 0.5rem;
   overflow: auto;
+  background-color: rgba(30, 20, 60, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 24px;
+  border: 1px solid rgba(150, 100, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  height: fit-content;
 }
 #textoCondicional[_ngcontent-ng-c3666239702] {
   font-family: "Orbitron", sans-serif;
@@ -50,41 +57,44 @@ main[_ngcontent-ng-c3666239702] {
 }
 /*# sourceMappingURL=/app.css.map */</style><style ng-app-id="ng">
 
-header[_ngcontent-ng-c998833887] {
+header[_ngcontent-ng-c1254480586] {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
   width: 90%;
   max-width: 50rem;
-  margin: 0 auto 2rem auto;
+  margin: 1.5rem auto 2rem auto;
   text-align: center;
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(5, 15, 40, 0.9),
-      rgba(0, 40, 80, 0.8));
-  padding: 1rem;
-  border-bottom-right-radius: 12px;
-  border-bottom-left-radius: 12px;
-  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.6), 0 4px 20px rgba(0, 150, 200, 0.1);
+  background: rgba(30, 20, 60, 0.4);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 1rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 4px 20px rgba(0, 150, 200, 0.1);
   border: 1px solid rgba(0, 180, 216, 0.15);
   border-top: none;
   position: relative;
 }
-img[_ngcontent-ng-c998833887] {
-  width: 3.5rem;
-  object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(0, 180, 216, 0.4));
+.logo-wrapper[_ngcontent-ng-c1254480586] {
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s;
+  -webkit-user-select: none;
+  user-select: none;
+  z-index: 10;
 }
-.icono-mini[_ngcontent-ng-c998833887] {
+.logo-wrapper[_ngcontent-ng-c1254480586]:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+}
+.icono-mini[_ngcontent-ng-c1254480586] {
   width: 18px;
   height: 18px;
   object-fit: contain;
   vertical-align: middle;
   filter: none;
 }
-h1[_ngcontent-ng-c998833887] {
+h1[_ngcontent-ng-c1254480586] {
   font-family: "Orbitron", sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
@@ -94,20 +104,20 @@ h1[_ngcontent-ng-c998833887] {
   letter-spacing: 0.12em;
   text-shadow: 0 0 18px rgba(0, 180, 216, 0.5);
 }
-p[_ngcontent-ng-c998833887] {
+p[_ngcontent-ng-c1254480586] {
   margin: 0;
   font-size: 0.8rem;
   text-wrap: balance;
   color: #7ec8e3;
 }
-.sesion-info[_ngcontent-ng-c998833887] {
+.sesion-info[_ngcontent-ng-c1254480586] {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
   justify-content: center;
 }
-.usuario-badge[_ngcontent-ng-c998833887] {
+.usuario-badge[_ngcontent-ng-c1254480586] {
   font-size: 0.8rem;
   background: rgba(0, 180, 216, 0.1);
   border: 1px solid rgba(0, 180, 216, 0.25);
@@ -118,11 +128,11 @@ p[_ngcontent-ng-c998833887] {
   cursor: pointer;
   transition: background 0.2s, transform 0.15s;
 }
-.usuario-badge[_ngcontent-ng-c998833887]:hover {
+.usuario-badge[_ngcontent-ng-c1254480586]:hover {
   background: rgba(0, 180, 216, 0.2);
   transform: scale(1.04);
 }
-.btn-logout[_ngcontent-ng-c998833887] {
+.btn-logout[_ngcontent-ng-c1254480586] {
   font-size: 0.8rem;
   background: rgba(239, 68, 68, 0.18);
   border: 1px solid rgba(239, 68, 68, 0.4);
@@ -133,11 +143,11 @@ p[_ngcontent-ng-c998833887] {
   font-weight: 600;
   transition: background 0.2s, transform 0.15s;
 }
-.btn-logout[_ngcontent-ng-c998833887]:hover {
+.btn-logout[_ngcontent-ng-c1254480586]:hover {
   background: rgba(239, 68, 68, 0.32);
   transform: scale(1.04);
 }
-.btn-login-header[_ngcontent-ng-c998833887] {
+.btn-login-header[_ngcontent-ng-c1254480586] {
   font-size: 0.8rem;
   background: rgba(0, 180, 216, 0.15);
   border: 1px solid rgba(0, 180, 216, 0.4);
@@ -148,11 +158,11 @@ p[_ngcontent-ng-c998833887] {
   font-weight: 600;
   transition: background 0.2s, transform 0.15s;
 }
-.btn-login-header[_ngcontent-ng-c998833887]:hover {
+.btn-login-header[_ngcontent-ng-c1254480586]:hover {
   background: rgba(0, 180, 216, 0.3);
   transform: scale(1.04);
 }
-.btn-gestion-usuarios[_ngcontent-ng-c998833887] {
+.btn-gestion-usuarios[_ngcontent-ng-c1254480586] {
   font-size: 0.8rem;
   background: rgba(0, 150, 200, 0.18);
   border: 1px solid rgba(0, 180, 216, 0.35);
@@ -166,40 +176,46 @@ p[_ngcontent-ng-c998833887] {
     transform 0.15s,
     box-shadow 0.2s;
 }
-.btn-gestion-usuarios[_ngcontent-ng-c998833887]:hover {
+.btn-gestion-usuarios[_ngcontent-ng-c1254480586]:hover {
   background: rgba(0, 180, 216, 0.3);
   transform: scale(1.04);
   box-shadow: 0 2px 12px rgba(0, 180, 216, 0.2);
 }
-.logo-click[_ngcontent-ng-c998833887] {
+.logo-click[_ngcontent-ng-c1254480586] {
   cursor: pointer;
   transition: transform 0.2s ease, filter 0.2s;
   -webkit-user-select: none;
   user-select: none;
 }
-.logo-click[_ngcontent-ng-c998833887]:hover {
+.logo-click[_ngcontent-ng-c1254480586]:hover {
   transform: scale(1.03);
   filter: brightness(1.1);
 }
 @media (min-width: 768px) {
-  header[_ngcontent-ng-c998833887] {
+  header[_ngcontent-ng-c1254480586] {
     padding: 2rem;
   }
-  img[_ngcontent-ng-c998833887] {
-    width: 4.5rem;
-  }
-  h1[_ngcontent-ng-c998833887] {
+  h1[_ngcontent-ng-c1254480586] {
     font-size: 1.5rem;
     margin: 0;
     padding: 0;
   }
 }
-/*# sourceMappingURL=/encabezado.css.map */</style></head>
+/*# sourceMappingURL=/encabezado.css.map */</style><style ng-app-id="ng">
+
+.canvas-container[_ngcontent-ng-c2557381180] {
+  width: 80px;
+  height: 80px;
+  cursor: pointer;
+  display: block;
+  margin-bottom: 0px;
+}
+/*# sourceMappingURL=/logo-animado.css.map */</style></head>
 
 <body><!--nghm--><script type="text/javascript" id="ng-event-dispatch-contract">(()=>{function p(t,n,r,o,e,i,f,m){return{eventType:t,event:n,targetElement:r,eic:o,timeStamp:e,eia:i,eirp:f,eiack:m}}function u(t){let n=[],r=e=>{n.push(e)};return{c:t,q:n,et:[],etc:[],d:r,h:e=>{r(p(e.type,e,e.target,t,Date.now()))}}}function s(t,n,r){for(let o=0;o<n.length;o++){let e=n[o];(r?t.etc:t.et).push(e),t.c.addEventListener(e,t.h,r)}}function c(t,n,r,o,e=window){let i=u(t);e._ejsas||(e._ejsas={}),e._ejsas[n]=i,s(i,r),s(i,o,!0)}window.__jsaction_bootstrap=c;})();
 </script><script>window.__jsaction_bootstrap(document.body,"ng",["click"],[]);</script>
   <app-encabezado></app-encabezado>
-  <app-root ng-version="21.2.2" _nghost-ng-c3666239702="" ngh="1" ng-server-context="ssg"><!--container--><!--container--><!--container--><app-encabezado _ngcontent-ng-c3666239702="" _nghost-ng-c998833887="" ngh="0"><header _ngcontent-ng-c998833887=""><img _ngcontent-ng-c998833887="" src="img/logo-futurista.png" alt="Gestor de Tareas" class="logo-click" jsaction="click:;"><div _ngcontent-ng-c998833887="" class="logo-click" jsaction="click:;"><h1 _ngcontent-ng-c998833887="">TAREA FACIL</h1><p _ngcontent-ng-c998833887="">Administrador de Tareas ADSO</p></div><div _ngcontent-ng-c998833887="" class="sesion-info"><!--container--><button _ngcontent-ng-c998833887="" class="btn-login-header" jsaction="click:;"><img _ngcontent-ng-c998833887="" src="img/icono-login.png" alt="" class="icono-mini"> Iniciar Sesión</button><!--container--></div></header></app-encabezado><main _ngcontent-ng-c3666239702=""><ul _ngcontent-ng-c3666239702="" id="usuarios"><!--container--></ul><!--container--><p _ngcontent-ng-c3666239702="" id="textoCondicional">Selecciona un usuario de la lista</p><!--container--></main></app-root>
+  <app-root ng-version="21.2.2" _nghost-ng-c3666239702="" ngh="2" ng-server-context="ssg"><!--container--><!--container--><!--container--><app-encabezado _ngcontent-ng-c3666239702="" _nghost-ng-c1254480586="" ngh="1"><header _ngcontent-ng-c1254480586=""><div _ngcontent-ng-c1254480586="" class="logo-wrapper" jsaction="click:;"><app-logo-animado _ngcontent-ng-c1254480586="" _nghost-ng-c2557381180="" ngh="0"><div _ngcontent-ng-c2557381180="" title="3D Logo animado nativamente con Three.js" class="canvas-container"></div></app-logo-animado></div><div _ngcontent-ng-c1254480586="" class="logo-click" jsaction="click:;"><h1 _ngcontent-ng-c1254480586="">TAREA FACIL</h1><p _ngcontent-ng-c1254480586="">Administrador de Tareas ADSO</p></div><div _ngcontent-ng-c1254480586="" class="sesion-info"><!--container--><button _ngcontent-ng-c1254480586="" class="btn-login-header" jsaction="click:;"><svg _ngcontent-ng-c1254480586="" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: -3px; margin-right: 4px;"><path _ngcontent-ng-c1254480586="" d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline _ngcontent-ng-c1254480586="" points="10 17 15 12 10 7"></polyline><line _ngcontent-ng-c1254480586="" x1="15" y1="12" x2="3" y2="12"></line></svg> Iniciar Sesión </button><!--container--></div></header></app-encabezado><main _ngcontent-ng-c3666239702=""><ul _ngcontent-ng-c3666239702="" id="usuarios"><!--container--></ul><!--container--><p _ngcontent-ng-c3666239702="" id="textoCondicional">Selecciona un usuario de la lista</p><!--container--></main></app-root>
 <script src="main.js" type="module"></script>
 
-<script id="ng-state" type="application/json">{"__nghData__":[{"t":{"8":"t3","9":"t4"},"c":{"8":[],"9":[{"i":"t4","r":1}]}},{"t":{"0":"t0","1":"t1","2":"t2","7":"t5","8":"t6","9":"t7"},"c":{"0":[],"1":[],"2":[],"7":[],"8":[],"9":[{"i":"t7","r":1}]}}]}</script></body></html>
+<script id="ng-state" type="application/json">{"__nghData__":[{},{"t":{"9":"t3","10":"t4"},"c":{"9":[],"10":[{"i":"t4","r":1}]}},{"t":{"0":"t0","1":"t1","2":"t2","7":"t5","8":"t6","9":"t7"},"c":{"0":[],"1":[],"2":[],"7":[],"8":[],"9":[{"i":"t7","r":1}]}}]}</script></body></html>

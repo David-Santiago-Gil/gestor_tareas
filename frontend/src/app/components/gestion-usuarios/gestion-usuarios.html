@@ -20,7 +20,9 @@
     <!-- Lista de Usuarios -->
     <div class="lista-usuarios">
       @for (usuario of usuarioService.usuarios(); track usuario.id) {
-        <div class="usuario-item">
+        <div class="usuario-item"
+             [style.backgroundImage]="'linear-gradient(to right, rgba(15, 10, 25, 0.95) 0%, rgba(15, 10, 25, 0.75) 50%, rgba(15, 10, 25, 0.2) 100%), url(img/' + (usuario.fondoCard || 'bg_jujutsu.png') + ')'"
+             style="background-size: cover; background-position: center;">
           <div class="usuario-info">
             <img [src]="'img/' + usuario.avatar" [alt]="usuario.nombre" class="avatar-mini" />
             <span class="usuario-nombre">{{ usuario.nombre }}</span>
@@ -102,6 +104,24 @@
               (click)="seleccionarAvatar(avatar)"
               [disabled]="cargando()">
               <img [src]="'img/' + avatar" [alt]="avatar" />
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Selector de Fondo Personalizado -->
+      <div class="campo">
+        <label>Fondo Personalizado</label>
+        <div class="fondo-grid">
+          @for (fondo of fondosDisponibles; track fondo.archivo) {
+            <button
+              type="button"
+              class="fondo-opcion"
+              [class.seleccionado]="fondoSeleccionado === fondo.archivo"
+              (click)="seleccionarFondo(fondo.archivo)"
+              [disabled]="cargando()"
+              [style.backgroundImage]="'url(img/' + fondo.archivo + ')'">
+              <span class="fondo-label">{{ fondo.nombre }}</span>
             </button>
           }
         </div>

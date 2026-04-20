@@ -1,9 +1,11 @@
 import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { AuthService } from '../../servicios/auth.service';
 
+import { LogoAnimadoComponent } from '../logo-animado/logo-animado';
+
 @Component({
   selector: 'app-encabezado',
-  imports: [],
+  imports: [LogoAnimadoComponent],
   templateUrl: './encabezado.html',
   styleUrl: './encabezado.css',
 })

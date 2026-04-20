@@ -18,9 +18,8 @@ html {
 
 body {
     font-family: "Inter", "Segoe UI", "Arial", sans-serif;
-    background:
-        linear-gradient(135deg, rgba(3, 7, 20, 0.6) 0%, rgba(3, 7, 20, 0.45) 100%),
-        url('/img/fondo.png') center / cover no-repeat fixed;
+    background: url('/img/fondo.png') center / cover no-repeat fixed;
+    background-color: #000;
     color: #c8d6e5;
     margin: 0;
     padding: 0;

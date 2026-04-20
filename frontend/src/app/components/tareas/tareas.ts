@@ -1,12 +1,14 @@
 import { Component, Input, inject, OnInit, signal } from '@angular/core';
+import { tarea } from "../tarea/tarea.model";
 import { Tarea } from "../tarea/tarea";
 import { NuevaTarea } from "../nueva-tarea/nueva-tarea";
+import { EditarTarea } from "../editar-tarea/editar-tarea";
 import { TareaService } from '../../servicios/tarea.service';
 import { AuthService } from '../../servicios/auth.service';
 
 @Component({
   selector: 'app-tareas',
-  imports: [Tarea, NuevaTarea],
+  imports: [Tarea, NuevaTarea, EditarTarea],
   templateUrl: './tareas.html',
   styleUrl: './tareas.css',
 })
@@ -14,6 +16,7 @@ export class Tareas implements OnInit {
   @Input({ required: true }) nombre!: string;
   @Input({ required: true }) idUsuario!: number;
   estaAgregandoTareaNueva = false;
+  tareaSeleccionadaParaEditar: tarea | null = null;
 
   auth = inject(AuthService);
   cargando = signal(true);
@@ -41,5 +44,13 @@ export class Tareas implements OnInit {
 
   alCerrarTareaNueva() {
     this.estaAgregandoTareaNueva = false;
+  }
+
+  alAbrirEdicion(t: tarea) {
+    this.tareaSeleccionadaParaEditar = t;
+  }
+
+  alCerrarEdicion() {
+    this.tareaSeleccionadaParaEditar = null;
   }
 }

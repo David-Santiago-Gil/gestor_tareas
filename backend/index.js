@@ -80,9 +80,10 @@ function inicializarBaseDeDatos() {
 
     const crearTablaUsuarios = `
         CREATE TABLE IF NOT EXISTS usuarios (
-            id     INT          AUTO_INCREMENT PRIMARY KEY,
-            nombre VARCHAR(150) NOT NULL,
-            avatar VARCHAR(100) NOT NULL DEFAULT 'usuario-1.png'
+            id        INT          AUTO_INCREMENT PRIMARY KEY,
+            nombre    VARCHAR(150) NOT NULL,
+            avatar    VARCHAR(100) NOT NULL DEFAULT 'usuario-1.png',
+            fondoCard VARCHAR(100) NOT NULL DEFAULT 'bg_jujutsu.png'
         )
     `;
 
@@ -94,6 +95,7 @@ function inicializarBaseDeDatos() {
             expira     DATE,
             idUsuario  INT          NOT NULL,
             completada TINYINT      DEFAULT 0,
+            imagenFondo VARCHAR(100) DEFAULT 'bg_jujutsu.png',
             FOREIGN KEY (idUsuario) REFERENCES usuarios(id) ON DELETE CASCADE
         )
     `;
@@ -428,7 +430,7 @@ app.put('/api/auth/admins/:id', verificarToken, async (req, res) => {
 // Listar todos los usuarios
 // ==========================================
 app.get('/api/usuarios', (req, res) => {
-    sql.query('SELECT id, nombre, avatar FROM usuarios ORDER BY id ASC', (err, results) => {
+    sql.query('SELECT id, nombre, avatar, fondoCard FROM usuarios ORDER BY id ASC', (err, results) => {
         if (err) {
             console.error('❌ Error GET usuarios:', err);
             return res.status(500).json({ error: 'Error al obtener usuarios' });
@@ -442,17 +444,18 @@ app.get('/api/usuarios', (req, res) => {
 // Crear un nuevo usuario
 // ==========================================
 app.post('/api/usuarios', verificarToken, (req, res) => {
-    const { nombre, avatar } = req.body;
+    const { nombre, avatar, fondoCard } = req.body;
 
     if (!nombre || !nombre.trim()) {
         return res.status(400).json({ error: 'El nombre del usuario es requerido' });
     }
 
     const avatarFinal = avatar || 'usuario-1.png';
+    const fondoFinal  = fondoCard || 'bg_jujutsu.png';
 
     sql.query(
-        'INSERT INTO usuarios (nombre, avatar) VALUES (?, ?)',
-        [nombre.trim(), avatarFinal],
+        'INSERT INTO usuarios (nombre, avatar, fondoCard) VALUES (?, ?, ?)',
+        [nombre.trim(), avatarFinal, fondoFinal],
         (err, result) => {
             if (err) {
                 console.error('❌ Error POST usuario:', err);
@@ -462,6 +465,7 @@ app.post('/api/usuarios', verificarToken, (req, res) => {
                 id: result.insertId,
                 nombre: nombre.trim(),
                 avatar: avatarFinal,
+                fondoCard: fondoFinal,
                 mensaje: 'Usuario creado exitosamente'
             });
         }
@@ -474,10 +478,10 @@ app.post('/api/usuarios', verificarToken, (req, res) => {
 // ==========================================
 app.put('/api/usuarios/:id', verificarToken, (req, res) => {
     const { id } = req.params;
-    const { nombre, avatar } = req.body;
+    const { nombre, avatar, fondoCard } = req.body;
 
-    if (!nombre && !avatar) {
-        return res.status(400).json({ error: 'Debes proporcionar nombre y/o avatar a actualizar' });
+    if (!nombre && !avatar && !fondoCard) {
+        return res.status(400).json({ error: 'Debes proporcionar nombre, avatar y/o fondo a actualizar' });
     }
 
     const campos = [];
@@ -491,6 +495,11 @@ app.put('/api/usuarios/:id', verificarToken, (req, res) => {
     if (avatar) {
         campos.push('avatar = ?');
         valores.push(avatar);
+    }
+
+    if (fondoCard) {
+        campos.push('fondoCard = ?');
+        valores.push(fondoCard);
     }
 
     valores.push(id);
@@ -567,7 +576,7 @@ app.get('/tareas', (req, res) => {
 // RF-C2 — POST /tareas (PROTEGIDO)
 // ==========================================
 app.post('/tareas', verificarToken, (req, res) => {
-    const { id, titulo, resumen, expira, idUsuario } = req.body;
+    const { id, titulo, resumen, expira, idUsuario, imagenFondo } = req.body;
 
     console.log('📥 Datos recibidos:', req.body);
 
@@ -582,11 +591,13 @@ app.post('/tareas', verificarToken, (req, res) => {
         }
 
         const query = `
-            INSERT INTO tareas (id, titulo, resumen, expira, idUsuario, completada)
-            VALUES (?, ?, ?, ?, ?, 0)
+            INSERT INTO tareas (id, titulo, resumen, expira, idUsuario, completada, imagenFondo)
+            VALUES (?, ?, ?, ?, ?, 0, ?)
         `;
 
-        sql.query(query, [id, titulo, resumen, expira, idUsuario], (err) => {
+        const fondoReal = imagenFondo || 'bg_jujutsu.png';
+
+        sql.query(query, [id, titulo, resumen, expira, idUsuario, fondoReal], (err) => {
             if (err) {
                 console.error('❌ Error INSERT tarea:', err);
                 return res.status(500).json(err);
@@ -634,13 +645,15 @@ app.put('/tareas/:id/reabrir', verificarToken, (req, res) => {
 // ==========================================
 app.put('/tareas/:id/editar', verificarToken, (req, res) => {
     const { id } = req.params;
-    const { titulo, resumen, expira } = req.body;
+    const { titulo, resumen, expira, imagenFondo } = req.body;
 
     console.log('✏️ Editar ID:', id);
 
+    const fondoReal = imagenFondo || 'bg_jujutsu.png';
+
     sql.query(
-        'UPDATE tareas SET titulo = ?, resumen = ?, expira = ? WHERE id = ?',
-        [titulo, resumen, expira, id],
+        'UPDATE tareas SET titulo = ?, resumen = ?, expira = ?, imagenFondo = ? WHERE id = ?',
+        [titulo, resumen, expira, fondoReal, id],
         (err) => {
             if (err) {
                 console.error('❌ Error UPDATE tarea (editar):', err);

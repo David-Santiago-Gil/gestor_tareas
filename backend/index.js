@@ -26,15 +26,11 @@ const JWT_EXPIRATION = process.env.JWT_EXPIRATION || '8h';
 // ==========================================
 const app = express();
 
+// ✅ TASK-16: CORS configurado correctamente — agregado por auditoría
 app.use(cors({
-    origin: function (origin, callback) {
-        // PERMITIR TODO DINÁMICAMENTE PARA DESPLIEGUE EN VERCEL
-        // Esto evita bloqueos de CORS sin importar qué URL asigne Vercel
-        return callback(null, true);
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+  origin: [process.env.FRONTEND_URL, 'http://localhost:4200'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
@@ -43,12 +39,13 @@ app.use(express.json());
 // CONEXIÓN MYSQL (POOL para Railway)
 // ==========================================
 // Railway exige manejar límites de conexión, Pool es obligatorio para no crashear
+// ✅ TASK-15: Variables de entorno en backend (sin hardcoding) — agregado por auditoría
 const sql = mysql.createPool({
-    host:     process.env.MYSQLHOST     || process.env.SQL_HOST     || 'localhost',
-    port:     process.env.MYSQLPORT     || process.env.SQL_PORT     || 3306,
-    user:     process.env.MYSQLUSER     || process.env.SQL_USER     || 'root',
-    password: process.env.MYSQLPASSWORD || process.env.SQL_PASSWORD || '',
-    database: process.env.MYSQLDATABASE || process.env.SQL_NAME     || 'tareas_db',
+    host:     process.env.DB_HOST     || process.env.MYSQLHOST     || process.env.SQL_HOST     || 'localhost',
+    port:     process.env.DB_PORT     || process.env.MYSQLPORT     || process.env.SQL_PORT     || 3306,
+    user:     process.env.DB_USER     || process.env.MYSQLUSER     || process.env.SQL_USER     || 'root',
+    password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || process.env.SQL_PASSWORD || '',
+    database: process.env.DB_NAME     || process.env.MYSQLDATABASE || process.env.SQL_NAME     || 'tareas_db',
     connectionLimit: 10,
     waitForConnections: true
 });

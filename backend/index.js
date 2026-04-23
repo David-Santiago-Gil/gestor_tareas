@@ -36,147 +36,254 @@ app.use(cors({
 app.use(express.json());
 
 // ==========================================
-// CONEXIÓN MYSQL (POOL para Railway)
+// CONEXIÓN MYSQL — Soporte TiDB Cloud + SSL
 // ==========================================
-// Railway exige manejar límites de conexión, Pool es obligatorio para no crashear
-// ✅ TASK-15: Variables de entorno en backend (sin hardcoding) — agregado por auditoría
-const sql = mysql.createPool({
-    host:     process.env.DB_HOST     || process.env.MYSQLHOST     || process.env.SQL_HOST     || 'localhost',
-    port:     process.env.DB_PORT     || process.env.MYSQLPORT     || process.env.SQL_PORT     || 3306,
-    user:     process.env.DB_USER     || process.env.MYSQLUSER     || process.env.SQL_USER     || 'root',
-    password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || process.env.SQL_PASSWORD || '',
-    database: process.env.DB_NAME     || process.env.MYSQLDATABASE || process.env.SQL_NAME     || 'tareas_db',
+// Detecta automáticamente si se necesita SSL (TiDB Cloud, PlanetScale, etc.)
+const dbHost = process.env.DB_HOST || process.env.MYSQLHOST || process.env.SQL_HOST || 'localhost';
+const dbPort = parseInt(process.env.DB_PORT || process.env.MYSQLPORT || process.env.SQL_PORT || '3306', 10);
+const dbUser = process.env.DB_USER || process.env.MYSQLUSER || process.env.SQL_USER || 'root';
+const dbPass = process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || process.env.SQL_PASSWORD || '';
+const dbName = process.env.DB_NAME || process.env.MYSQLDATABASE || process.env.SQL_NAME || 'tareas_db';
+
+// SSL: se activa por variable de entorno o si el host es TiDB Cloud
+const necesitaSSL =
+    process.env.DB_SSL === 'true' ||
+    dbHost.includes('tidbcloud.com') ||
+    dbHost.includes('planetscale') ||
+    !!process.env.DATABASE_URL;
+
+const poolConfig = {
+    host:     dbHost,
+    port:     dbPort,
+    user:     dbUser,
+    password: dbPass,
+    database: dbName,
     connectionLimit: 10,
-    waitForConnections: true
-});
+    waitForConnections: true,
+    connectTimeout: 30000,   // 30s — TiDB Cloud puede ser lento al inicio
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 10000,
+};
 
-sql.getConnection((err, connection) => {
-    if (err) {
-        console.error('❌ Error conexión MySQL (Railway Pool):', err);
-        return;
+// Configurar SSL/TLS si es necesario
+if (necesitaSSL) {
+    // Si se proporcionó un archivo CA personalizado, úsalo
+    const caPath = process.env.DB_CA_PATH;
+    if (caPath && fs.existsSync(caPath)) {
+        poolConfig.ssl = {
+            ca: fs.readFileSync(caPath),
+            minVersion: 'TLSv1.2',
+            rejectUnauthorized: true,
+        };
+        console.log(`🔒 SSL activado con CA personalizado: ${caPath}`);
+    } else {
+        // TiDB Cloud Serverless usa ISRG Root X1 (Let's Encrypt)
+        // que está en el trust store de la mayoría de sistemas
+        poolConfig.ssl = {
+            minVersion: 'TLSv1.2',
+            rejectUnauthorized: true,
+        };
+        console.log('🔒 SSL/TLS activado (trust store del sistema)');
     }
-    if (connection) connection.release();
-    console.log('✅ Conectado a MySQL (Railway Pool)');
+}
 
-    // Una vez conectados, garantizamos las tablas y corremos el seed
-    inicializarBaseDeDatos();
-});
+console.log(`📡 Conectando a ${dbHost}:${dbPort} — DB: ${dbName}`);
+
+const sql = mysql.createPool(poolConfig);
 
 // ==========================================
-// AUTO-CREACIÓN DE TABLAS + SEEDING
-// Crea las tablas si no existen, luego verifica
-// si administradores/usuarios están vacías e inserta datos por defecto.
-// Funciona tanto en local (MySQL Workbench) como en Railway.
+// CONEXIÓN CON REINTENTOS (Exponential Backoff)
 // ==========================================
-function inicializarBaseDeDatos() {
-    const crearTablaAdmins = `
-        CREATE TABLE IF NOT EXISTS administradores (
-            id       INT          AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(100) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL
-        )
-    `;
+const MAX_RETRIES   = 5;
+const BASE_DELAY_MS = 2000;
 
-    const crearTablaUsuarios = `
-        CREATE TABLE IF NOT EXISTS usuarios (
-            id        INT          AUTO_INCREMENT PRIMARY KEY,
-            nombre    VARCHAR(150) NOT NULL,
-            avatar    VARCHAR(100) NOT NULL DEFAULT 'usuario-1.png',
-            fondoCard VARCHAR(100) NOT NULL DEFAULT 'bg_jujutsu.png'
-        )
-    `;
-
-    const crearTablaTareas = `
-        CREATE TABLE IF NOT EXISTS tareas (
-            id         VARCHAR(50)  PRIMARY KEY,
-            titulo     VARCHAR(255) NOT NULL,
-            resumen    TEXT,
-            expira     DATE,
-            idUsuario  INT          NOT NULL,
-            completada TINYINT      DEFAULT 0,
-            imagenFondo VARCHAR(100) DEFAULT 'bg_jujutsu.png',
-            FOREIGN KEY (idUsuario) REFERENCES usuarios(id) ON DELETE CASCADE
-        )
-    `;
-
-    // Paso 1: Crear tabla administradores
-    sql.query(crearTablaAdmins, (err) => {
+function conectarConReintentos(intento = 1) {
+    sql.getConnection((err, connection) => {
         if (err) {
-            console.error('❌ Error creando tabla administradores:', err);
+            console.error(`❌ Intento ${intento}/${MAX_RETRIES} — Error conexión MySQL:`, err.message);
+
+            if (intento < MAX_RETRIES) {
+                const delay = BASE_DELAY_MS * Math.pow(2, intento - 1);
+                console.log(`⏳ Reintentando en ${delay / 1000}s...`);
+                setTimeout(() => conectarConReintentos(intento + 1), delay);
+            } else {
+                console.error('💀 Se agotaron los reintentos. Verifica la conexión a la base de datos.');
+                process.exit(1);
+            }
             return;
         }
-        console.log('✅ Tabla administradores lista');
 
-        // Paso 2: Crear tabla usuarios
-        sql.query(crearTablaUsuarios, (err2) => {
-            if (err2) {
-                console.error('❌ Error creando tabla usuarios:', err2);
-                return;
-            }
-            console.log('✅ Tabla usuarios lista');
+        if (connection) connection.release();
+        console.log('✅ Conectado a MySQL/TiDB exitosamente');
 
-            // Paso 3: Crear tabla tareas (depende de usuarios por la FK)
-            sql.query(crearTablaTareas, (err3) => {
-                if (err3) {
-                    console.error('❌ Error creando tabla tareas:', err3);
-                    return;
-                }
-                console.log('✅ Tabla tareas lista');
+        // Una vez conectados, ejecutar auto-healing
+        inicializarBaseDeDatos();
+    });
+}
 
-                // Paso 4: Seed del admin por defecto
-                sql.query('SELECT COUNT(*) AS total FROM administradores', (err4, rows) => {
-                    if (err4) {
-                        console.error('❌ Error contando administradores:', err4);
-                        return;
-                    }
-                    if (rows[0].total === 0) {
-                        const hash = bcrypt.hashSync('admin123', 10);
-                        sql.query(
-                            'INSERT INTO administradores (username, password) VALUES (?, ?)',
-                            ['admin', hash],
-                            (err5) => {
-                                if (err5) {
-                                    console.error('❌ Error insertando admin por defecto:', err5);
-                                } else {
-                                    console.log('🌱 Seed: admin creado con contraseña "admin123"');
-                                }
-                            }
-                        );
-                    } else {
-                        console.log(`ℹ️  Seed omitido: ya existen ${rows[0].total} administrador(es)`);
-                    }
-                });
+conectarConReintentos();
 
-                // Paso 5: Seed de usuarios por defecto
-                sql.query('SELECT COUNT(*) AS total FROM usuarios', (err4, rows) => {
-                    if (err4) {
-                        console.error('❌ Error contando usuarios:', err4);
-                        return;
-                    }
-                    if (rows[0].total === 0) {
-                        const usuariosIniciales = [
-                            ['Antonia Céspedes', 'usuario-1.png'],
-                            ['Emilia Torres',    'usuario-2.png'],
-                            ['Marcos Jeremías',  'usuario-3.png'],
-                            ['David Mercado',    'usuario-4.png'],
-                            ['Pamela Chan',      'usuario-5.png'],
-                            ['Adrián Serbio',    'usuario-6.png'],
-                        ];
-                        const insertQuery = 'INSERT INTO usuarios (nombre, avatar) VALUES ?';
-                        sql.query(insertQuery, [usuariosIniciales], (err5) => {
-                            if (err5) {
-                                console.error('❌ Error insertando usuarios por defecto:', err5);
-                            } else {
-                                console.log('🌱 Seed: 6 usuarios creados correctamente');
-                            }
-                        });
-                    } else {
-                        console.log(`ℹ️  Seed omitido: ya existen ${rows[0].total} usuario(s)`);
-                    }
-                });
-            });
+// ==========================================
+// AUTO-HEALING: CREACIÓN + REPARACIÓN DE TABLAS
+// ==========================================
+// Esquema maestro: define la estructura esperada de cada tabla.
+// Si una tabla no existe, se crea. Si existe pero le faltan columnas,
+// se agregan automáticamente con ALTER TABLE.
+// ==========================================
+const SCHEMA_MAESTRO = {
+    administradores: {
+        createSQL: `
+            CREATE TABLE IF NOT EXISTS administradores (
+                id       INT          AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(100) NOT NULL UNIQUE,
+                password VARCHAR(255) NOT NULL
+            )
+        `,
+        columnas: {
+            id:       { type: 'INT',          extra: 'AUTO_INCREMENT PRIMARY KEY' },
+            username: { type: 'VARCHAR(100)',  extra: 'NOT NULL UNIQUE' },
+            password: { type: 'VARCHAR(255)',  extra: 'NOT NULL' },
+        },
+    },
+    usuarios: {
+        createSQL: `
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id        INT          AUTO_INCREMENT PRIMARY KEY,
+                nombre    VARCHAR(150) NOT NULL,
+                avatar    VARCHAR(100) NOT NULL DEFAULT 'usuario-1.png',
+                fondoCard VARCHAR(100) NOT NULL DEFAULT 'bg_jujutsu.png'
+            )
+        `,
+        columnas: {
+            id:        { type: 'INT',          extra: 'AUTO_INCREMENT PRIMARY KEY' },
+            nombre:    { type: 'VARCHAR(150)',  extra: 'NOT NULL' },
+            avatar:    { type: 'VARCHAR(100)',  extra: "NOT NULL DEFAULT 'usuario-1.png'" },
+            fondoCard: { type: 'VARCHAR(100)',  extra: "NOT NULL DEFAULT 'bg_jujutsu.png'" },
+        },
+    },
+    tareas: {
+        createSQL: `
+            CREATE TABLE IF NOT EXISTS tareas (
+                id          VARCHAR(50)  PRIMARY KEY,
+                titulo      VARCHAR(255) NOT NULL,
+                resumen     TEXT,
+                expira      DATE,
+                idUsuario   INT          NOT NULL,
+                completada  TINYINT      DEFAULT 0,
+                imagenFondo VARCHAR(100) DEFAULT 'bg_jujutsu.png',
+                FOREIGN KEY (idUsuario) REFERENCES usuarios(id) ON DELETE CASCADE
+            )
+        `,
+        columnas: {
+            id:          { type: 'VARCHAR(50)',  extra: 'PRIMARY KEY' },
+            titulo:      { type: 'VARCHAR(255)', extra: 'NOT NULL' },
+            resumen:     { type: 'TEXT',          extra: '' },
+            expira:      { type: 'DATE',          extra: '' },
+            idUsuario:   { type: 'INT',           extra: 'NOT NULL' },
+            completada:  { type: 'TINYINT',       extra: 'DEFAULT 0' },
+            imagenFondo: { type: 'VARCHAR(100)',  extra: "DEFAULT 'bg_jujutsu.png'" },
+        },
+    },
+};
+
+/**
+ * Ejecuta una query como Promise (útil para async/await)
+ */
+function queryPromise(query, params = []) {
+    return new Promise((resolve, reject) => {
+        sql.query(query, params, (err, results) => {
+            if (err) reject(err);
+            else resolve(results);
         });
     });
+}
+
+/**
+ * Auto-Healing: verifica las columnas de una tabla existente
+ * y agrega las que falten con ALTER TABLE.
+ */
+async function repararTabla(nombreTabla, columnasEsperadas) {
+    try {
+        const columnas = await queryPromise(`SHOW COLUMNS FROM ${nombreTabla}`);
+        const existentes = new Set(columnas.map(c => c.Field));
+
+        for (const [col, def] of Object.entries(columnasEsperadas)) {
+            if (!existentes.has(col)) {
+                const alterSQL = `ALTER TABLE ${nombreTabla} ADD COLUMN ${col} ${def.type} ${def.extra}`;
+                console.log(`🔧 Auto-healing: agregando columna "${col}" a "${nombreTabla}"`);
+                await queryPromise(alterSQL);
+                console.log(`   ✅ Columna "${col}" agregada exitosamente`);
+            }
+        }
+    } catch (err) {
+        console.error(`❌ Error reparando tabla "${nombreTabla}":`, err.message);
+    }
+}
+
+/**
+ * Inicializa la base de datos:
+ *   1. Crea tablas si no existen (en orden de dependencias)
+ *   2. Repara esquemas con columnas faltantes
+ *   3. Inserta datos semilla si las tablas están vacías
+ */
+async function inicializarBaseDeDatos() {
+    console.log('\n🔄 Iniciando auto-healing de la base de datos...');
+    console.log('================================================');
+
+    try {
+        // ── PASO 1: Crear tablas en orden de dependencias ──
+        const orden = ['administradores', 'usuarios', 'tareas'];
+
+        for (const tabla of orden) {
+            await queryPromise(SCHEMA_MAESTRO[tabla].createSQL);
+            console.log(`✅ Tabla "${tabla}" lista`);
+        }
+
+        // ── PASO 2: Auto-healing — reparar columnas faltantes ──
+        console.log('\n🩺 Verificando integridad del esquema...');
+        for (const tabla of orden) {
+            await repararTabla(tabla, SCHEMA_MAESTRO[tabla].columnas);
+        }
+        console.log('✅ Esquema verificado y reparado\n');
+
+        // ── PASO 3: Seed del admin por defecto ──
+        const [adminCount] = await queryPromise('SELECT COUNT(*) AS total FROM administradores');
+        if (adminCount.total === 0) {
+            const hash = bcrypt.hashSync('admin123', 10);
+            await queryPromise(
+                'INSERT INTO administradores (username, password) VALUES (?, ?)',
+                ['admin', hash]
+            );
+            console.log('🌱 Seed: admin creado — usuario: "admin", contraseña: "admin123"');
+        } else {
+            console.log(`ℹ️  Seed omitido: ya existen ${adminCount.total} administrador(es)`);
+        }
+
+        // ── PASO 4: Seed de usuarios por defecto ──
+        const [userCount] = await queryPromise('SELECT COUNT(*) AS total FROM usuarios');
+        if (userCount.total === 0) {
+            const usuariosIniciales = [
+                ['Antonia Céspedes', 'usuario-1.png'],
+                ['Emilia Torres',    'usuario-2.png'],
+                ['Marcos Jeremías',  'usuario-3.png'],
+                ['David Mercado',    'usuario-4.png'],
+                ['Pamela Chan',      'usuario-5.png'],
+                ['Adrián Serbio',    'usuario-6.png'],
+            ];
+            await queryPromise('INSERT INTO usuarios (nombre, avatar) VALUES ?', [usuariosIniciales]);
+            console.log('🌱 Seed: 6 usuarios creados correctamente');
+        } else {
+            console.log(`ℹ️  Seed omitido: ya existen ${userCount.total} usuario(s)`);
+        }
+
+        console.log('\n================================================');
+        console.log('✅ Auto-healing completado — Base de datos lista');
+        console.log('================================================\n');
+
+    } catch (err) {
+        console.error('❌ Error crítico durante auto-healing:', err.message);
+        console.error('   El servidor continuará, pero pueden ocurrir errores en las queries.');
+    }
 }
 
 // ==========================================

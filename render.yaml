@@ -1,0 +1,56 @@
+# ==========================================
+# render.yaml — Blueprint de Render.com
+# ==========================================
+# Define el servicio backend para despliegue automático.
+# Render lee este archivo al vincular el repo y configura
+# todo automáticamente (build, start, variables de entorno).
+#
+# Docs: https://render.com/docs/blueprint-spec
+# ==========================================
+
+services:
+  # ── Backend API (Node.js / Express) ──
+  - type: web
+    name: gestor-tareas-api
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+
+    # Variables de entorno para Render
+    # Los valores sensibles se configuran en el dashboard de Render
+    # usando el botón "Environment" → "Add Environment Variable"
+    envVars:
+      # ── Base de datos (TiDB Cloud) ──
+      - key: DB_HOST
+        value: gateway01.us-east-1.prod.aws.tidbcloud.com
+      - key: DB_PORT
+        value: "4000"
+      - key: DB_USER
+        sync: false  # Configurar manualmente en el dashboard de Render
+      - key: DB_PASSWORD
+        sync: false  # Configurar manualmente en el dashboard de Render
+      - key: DB_NAME
+        value: test
+      - key: DB_SSL
+        value: "true"
+
+      # ── JWT ──
+      - key: JWT_SECRET
+        generateValue: true  # Render genera un valor seguro automáticamente
+      - key: JWT_EXPIRATION
+        value: 8h
+
+      # ── CORS ──
+      - key: FRONTEND_URL
+        sync: false  # Configurar con la URL de Vercel
+
+      # ── Puerto (Render lo asigna automáticamente) ──
+      - key: PORT
+        value: "3000"
+
+    # Health check para verificar que el servicio está activo
+    healthCheckPath: /api/usuarios
+    autoDeploy: true
